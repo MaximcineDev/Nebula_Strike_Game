@@ -3,7 +3,7 @@ package com.nebulastrike.spacefighter.data
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.scifigame.spacefighter.billing.BillingManager
+import com.nebulastrike.spacefighter.billing.BillingManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
