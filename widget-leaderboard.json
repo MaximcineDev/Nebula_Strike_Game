@@ -1,0 +1,7 @@
+"widgets": [
+  {
+    "name": "Nebula Strike Daily",
+    "template": "daily-widget",
+    "data": "/api/widget-daily.json"
+  }
+]
