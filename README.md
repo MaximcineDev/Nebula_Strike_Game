@@ -55,3 +55,22 @@ A fast-paced 3D sci-fi space shooter for Android with stunning OpenGL ES graphic
 - Android Studio Hedgehog (2023.1.1) or newer
 - Android SDK 24+ (Android 7.0 Nougat)
 - Kotlin plugin enabled
+
+## 🎯 Two Ways to Play
+
+### 📱 Native Android App (Recommended)
+- **Best performance** with OpenGL ES
+- **Full game** with 9 levels
+- **Google Play IAP** for coins & power-ups
+- **Offline career mode**
+- [Download on Google Play](link)
+
+### 🌐 Web Browser (Instant Play)
+- **No install required** - play in seconds
+- **First 3 levels free**
+- **Progressive Web App** - works offline
+- **Transfer progress** to native app via QR code
+- [Play Now](https://nebulastrike.app)
+
+## 🔄 Cross-Platform Sync
+Scan QR code in web version to transfer progress to native app!

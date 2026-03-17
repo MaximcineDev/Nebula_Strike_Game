@@ -1,0 +1,174 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2024-01-15T10:30:00Z",
+  "formats": {
+    "android": {
+      "textureFormat": "etc2",
+      "audioFormat": "ogg",
+      "modelFormat": "binary"
+    },
+    "web": {
+      "textureFormat": "webp",
+      "audioFormat": "mp3",
+      "modelFormat": "json"
+    }
+  },
+  "assets": {
+    "textures": {
+      "spaceship-diffuse": {
+        "source": "raw/textures/spaceship-diffuse.png",
+        "android": "processed/android/textures/spaceship-diffuse.etc2",
+        "web": "processed/web/textures/spaceship-diffuse.webp",
+        "width": 512,
+        "height": 512,
+        "channels": 4
+      },
+      "spaceship-normal": {
+        "source": "raw/textures/spaceship-normal.png",
+        "android": "processed/android/textures/spaceship-normal.etc2",
+        "web": "processed/web/textures/spaceship-normal.webp",
+        "width": 512,
+        "height": 512,
+        "channels": 3
+      },
+      "asteroid-diffuse": {
+        "source": "raw/textures/asteroid-diffuse.png",
+        "android": "processed/android/textures/asteroid-diffuse.etc2",
+        "web": "processed/web/textures/asteroid-diffuse.webp",
+        "width": 256,
+        "height": 256,
+        "channels": 4
+      },
+      "nebula-background": {
+        "source": "raw/textures/nebula-background.png",
+        "android": "processed/android/textures/nebula-background.etc2",
+        "web": "processed/web/textures/nebula-background.webp",
+        "width": 1024,
+        "height": 2048,
+        "channels": 4
+      },
+      "particle-fire": {
+        "source": "raw/textures/particle-fire.png",
+        "android": "processed/android/textures/particle-fire.etc2",
+        "web": "processed/web/textures/particle-fire.webp",
+        "width": 128,
+        "height": 128,
+        "channels": 4
+      },
+      "particle-spark": {
+        "source": "raw/textures/particle-spark.png",
+        "android": "processed/android/textures/particle-spark.etc2",
+        "web": "processed/web/textures/particle-spark.webp",
+        "width": 64,
+        "height": 64,
+        "channels": 4
+      },
+      "ui-atlas": {
+        "source": "raw/textures/ui/",
+        "android": "processed/android/textures/ui-atlas.etc2",
+        "web": "processed/web/textures/ui-atlas.webp",
+        "width": 512,
+        "height": 512,
+        "channels": 4,
+        "isAtlas": true,
+        "sprites": {
+          "logo": { "x": 0, "y": 0, "w": 400, "h": 200 },
+          "button-play": { "x": 0, "y": 200, "w": 200, "h": 80 },
+          "button-shop": { "x": 200, "y": 200, "w": 200, "h": 80 },
+          "icon-coin": { "x": 400, "y": 0, "w": 64, "h": 64 },
+          "icon-heart": { "x": 400, "y": 64, "w": 64, "h": 64 },
+          "icon-shield": { "x": 400, "y": 128, "w": 64, "h": 64 },
+          "icon-laser": { "x": 464, "y": 0, "w": 48, "h": 48 }
+        }
+      }
+    },
+    "audio": {
+      "laser-shoot": {
+        "source": "raw/audio/laser-shoot.wav",
+        "android": "processed/android/audio/laser-shoot.ogg",
+        "web": "processed/web/audio/laser-shoot.mp3",
+        "duration": 0.3,
+        "loop": false
+      },
+      "explosion": {
+        "source": "raw/audio/explosion.wav",
+        "android": "processed/android/audio/explosion.ogg",
+        "web": "processed/web/audio/explosion.mp3",
+        "duration": 0.8,
+        "loop": false,
+        "variations": 3
+      },
+      "powerup": {
+        "source": "raw/audio/powerup.wav",
+        "android": "processed/android/audio/powerup.ogg",
+        "web": "processed/web/audio/powerup.mp3",
+        "duration": 1.2,
+        "loop": false
+      },
+      "game-over": {
+        "source": "raw/audio/game-over.wav",
+        "android": "processed/android/audio/game-over.ogg",
+        "web": "processed/web/audio/game-over.mp3",
+        "duration": 3.0,
+        "loop": false
+      },
+      "background-music": {
+        "source": "raw/audio/background-music.wav",
+        "android": "processed/android/audio/background-music.ogg",
+        "web": "processed/web/audio/background-music.mp3",
+        "duration": 120.0,
+        "loop": true,
+        "stream": true
+      }
+    },
+    "models": {
+      "spaceship": {
+        "source": "raw/models/spaceship.blend",
+        "android": "processed/android/models/spaceship.bin",
+        "web": "processed/web/models/spaceship.json",
+        "vertexCount": 156,
+        "triangleCount": 86,
+        "hasNormals": true,
+        "hasUVs": true
+      },
+      "asteroid-small": {
+        "source": "raw/models/asteroid.blend",
+        "android": "processed/android/models/asteroid-small.bin",
+        "web": "processed/web/models/asteroid-small.json",
+        "vertexCount": 64,
+        "triangleCount": 32,
+        "seed": 12345
+      },
+      "asteroid-medium": {
+        "source": "raw/models/asteroid.blend",
+        "android": "processed/android/models/asteroid-medium.bin",
+        "web": "processed/web/models/asteroid-medium.json",
+        "vertexCount": 96,
+        "triangleCount": 48,
+        "seed": 67890
+      },
+      "asteroid-large": {
+        "source": "raw/models/asteroid.blend",
+        "android": "processed/android/models/asteroid-large.bin",
+        "web": "processed/web/models/asteroid-large.json",
+        "vertexCount": 128,
+        "triangleCount": 64,
+        "seed": 11111
+      }
+    },
+    "data": {
+      "levels": {
+        "source": "raw/data/levels/",
+        "android": "processed/android/data/levels.json",
+        "web": "processed/web/data/levels.json",
+        "count": 9
+      },
+      "localization": {
+        "source": "raw/data/strings/",
+        "android": "processed/android/data/strings.xml",
+        "web": "processed/web/data/strings.json",
+        "languages": ["en", "es", "fr", "de", "ja", "zh"]
+      }
+    }
+  }
+}

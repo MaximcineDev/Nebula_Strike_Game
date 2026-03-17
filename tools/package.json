@@ -1,0 +1,14 @@
+{
+  "name": "nebula-strike-tools",
+  "version": "1.0.0",
+  "description": "Asset processing tools for Nebula Strike",
+  "scripts": {
+    "pack-textures": "node texture-packer.js ../shared-assets/raw/textures/ui ../shared-assets/processed",
+    "pack-all": "node texture-packer.js",
+    "install-deps": "npm install canvas sharp"
+  },
+  "dependencies": {
+    "canvas": "^2.11.2",
+    "sharp": "^0.33.0"
+  }
+}

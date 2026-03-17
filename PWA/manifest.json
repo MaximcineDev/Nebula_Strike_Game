@@ -1,0 +1,135 @@
+{
+  "name": "Nebula Strike",
+  "short_name": "NebulaStrike",
+  "description": "A fast-paced 3D sci-fi space shooter with stunning OpenGL graphics and addictive arcade gameplay",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a1a",
+  "theme_color": "#00d4ff",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["games", "action", "arcade"],
+  "screenshots": [
+    {
+      "src": "screenshots/gameplay-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Intense space combat gameplay"
+    },
+    {
+      "src": "screenshots/gameplay-narrow.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mobile gameplay screenshot"
+    },
+    {
+      "src": "screenshots/shop.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "In-game shop with upgrades"
+    }
+  ],
+  "icons": [
+    {
+      "src": "icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Continue Game",
+      "short_name": "Continue",
+      "description": "Resume your last session",
+      "url": "/?action=continue",
+      "icons": [{ "src": "icons/shortcut-play.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Daily Rewards",
+      "short_name": "Rewards",
+      "description": "Claim your daily bonus",
+      "url": "/?action=rewards",
+      "icons": [{ "src": "icons/shortcut-gift.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Leaderboard",
+      "short_name": "Rankings",
+      "description": "View global high scores",
+      "url": "/?action=leaderboard",
+      "icons": [{ "src": "icons/shortcut-trophy.png", "sizes": "96x96" }]
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.nebulastrike.spacefighter",
+      "id": "com.nebulastrike.spacefighter"
+    }
+  ],
+  "prefer_related_applications": false,
+  "iarc_rating_id": "e84b201d-4a17-4a56-9b81-2f3fba3e9c3a",
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "name",
+      "text": "description",
+      "url": "link"
+    }
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+nebulastrike",
+      "url": "/join?code=%s"
+    }
+  ]
+}

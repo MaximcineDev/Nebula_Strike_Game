@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nebula Strike - Shop</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .shop-container {
+      padding: 20px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .shop-item {
+      background: var(--color-bg-secondary);
+      border: 2px solid var(--color-primary);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="shop-container">
+    <h1 style="text-align: center; color: var(--color-primary); margin-bottom: 30px;">
+      🛒 NEBULA SHOP
+    </h1>
+    <div id="shop-items"></div>
+    <button onclick="history.back()" class="menu-btn" style="width: 100%; margin-top: 20px;">
+      ← Back to Game
+    </button>
+  </div>
+  
+  <script>
+    // Simple shop implementation
+    const items = [
+      { id: 'shields', name: 'Shield Pack', icon: '🛡️', cost: 200, count: 3 },
+      { id: 'laserUpgrades', name: 'Laser Boost', icon: '⚡', cost: 300, count: 3 },
+      { id: 'coins', name: 'Coin Pack', icon: '💰', cost: 0, realMoney: '$0.99' }
+    ];
+    
+    const container = document.getElementById('shop-items');
+    const state = JSON.parse(localStorage.getItem('nebula_inventory') || '{}');
+    const coins = parseInt(localStorage.getItem('nebula_coins')) || 0;
+    
+    items.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'shop-item';
+      div.innerHTML = `
+        <div style="font-size: 3rem;">${item.icon}</div>
+        <div style="flex: 1;">
+          <h3 style="color: var(--color-primary); margin-bottom: 5px;">${item.name}</h3>
+          <p style="color: var(--color-text-muted); font-size: 0.9rem;">
+            ${item.count ? `Get ${item.count} ${item.name.split(' ')[0]}s` : 'Purchase with real money'}
+          </p>
+        </div>
+        <button class="menu-btn ${item.cost > coins ? '' : 'primary'}" 
+                ${item.cost > coins ? 'disabled' : ''}
+                onclick="buy('${item.id}', ${item.cost})">
+          ${item.realMoney || item.cost + ' coins'}
+        </button>
+      `;
+      container.appendChild(div);
+    });
+    
+    function buy(id, cost) {
+      let coins = parseInt(localStorage.getItem('nebula_coins')) || 0;
+      if (coins >= cost) {
+        coins -= cost;
+        localStorage.setItem('nebula_coins', coins);
+        
+        const inv = JSON.parse(localStorage.getItem('nebula_inventory') || '{}');
+        inv[id] = (inv[id] || 0) + 3;
+        localStorage.setItem('nebula_inventory', JSON.stringify(inv));
+        
+        alert('Purchase successful!');
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>
