@@ -36,9 +36,9 @@ A fast-paced 3D sci-fi space shooter for Android with stunning OpenGL ES graphic
 
 ## 📱 Screenshots
 
-| Main Menu | Gameplay | Shop |
-|-----------|----------|------|
-| ![Menu](screenshots/menu.png) | ![Game](screenshots/gameplay.jpg) | ![Shop](screenshots/shop.png) |
+| Main Menu | Gameplay | Level Select | Shop |
+|-----------|----------|--------------|------|
+| ![Menu](screenshots/menu.png) | ![Game](screenshots/gameplay.jpg) | ![Level Select](screenshots/level_select.png) | ![Shop](screenshots/shop.png) |
 
 ## 🛠️ Tech Stack
 
