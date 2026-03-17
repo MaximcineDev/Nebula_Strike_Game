@@ -1,0 +1,6 @@
+"display_override": [
+  "window-controls-overlay",
+  "tabbed", 
+  "standalone",
+  "minimal-ui"
+]
