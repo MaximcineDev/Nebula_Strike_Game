@@ -1,76 +1,122 @@
-# 🚀 Nebula Strike
+# 🚀 NEBULA STRIKE
 
-[![Platform](https://img.shields.io/badge/platform-Android-green.svg)](https://www.android.com)
-[![Language](https://img.shields.io/badge/language-Kotlin-blue.svg)](https://kotlinlang.org)
-[![API](https://img.shields.io/badge/API-24%2B-orange.svg)](https://developer.android.com/about/dashboards)
-[![License](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Android%20%7C%20Web-blue.svg)](https://github.com/yourusername/nebula-strike)
+[![Language](https://img.shields.io/badge/Kotlin%20%7C%20JavaScript-orange.svg)](https://kotlinlang.org)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![API](https://img.shields.io/badge/API-24%2B-34A853?logo=android)](https://developer.android.com)
+[![PWA](https://img.shields.io/badge/PWA-Ready-5A0FC8?logo=pwa)](https://web.dev/progressive-web-apps/)
 
-A fast-paced 3D sci-fi space shooter for Android with stunning OpenGL ES graphics, in-app purchases, and addictive arcade gameplay.
+**A fast-paced 3D sci-fi space shooter with stunning graphics, available on Android and Web.**
 
-![Game Screenshot](screenshots/gameplay.png)
+Play instantly in your browser or install the native Android app for the best experience. Both versions share the same assets, gameplay, and progression system.
+
+&lt;p align="center"&gt;
+  &lt;img src="shared-assets/raw/textures/ui/logo.png" alt="Nebula Strike" width="400"&gt;
+&lt;/p&gt;
+
+---
 
 ## 🎮 Features
 
-### Core Gameplay
-- **Intense 3D Action** - Smooth 60fps OpenGL ES 2.0 graphics
-- **Touch Controls** - Intuitive drag-to-move with ship banking physics
-- **Procedural Enemies** - Dynamic asteroid generation with rotation
-- **Particle Effects** - Explosive visual feedback with glowing particles
-- **Parallax Starfield** - Immersive 3D background with depth
+### Core Gameplay (Both Platforms)
+- **Intense 3D Action** — Smooth 60fps with OpenGL ES (Android) or WebGL (PWA)
+- **Touch & Mouse Controls** — Intuitive drag-to-move with ship banking physics
+- **Procedural Enemies** — Dynamic asteroids with unique shapes and behaviors
+- **Particle Effects** — Explosive visual feedback with glowing fire and electric sparks
+- **Parallax Starfield** — Immersive 3D background with depth scrolling
 
-### Progression System
-- **9 Challenging Levels** - Increasing difficulty with unique layouts
-- **Coin Economy** - Earn coins by destroying enemies and completing levels
-- **High Score Tracking** - Compete for the best score
-- **Level Unlocking** - Progress through the galaxy
+### Cross-Platform Progression
+- **Unified Save System** — Progress syncs between Android and Web via QR code
+- **12 Languages** — Full localization: English, Spanish, French, German, Italian, Portuguese, Russian, Japanese, Korean, Chinese, Arabic, Hindi
+- **9 Challenging Levels** — Increasing difficulty with boss battle at level 9
+- **Dual Economy** — Earn coins in-game or purchase with real money
 
-### Shop & IAP
-- **Dual Currency** - Earn coins in-game or purchase with real money
-- **Consumable Power-ups**:
-  - 🛡️ Shield Boosters (temporary invincibility)
-  - ⚡ Laser Upgrades (enhanced firepower)
-- **Permanent Unlocks**:
-  - 🚀 Premium Ship (unique design and stats)
-  - 📦 Level Pack 2 (levels 4-6)
-  - 🚫 Remove Ads (clean experience)
+### Platform-Specific Features
 
-## 📱 Screenshots
+| Feature | Android (Kotlin) | PWA (WebGL) |
+|---------|-----------------|-------------|
+| **Performance** | Native OpenGL ES 2.0 | WebGL 2.0 with fallback |
+| **Install** | Google Play / APK | Browser install, no store |
+| **Offline Play** | Full offline career | Cached levels 1-3 offline |
+| **File Size** | ~15MB optimized | ~8MB initial, stream rest |
+| **IAP** | Google Play Billing | Stripe / Web Payments API |
+| **Notifications** | Push + Local | Web Push API |
+| **Haptics** | Vibration feedback | Vibration API (limited) |
+| **Updates** | Play Store | Instant (service worker) |
 
-| Main Menu | Gameplay | Level Select | Shop |
-|-----------|----------|--------------|------|
-| ![Menu](screenshots/menu.png) | ![Game](screenshots/gameplay.jpg) | ![Level Select](screenshots/level_select.png) | ![Shop](screenshots/shop.png) |
+---
+
+## 📱 Play Now
+
+### Android
+&lt;a href="https://play.google.com/store/apps/details?id=com.nebulastrike.spacefighter"&gt;
+  &lt;img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="80"&gt;
+&lt;/a&gt;
+
+**Or sideload:** [Download APK](https://github.com/yourusername/nebula-strike/releases)
+
+### Web / PWA
+🌐 **[Play Instantly](https://nebulastrike.app)** — No install required
+
+**Install as App:**
+- **Chrome/Edge:** Click "Install" in address bar
+- **Safari iOS:** Share → Add to Home Screen
+- **Samsung:** Menu → Add to Home screen
+
+---
 
 ## 🛠️ Tech Stack
 
-- **Language**: Kotlin 1.9+
-- **Graphics**: OpenGL ES 2.0
-- **Architecture**: Component-based game engine
-- **Billing**: Google Play Billing Library 6.1+
-- **Persistence**: SharedPreferences
-- **Async**: Kotlin Coroutines & Flow
+### Android (Kotlin)
+- **Language:** Kotlin 1.9+
+- **Graphics:** OpenGL ES 2.0 with custom shaders
+- **Architecture:** MVVM + Component-based game engine
+- **Billing:** Google Play Billing Library 6.1+
+- **Persistence:** Room Database + SharedPreferences
+- **Async:** Kotlin Coroutines & Flow
+
+### PWA (JavaScript)
+- **Language:** ES2022+ (modules)
+- **Graphics:** WebGL 2.0 (with WebGL 1 fallback)
+- **Build:** Vanilla JS (no framework dependency)
+- **Storage:** IndexedDB + localStorage
+- **Sync:** Background Sync API
+- **Install:** Web App Manifest + Service Worker
+
+### Shared Pipeline
+- **Assets:** Single source in `shared-assets/raw/`
+- **Textures:** PNG → ETC2 (Android) / WebP (Web)
+- **Audio:** WAV → OGG (Android) / MP3 (Web)
+- **Models:** Blender → Binary (Android) / JSON (Web)
+- **Data:** JSON with platform-specific converters
+
+---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Android Studio Hedgehog (2023.1.1) or newer
-- Android SDK 24+ (Android 7.0 Nougat)
-- Kotlin plugin enabled
 
-## 🎯 Two Ways to Play
+| Tool | Android | PWA | Both |
+|------|---------|-----|------|
+| Android Studio Hedgehog+ | ✅ | | |
+| Android SDK 24+ | ✅ | | |
+| Node.js 18+ | | ✅ | |
+| Python 3.9+ | | | ✅ |
+| FFmpeg | | | ✅ (audio) |
+| ImageMagick | | | ✅ (textures) |
 
-### 📱 Native Android App (Recommended)
-- **Best performance** with OpenGL ES
-- **Full game** with 9 levels
-- **Google Play IAP** for coins & power-ups
-- **Offline career mode**
-- [Download on Google Play](link)
+### Quick Setup
 
-### 🌐 Web Browser (Instant Play)
-- **No install required** - play in seconds
-- **First 3 levels free**
-- **Progressive Web App** - works offline
-- **Transfer progress** to native app via QR code
-- [Play Now](https://nebulastrike.app)
+```bash
+# 1. Clone repository
+git clone https://github.com/yourusername/nebula-strike.git
+cd nebula-strike
 
-## 🔄 Cross-Platform Sync
-Scan QR code in web version to transfer progress to native app!
+# 2. Setup shared assets
+python tools/setup-complete-assets.py
+
+# 3. Generate all assets (textures, audio, models, levels, strings)
+python tools/generate-all.py
+
+# 4. Convert to platform formats
+python tools/convert-assets.py
