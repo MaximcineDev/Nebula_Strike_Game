@@ -1,229 +1,71 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#0a0a1a">
-  <meta name="description" content="Nebula Strike - A fast-paced 3D space shooter">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  
-  <title>Nebula Strike</title>
-  
-<!-- Styles -->
-  <link rel="stylesheet" href="/styles.css">
-  
-  <!-- Preload critical assets -->
-  <link rel="preload" href="/assets/ui/logo.png" as="image">
-  <link rel="preload" href="/fonts/orbitron.woff2" as="font" type="font/woff2" crossorigin>
-</head>
-<body>
-  <!-- Install Prompt -->
-  <div id="install-prompt" class="install-prompt hidden">
-    <div class="install-content">
-      <img src="/icons/icon-72x72.png" alt="Nebula Strike" class="install-icon">
-      <div class="install-text">
-        <h3>Install Nebula Strike</h3>
-        <p>Play offline, full screen, no browser chrome</p>
-      </div>
-      <button id="install-btn" class="install-btn">Install</button>
-      <button id="dismiss-install" class="dismiss-btn">×</button>
-    </div>
-  </div>
-  
-  <!-- Offline Indicator -->
-  <div id="offline-indicator" class="offline-indicator hidden">
-    <span>⚠️ Offline Mode</span>
-  </div>
-  
-  <!-- Update Available -->
-  <div id="update-prompt" class="update-prompt hidden">
-    <span>New version available!</span>
-    <button id="update-btn">Update Now</button>
-  </div>
-  
-  <!-- Game Container -->
-  <div id="game-container" class="game-container">
-    <canvas id="game-canvas"></canvas>
-    
-    <!-- Loading Screen -->
-    <div id="loading-screen" class="loading-screen">
-      <div class="loading-logo">
-        <img src="/assets/ui/logo.png" alt="Nebula Strike">
-        <div class="loading-bar">
-          <div class="loading-progress"></div>
-        </div>
-        <p class="loading-text">Loading...</p>
-      </div>
-    </div>
-    
-    <!-- Main Menu -->
-    <div id="main-menu" class="main-menu hidden">
-      <img src="/assets/ui/logo.png" alt="Nebula Strike" class="menu-logo">
-      <div class="menu-buttons">
-        <button id="btn-play" class="menu-btn primary">
-          <span class="btn-icon">▶</span> Play Now
-        </button>
-        <button id="btn-continue" class="menu-btn hidden">
-          <span class="btn-icon">↻</span> Continue
-        </button>
-        <button id="btn-shop" class="menu-btn">
-          <span class="btn-icon">🛒</span> Shop
-        </button>
-        <button id="btn-leaderboard" class="menu-btn">
-          <span class="btn-icon">🏆</span> Leaderboard
-        </button>
-        <button id="btn-settings" class="menu-btn">
-          <span class="btn-icon">⚙</span> Settings
-        </button>
-      </div>
-      <div class="menu-stats">
-        <span class="stat">💰 <span id="menu-coins">0</span></span>
-        <span class="stat">⭐ High Score: <span id="menu-highscore">0</span></span>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Service Worker Registration -->
-  <script>
-    // Register Service Worker
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', async () => {
-        try {
-          const registration = await navigator.serviceWorker.register('/service-worker.js');
-          console.log('[PWA] SW registered:', registration.scope);
-          
-          // Check for updates
-          registration.addEventListener('updatefound', () => {
-            const newWorker = registration.installing;
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                showUpdatePrompt(newWorker);
-              }
-            });
-          });
-          
-          // Listen for messages from SW
-          navigator.serviceWorker.addEventListener('message', (event) => {
-            if (event.data.type === 'ASSETS_CACHED') {
-              console.log(`[PWA] ${event.data.count} assets cached`);
-            }
-          });
-          
-        } catch (error) {
-          console.error('[PWA] SW registration failed:', error);
-        }
-      });
-    }
-    
-    // Install Prompt
-    let deferredPrompt;
-    const installPrompt = document.getElementById('install-prompt');
-    const installBtn = document.getElementById('install-btn');
-    const dismissBtn = document.getElementById('dismiss-install');
-    
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      
-      // Show prompt after 30 seconds of gameplay
-      setTimeout(() => {
-        if (!localStorage.getItem('install-dismissed')) {
-          installPrompt.classList.remove('hidden');
-        }
-      }, 30000);
-    });
-    
-    installBtn.addEventListener('click', async () => {
-      if (!deferredPrompt) return;
-      
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      
-      if (outcome === 'accepted') {
-        console.log('[PWA] User installed app');
-        installPrompt.classList.add('hidden');
-      }
-      
-      deferredPrompt = null;
-    });
-    
-    dismissBtn.addEventListener('click', () => {
-      installPrompt.classList.add('hidden');
-      localStorage.setItem('install-dismissed', 'true');
-    });
-    
-    // Update Prompt
-    function showUpdatePrompt(worker) {
-      const updatePrompt = document.getElementById('update-prompt');
-      const updateBtn = document.getElementById('update-btn');
-      
-      updatePrompt.classList.remove('hidden');
-      
-      updateBtn.addEventListener('click', () => {
-        worker.postMessage({ type: 'SKIP_WAITING' });
-        window.location.reload();
-      });
-    }
-    
-    // Online/Offline Detection
-    const offlineIndicator = document.getElementById('offline-indicator');
-    
-    function updateOnlineStatus() {
-      if (navigator.onLine) {
-        offlineIndicator.classList.add('hidden');
-        document.body.classList.remove('offline');
-      } else {
-        offlineIndicator.classList.remove('hidden');
-        document.body.classList.add('offline');
-      }
-    }
-    
-    window.addEventListener('online', updateOnlineStatus);
-    window.addEventListener('offline', updateOnlineStatus);
-    updateOnlineStatus();
-    
-    // Background Sync Registration
-    async function registerBackgroundSync() {
-      if ('serviceWorker' in navigator && 'sync' in registration) {
-        try {
-          await registration.sync.register('sync-scores');
-          console.log('[PWA] Background sync registered');
-        } catch (error) {
-          console.error('[PWA] Background sync failed:', error);
-        }
-      }
-    }
-    
-    // Cache Status Check
-    async function checkCacheStatus() {
-      if (!navigator.serviceWorker.controller) return;
-      
-      const messageChannel = new MessageChannel();
-      
-      return new Promise((resolve) => {
-        messageChannel.port1.onmessage = (event) => {
-          resolve(event.data);
-        };
-        
-        navigator.serviceWorker.controller.postMessage(
-          { type: 'GET_CACHE_STATUS' },
-          [messageChannel.port2]
-        );
-      });
-    }
-    
-    // Preload game assets after initial load
-    window.addEventListener('load', () => {
-      if (navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage({
-          type: 'CACHE_GAME_ASSETS'
+
+  <!-- Manifest -->
+<link rel="manifest" href="./manifest.json">
+
+<!-- Service Worker Registration -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    try {
+
+      const registration = await navigator.serviceWorker.register('./service-worker.js');
+
+      console.log('[PWA] SW registered:', registration.scope);
+
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+
+        newWorker.addEventListener('statechange', () => {
+          if (
+            newWorker.state === 'installed' &&
+            navigator.serviceWorker.controller
+          ) {
+            showUpdatePrompt(newWorker);
+          }
         });
-      }
-    });
-  </script>
-  
-  <!-- Game Scripts -->
-  <script src="/app.js" type="module"></script>
-</body>
-</html>
+      });
+
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data?.type === 'ASSETS_CACHED') {
+          console.log(`[PWA] ${event.data.count} assets cached`);
+        }
+      });
+
+    } catch (error) {
+      console.error('[PWA] SW registration failed:', error);
+    }
+  });
+}
+
+
+// Install Prompt
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+});
+
+function showUpdatePrompt(worker) {
+  console.log("Update available");
+
+  worker.postMessage({ type: "SKIP_WAITING" });
+  window.location.reload();
+}
+
+
+// Online / Offline
+function updateOnlineStatus() {
+  if (navigator.onLine) {
+    document.body.classList.remove('offline');
+  } else {
+    document.body.classList.add('offline');
+  }
+}
+
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+updateOnlineStatus();
+
+</script>
