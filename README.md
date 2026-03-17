@@ -105,18 +105,3 @@ Play instantly in your browser or install the native Android app for the best ex
 | FFmpeg | | | ✅ (audio) |
 | ImageMagick | | | ✅ (textures) |
 
-### Quick Setup
-
-```bash
-# 1. Clone repository
-git clone https://github.com/yourusername/nebula-strike.git
-cd nebula-strike
-
-# 2. Setup shared assets
-python tools/setup-complete-assets.py
-
-# 3. Generate all assets (textures, audio, models, levels, strings)
-python tools/generate-all.py
-
-# 4. Convert to platform formats
-python tools/convert-assets.py
