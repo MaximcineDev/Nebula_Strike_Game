@@ -3,6 +3,44 @@
    Space-themed cyberpunk aesthetic
    ============================================ */
 
+/* styles.css */
+:root {
+  --title-bar-height: 33px;
+}
+
+/* When overlay is active */
+@supports (title-bar-area-x: 0) {
+  body {
+    margin-top: env(title-bar-area-height, 0);
+  }
+  
+  .game-header {
+    position: fixed;
+    top: 0;
+    left: env(title-bar-area-x, 0);
+    width: env(title-bar-area-width, 100%);
+    height: env(title-bar-area-height, 33px);
+    -webkit-app-region: drag;
+    app-region: drag;
+  }
+}
+
+/* Custom title bar content */
+.title-bar-content {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  height: 100%;
+  background: linear-gradient(90deg, #0a0a1a, #1a1a2e);
+  color: #00d4ff;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.title-bar-content button {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
 /* CSS Variables for theming */
 :root {
   --color-bg: #0a0a1a;
