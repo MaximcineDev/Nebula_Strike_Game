@@ -226,9 +226,20 @@
     "new_note_url": "/notes/new"
   }
 }
+
 "display_override": [
   "window-controls-overlay",
   "tabbed", 
   "standalone",
   "minimal-ui"
 ]
+
+"web_apps": [
+    {
+      "manifest": "https://nebulastrike.app/manifest.json",
+      "details": {
+        "paths": ["/*"],
+        "exclude_paths": ["/api/*", "/admin/*"]
+      }
+    }
+  ]
