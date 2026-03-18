@@ -217,7 +217,7 @@
           "label": "Leaderboard widget"
         }
       ],
-      "icons": [{ "src": "icons/widget-icon.png", "sizes": "96x96" }]
+      "icons": [{ "src": "icons/widget-icon2.png", "sizes": "96x96" }]
     }
   ],
   
