@@ -226,3 +226,9 @@
     "new_note_url": "/notes/new"
   }
 }
+"display_override": [
+  "window-controls-overlay",
+  "tabbed", 
+  "standalone",
+  "minimal-ui"
+]
