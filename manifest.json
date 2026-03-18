@@ -2,18 +2,11 @@
   "id": "com.nebulastrike.spacefighter",
   "name": "Nebula Strike",
   "short_name": "NebulaStrike",
-  "description": "A fast-paced 3D sci-fi space shooter with stunning OpenGL graphics and addictive arcade gameplay",
+  "description": "Fast-paced sci-fi space shooter with arcade gameplay",
 
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "display_override": [
-    "window-controls-overlay",
-    "tabbed",
-    "standalone",
-    "minimal-ui"
-  ],
-
   "orientation": "portrait",
 
   "background_color": "#0a0a1a",
@@ -23,29 +16,58 @@
   "dir": "ltr",
 
   "categories": ["games", "action", "arcade"],
-  "content_rating": "everyone",
 
-  "scope_extensions": [
-    {
-      "origin": "https://*.nebulastrike.app"
-    },
-    {
-      "origin": "https://nebulastrike.pages.dev"
-    },
-    {
-      "origin": "https://nebulastrike.vercel.app"
-    }
-  ],
+  "iarc_rating_id": "e10+",
 
   "icons": [
-    { "src": "icons/icon-72x72.png", "sizes": "72x72", "type": "image/png", "purpose": "maskable any" },
-    { "src": "icons/icon-96x96.png", "sizes": "96x96", "type": "image/png", "purpose": "maskable any" },
-    { "src": "icons/icon-128x128.png", "sizes": "128x128", "type": "image/png", "purpose": "maskable any" },
-    { "src": "icons/icon-144x144.png", "sizes": "144x144", "type": "image/png", "purpose": "maskable any" },
-    { "src": "icons/icon-152x152.png", "sizes": "152x152", "type": "image/png", "purpose": "maskable any" },
-    { "src": "icons/icon-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable any" },
-    { "src": "icons/icon-384x384.png", "sizes": "384x384", "type": "image/png", "purpose": "maskable any" },
-    { "src": "icons/icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable any" }
+    {
+      "src": "icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ],
 
   "screenshots": [
@@ -54,50 +76,47 @@
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Gameplay wide"
+      "label": "Space combat gameplay"
     },
     {
       "src": "screenshots/gameplay-narrow.png",
       "sizes": "750x1334",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Gameplay mobile"
+      "label": "Mobile gameplay"
     }
   ],
 
   "shortcuts": [
     {
       "name": "Continue Game",
-      "short_name": "Continue",
       "url": "/?action=continue",
-      "icons": [{ "src": "icons/shortcut-play.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "icons/shortcut-play.png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
       "name": "Daily Rewards",
-      "short_name": "Rewards",
       "url": "/?action=rewards",
-      "icons": [{ "src": "icons/shortcut-gift.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "icons/shortcut-gift.png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
       "name": "Leaderboard",
-      "short_name": "Rankings",
       "url": "/?action=leaderboard",
-      "icons": [{ "src": "icons/shortcut-trophy.png", "sizes": "96x96" }]
-    }
-  ],
-
-  "launch_handler": {
-    "client_mode": ["focus-existing", "auto"]
-  },
-
-  "file_handlers": [
-    {
-      "action": "/open-replay",
-      "accept": {
-        "application/nebula-replay": [".neb"],
-        "application/json": [".json"]
-      },
-      "icons": [{ "src": "icons/icon-file-replay.png", "sizes": "256x256" }]
+      "icons": [
+        {
+          "src": "icons/shortcut-trophy.png",
+          "sizes": "96x96"
+        }
+      ]
     }
   ],
 
