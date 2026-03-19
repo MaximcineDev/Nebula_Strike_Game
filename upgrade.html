@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Upgrade Required</title>
+</head>
+<body style="background:black;color:white;text-align:center">
+
+<h1>🚀 Upgrade Required</h1>
+
+<p>You reached Level 10</p>
+<p>Unlock premium to continue</p>
+
+<button onclick="buyWithCoins()">Buy with 1000 coins</button>
+<button onclick="buyPremium()">Buy Premium</button>
+
+<script>
+
+function buyWithCoins() {
+
+  let coins = parseInt(localStorage.getItem("nebula_coins")) || 0;
+
+  if (coins >= 1000) {
+
+    coins -= 1000;
+    localStorage.setItem("nebula_coins", coins);
+
+    localStorage.setItem("nebula_premium", "true");
+
+    alert("Unlocked!");
+
+    location.href = "/";
+
+  } else {
+
+    alert("Not enough coins");
+
+  }
+}
+
+function buyPremium() {
+
+  alert("Premium purchase coming soon");
+
+}
+
+</script>
+
+</body>
+</html>
