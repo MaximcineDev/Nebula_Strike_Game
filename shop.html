@@ -40,7 +40,9 @@
       { id: 'shields', name: 'Shield Pack', icon: '🛡️', cost: 200, count: 3 },
       { id: 'laserUpgrades', name: 'Laser Boost', icon: '⚡', cost: 300, count: 3 },
       { id: 'premium', name: 'Premium Unlock', icon: '⭐', cost: 1000 },
-      { id: 'coins', name: 'Coin Pack', icon: '💰', cost: 0, realMoney: '$0.99' }
+      { id: 'coins', name: 'Coin Pack', icon: '💰', cost: 0, realMoney: '$1.99' }
+      { id: 'coins500', name: '500 Coins', icon: '💰', realMoney: '$0.99' },
+      { id: 'coins2000', name: '2000 Coins', icon: '💰', realMoney: '$2.99' },
     ];
     
     const container = document.getElementById('shop-items');
@@ -86,6 +88,30 @@
           return;
 
         }
+
+      if (id === "coins500") {
+
+        let coins =
+          parseInt(localStorage.getItem("nebula_coins")) || 0;
+
+        coins += 500;
+
+        localStorage.setItem("nebula_coins", coins);
+
+        return;
+      }
+
+      if (id === "coins2000") {
+
+        let coins =
+          parseInt(localStorage.getItem("nebula_coins")) || 0;
+
+        coins += 2000;
+
+        localStorage.setItem("nebula_coins", coins);
+
+        return;
+      }
 
         const inv = JSON.parse(
           localStorage.getItem('nebula_inventory') || '{}'
