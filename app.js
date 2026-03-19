@@ -51,6 +51,9 @@ class GameState {
       shields: 2,
       laserUpgrades: 1
     };
+
+    this.premiumUnlocked = localStorage.getItem('nebula_premium') === "true";
+    this.levelLock = 10;
     
     this.sessionScore = 0;
     this.lives = 3;
@@ -112,6 +115,8 @@ class GameState {
     localStorage.setItem('nebula_ships', JSON.stringify(this.ownedShips));
     localStorage.setItem('nebula_selected_ship', this.selectedShip);
     localStorage.setItem('nebula_inventory', JSON.stringify(this.inventory));
+
+    localStorage.setItem('nebula_premium', this.premiumUnlocked);
   }
   
   updateUI() {
@@ -941,6 +946,15 @@ class NebulaStrike {
   }
   
   startGame() {
+
+    if (
+      this.state.currentLevel >= this.state.levelLock &&
+      !this.state.premiumUnlocked
+    ) {
+      this.showUpgradeScreen();
+      return;
+    }
+
     this.resetGame();
     this.ui.menu.classList.add('hidden');
     this.ui.hud.classList.remove('hidden');
@@ -1100,6 +1114,16 @@ class NebulaStrike {
     // Show game over screen
     this.showGameOver();
   }
+
+  levelComplete() {
+
+    this.state.currentLevel++;
+
+    this.state.addCoins(100);
+
+    this.state.save();
+
+  }
   
   saveScore() {
     const scores = JSON.parse(localStorage.getItem('nebula_leaderboard') || '[]');
@@ -1150,6 +1174,10 @@ class NebulaStrike {
   openShop() {
     window.location.href = '/shop.html';
   }
+
+  showUpgradeScreen() {
+    window.location.href = '/upgrade.html';
+  }
   
   update(deltaTime) {
     if (!this.state.isPlaying || this.state.isPaused) return;
@@ -1187,6 +1215,10 @@ class NebulaStrike {
     
     // Collisions
     this.checkCollisions();
+
+    if (this.state.sessionScore > 2000) {
+      this.levelComplete();
+    }
     
     // Update HUD
     this.updateHUD();
