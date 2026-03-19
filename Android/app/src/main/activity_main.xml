@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:ads="http://schemas.android.com/apk/res-auto"
@@ -7,86 +6,106 @@
     android:layout_height="match_parent"
     android:background="#000">
 
-    <!-- GAME VIEW -->
+    <!-- GAME VIEW - OpenGL ES Surface -->
     <com.nebulastrike.spacefighter.GameGLSurfaceView
         android:id="@+id/glSurfaceView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-
-    <!-- TOP UI -->
-    <LinearLayout
+    <!-- UI Layer -->
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp"
-        android:gravity="center_vertical">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/coinText"
-            android:text="💰 0"
-            android:textColor="#00FFFF"
-            android:textSize="18sp"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"/>
+        <!-- TOP UI -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:gravity="center_vertical">
 
-        <Button
-            android:id="@+id/rewardButton"
-            android:text="Watch Ad"
+            <TextView
+                android:id="@+id/coinText"
+                android:text="💰 0"
+                android:textColor="#00FFFF"
+                android:textSize="18sp"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:shadowColor="#000"
+                android:shadowRadius="2"/>
+
+            <Button
+                android:id="@+id/rewardButton"
+                android:text="Watch Ad"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#444"
+                android:textColor="#FFF"/>
+
+        </LinearLayout>
+
+        <!-- BOSS HEALTH BAR -->
+        <ProgressBar
+            android:id="@+id/bossBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:layout_marginTop="50dp"
+            android:max="100"
+            android:progress="100"
+            android:progressTint="#FF0000"
+            android:backgroundTint="#330000"
+            android:visibility="gone"/>
+
+        <!-- BOTTOM UI -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:padding="6dp">
+
+            <Button
+                android:id="@+id/shieldButton"
+                android:text="🛡️"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:textSize="24sp"
+                android:backgroundTint="#444"/>
+
+            <Button
+                android:id="@+id/laserButton"
+                android:text="⚡"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:textSize="24sp"
+                android:backgroundTint="#444"
+                android:layout_marginHorizontal="10dp"/>
+
+            <Button
+                android:id="@+id/shopButton"
+                android:text="Shop"
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:backgroundTint="#444"
+                android:textColor="#FFF"/>
+
+        </LinearLayout>
+
+        <!-- BANNER AD -->
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/adView"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_above="@id/shopButton"
+            android:layout_marginBottom="10dp"
+            ads:adSize="BANNER"
+            ads:adUnitId="ca-app-pub-5850163781981893/7518088125"/>
 
-    </LinearLayout>
-
-
-    <!-- POWERUPS -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:padding="6dp">
-
-        <Button
-            android:id="@+id/shieldButton"
-            android:text="🛡️"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <Button
-            android:id="@+id/laserButton"
-            android:text="⚡"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <Button
-            android:id="@+id/shopButton"
-            android:text="Shop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-    </LinearLayout>
-
-   <ProgressBar
-       android:id="@+id/bossBar"
-       style="?android:attr/progressBarStyleHorizontal"
-       android:layout_width="match_parent"
-       android:layout_height="8dp"
-       android:max="100"
-       android:progress="100"
-       android:layout_alignParentTop="true"
-   />
-    
-    <!-- BANNER AD -->
-    <com.google.android.gms.ads.AdView
-        android:id="@+id/adView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        ads:adSize="BANNER"
-        ads:adUnitId="ca-app-pub-XXXX/BANNER_ID"/>
+    </RelativeLayout>
 
 </RelativeLayout>
