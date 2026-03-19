@@ -41,6 +41,10 @@ class GameRenderer(
     private var bossMaxHealth = 0
     private var levelComplete = false
 
+    // Game Over
+    var isGameOver = false
+    private var continueUsed = false
+
     // Touch
     private var touchX = 0f
     private var touchY = 0f
@@ -127,6 +131,10 @@ class GameRenderer(
                 targetX,
                 targetY
             )
+        }
+
+        if (ship.health <= 0 && !isGameOver) {
+            isGameOver = true
         }
 
         ship.update()
@@ -316,7 +324,9 @@ class GameRenderer(
 }
 
 fun getBossHealth(): Int = bossHealth
-
 fun getBossMaxHealth(): Int = bossMaxHealth
-
 fun isLevelComplete(): Boolean = levelComplete
+
+fun getIsGameOver(): Boolean = isGameOver
+fun setContinueUsed() { continueUsed = true }
+fun canContinue(): Boolean = !continueUsed
