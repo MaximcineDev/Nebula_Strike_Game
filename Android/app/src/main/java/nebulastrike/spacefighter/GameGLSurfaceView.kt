@@ -8,27 +8,22 @@ import com.nebulastrike.spacefighter.data.GameStateManager
 
 class GameGLSurfaceView(
     context: Context,
-    private val level: Int = 1,  // Default level
-    private val gameState: GameStateManager? = null  // Game state
+    private val level: Int = 1,
+    private val gameState: GameStateManager? = null
 ) : GLSurfaceView(context) {
     
-    private val renderer: GameRenderer
+    // Make renderer accessible within the class
+    val renderer: GameRenderer
     
     init {
-        // Set EGL context version 2.0
         setEGLContextClientVersion(2)
-        
-        // Set EGL config chooser
         setEGLConfigChooser(8, 8, 8, 8, 16, 0)
         
-        // Create renderer with all required parameters
-        val safeGameState = gameState ?: GameStateManager(context)  // Create default if null
+        val safeGameState = gameState ?: GameStateManager(context)
         renderer = GameRenderer(context, level, safeGameState)
         
         setRenderer(renderer)
         renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
-        
-        // Preserve EGL context on pause
         preserveEGLContextOnPause = true
     }
     
@@ -37,21 +32,16 @@ class GameGLSurfaceView(
         return true
     }
     
-    // Expose renderer methods for Activity access
+    // Expose renderer methods - THESE MUST BE INSIDE THE CLASS
     fun isGameOver(): Boolean = renderer.getIsGameOver()
     fun isLevelComplete(): Boolean = renderer.isLevelComplete()
     fun getBossHealth(): Int = renderer.getBossHealth()
     fun getBossMaxHealth(): Int = renderer.getBossMaxHealth()
-}
+    fun canContinue(): Boolean = renderer.canContinue()
 
-fun getBossHealth(): Int = renderer.getBossHealth()
-fun getBossMaxHealth(): Int = renderer.getBossMaxHealth()
-fun isLevelComplete(): Boolean = renderer.isLevelComplete()
-fun isGameOver(): Boolean = renderer.getIsGameOver()
-fun canContinue(): Boolean = renderer.canContinue()
-
-fun continueGame() {
-    renderer.ship.health = renderer.ship.maxHealth
-    renderer.isGameOver = false
-    renderer.setContinueUsed()
+    fun continueGame() {
+        renderer.ship.health = renderer.ship.maxHealth
+        renderer.isGameOver = false
+        renderer.setContinueUsed()
+    }
 }
