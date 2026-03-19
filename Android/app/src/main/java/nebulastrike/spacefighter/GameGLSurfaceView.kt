@@ -41,7 +41,7 @@ class GameGLSurfaceView(
 
     fun continueGame() {
         renderer.ship.health = renderer.ship.maxHealth
-        renderer.isGameOver = false
+        renderer.resetGameOver()
         renderer.setContinueUsed()
     }
 }
