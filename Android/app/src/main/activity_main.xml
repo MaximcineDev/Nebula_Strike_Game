@@ -6,16 +6,17 @@
     android:layout_height="match_parent"
     android:background="#000">
 
-    <!-- GAME VIEW - OpenGL ES Surface -->
-    <com.nebulastrike.spacefighter.GameGLSurfaceView
-        android:id="@+id/glSurfaceView"
+    <!-- GL Surface Container -->
+    <FrameLayout
+        android:id="@+id/gameContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
     <!-- UI Layer -->
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clickable="false">
 
         <!-- TOP UI -->
         <LinearLayout
