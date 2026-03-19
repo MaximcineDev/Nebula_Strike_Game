@@ -14,10 +14,9 @@
   <!-- Styles -->
   <link rel="stylesheet" href="./styles.css">
   <script>
-  // Force service worker update on load
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.ready.then(registration => {
-      registration.update();
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      window.location.reload();
     });
   }
 </script>
