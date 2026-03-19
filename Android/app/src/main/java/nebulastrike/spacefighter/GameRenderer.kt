@@ -36,6 +36,11 @@ class GameRenderer(
     private var difficulty = 1f
     private var bossSpawned = false
 
+    // boss health
+    private var bossHealth = 0
+    private var bossMaxHealth = 0
+    private var levelComplete = false
+
     // Touch
     private var touchX = 0f
     private var touchY = 0f
@@ -152,7 +157,8 @@ class GameRenderer(
         ) {
 
             asteroidManager.spawnBoss()
-            bossSpawned = true
+            bossMaxHealth = 100 + level * 20
+            bossHealth = bossMaxHealth
         }
 
         checkCollisions()
@@ -186,11 +192,19 @@ class GameRenderer(
 
                     laser.active = false
 
-                    if (
-                        asteroidManager.damageAsteroid(
-                            asteroid
-                        )
-                    ) {
+                    if (asteroid.isBoss) {
+
+                        bossHealth -= 5
+
+                        if (bossHealth <= 0) {
+
+                            asteroid.active = false
+                            levelComplete = true
+
+                            gameState.addCoins(100 + level * 10)
+                        }
+
+                   } else if (asteroidManager.damageAsteroid(asteroid)) {
 
                         particleSystem.spawnExplosion(
                             asteroid.x,
@@ -300,3 +314,9 @@ class GameRenderer(
         }
     }
 }
+
+fun getBossHealth(): Int = bossHealth
+
+fun getBossMaxHealth(): Int = bossMaxHealth
+
+fun isLevelComplete(): Boolean = levelComplete
