@@ -13,6 +13,7 @@ import com.nebulastrike.spacefighter.data.GameStateManager
 import com.nebulastrike.spacefighter.ui.ShopActivity
 import kotlinx.coroutines.launch
 import android.widget.ProgressBar
+import com.nebulastrike.spacefighter.ui.LevelCompleteDialog
 
 // ADMOB
 import com.google.android.gms.ads.*
@@ -236,6 +237,27 @@ class MainActivity : Activity() {
         }
     }
 
+    private fun showLevelComplete() {
+
+        val level =
+            gameStateManager.currentLevel.value
+
+        LevelCompleteDialog.show(
+            this,
+            level
+        ) {
+
+            gameStateManager.saveCurrentLevel(
+                level + 1
+            )
+
+            showInterstitial()
+
+            finish()
+        }
+    }
+
+    
     // =========================
     // DAILY REWARD
     // =========================
