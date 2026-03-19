@@ -12,6 +12,7 @@ import com.nebulastrike.spacefighter.billing.BillingManager
 import com.nebulastrike.spacefighter.data.GameStateManager
 import com.nebulastrike.spacefighter.ui.ShopActivity
 import kotlinx.coroutines.launch
+import android.widget.ProgressBar
 
 // ADMOB
 import com.google.android.gms.ads.*
@@ -25,12 +26,15 @@ class MainActivity : Activity() {
     private lateinit var glSurfaceView: GameGLSurfaceView
     private lateinit var gameStateManager: GameStateManager
     private lateinit var billingManager: BillingManager
+    
+    private lateinit var bossBar: ProgressBar
 
     private lateinit var coinText: TextView
     private lateinit var shieldButton: Button
     private lateinit var laserButton: Button
     private lateinit var shopButton: Button
     private lateinit var rewardButton: Button
+    
 
     // ADS
     private var rewardedAd: RewardedAd? = null
@@ -112,6 +116,9 @@ class MainActivity : Activity() {
         rewardButton =
             findViewById(R.id.rewardButton)
 
+        bossBar = 
+            findViewById(R.id.bossBar)
+
         shieldButton.setOnClickListener {
 
             if (gameStateManager.useShield()) {
@@ -167,6 +174,34 @@ class MainActivity : Activity() {
         )
     }
 
+    // =========================
+    // BOSS HEALTH
+    // =========================
+
+    private fun updateBossBar() {
+
+        val renderer = glSurfaceView.renderer
+
+        val max = renderer.getBossMaxHealth()
+
+        if (max > 0) {
+
+            bossBar.max = max
+            bossBar.progress =
+                renderer.getBossHealth()
+
+        } else {
+
+            bossBar.progress = 0
+        }
+
+        if (renderer.isLevelComplete()) {
+
+            showLevelComplete()
+        }
+    }
+
+    
     // =========================
     // OBSERVE STATE
     // =========================
@@ -310,7 +345,20 @@ class MainActivity : Activity() {
         glSurfaceView.onPause()
     }
 
-    override fun onResume() {
+    override fun onResume(
+        glSurfaceView.postDelayed(object : Runnable {
+
+            override fun run() {
+
+                updateBossBar()
+
+                glSurfaceView.postDelayed(
+                    this,
+                    100
+                )
+            }
+
+        }, 100)) {
         super.onResume()
         glSurfaceView.onResume()
         billingManager.queryPurchases()
