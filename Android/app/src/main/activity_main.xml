@@ -6,13 +6,13 @@
     android:layout_height="match_parent"
     android:background="#000">
 
-    <!-- GL Surface Container -->
+    <!-- GAME CONTAINER - GL Surface will be added here programmatically -->
     <FrameLayout
         android:id="@+id/gameContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <!-- UI Layer -->
+    <!-- UI LAYER -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
