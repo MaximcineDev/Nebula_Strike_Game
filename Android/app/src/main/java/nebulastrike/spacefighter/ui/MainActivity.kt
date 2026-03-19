@@ -14,15 +14,11 @@ import com.nebulastrike.spacefighter.ui.ShopActivity
 import kotlinx.coroutines.launch
 
 // ADMOB
-import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.*
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
-import com.google.android.gms.ads.rewarded.RewardItem
 
 class MainActivity : Activity() {
 
@@ -49,28 +45,43 @@ class MainActivity : Activity() {
 
         val level = intent.getIntExtra("LEVEL", 1)
 
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        window.addFlags(
+            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+        )
 
-        setContentView(R.layout.activity_main_game)
+        setContentView(
+            R.layout.activity_main_game
+        )
 
-        // ✅ INIT ADMOB
+        // ADMOB INIT
         MobileAds.initialize(this)
 
+        loadBannerAd()
         loadRewardAd()
         loadInterstitialAd()
-        loadBannerAd()
 
         setupGameView(level)
         setupUI()
         observeGameState()
+
+        giveDailyReward()
     }
+
+    // =========================
+    // GAME VIEW
+    // =========================
 
     private fun setupGameView(level: Int) {
 
-        glSurfaceView = findViewById(R.id.glSurfaceView)
+        glSurfaceView =
+            findViewById(R.id.glSurfaceView)
 
         val renderer =
-            GameRenderer(this, level, gameStateManager)
+            GameRenderer(
+                this,
+                level,
+                gameStateManager
+            )
 
         glSurfaceView.setRenderer(renderer)
 
@@ -80,29 +91,40 @@ class MainActivity : Activity() {
         }
     }
 
+    // =========================
+    // UI
+    // =========================
+
     private fun setupUI() {
 
-        coinText = findViewById(R.id.coinText)
-        shieldButton = findViewById(R.id.shieldButton)
-        laserButton = findViewById(R.id.laserButton)
-        shopButton = findViewById(R.id.shopButton)
-        rewardButton = findViewById(R.id.rewardButton)
+        coinText =
+            findViewById(R.id.coinText)
+
+        shieldButton =
+            findViewById(R.id.shieldButton)
+
+        laserButton =
+            findViewById(R.id.laserButton)
+
+        shopButton =
+            findViewById(R.id.shopButton)
+
+        rewardButton =
+            findViewById(R.id.rewardButton)
 
         shieldButton.setOnClickListener {
 
             if (gameStateManager.useShield()) {
 
-                glSurfaceView.renderer.activateShield()
-
                 Toast.makeText(
                     this,
-                    "Shield activated!",
+                    "Shield activated",
                     Toast.LENGTH_SHORT
                 ).show()
 
             } else {
 
-                promptBuyShields()
+                openShop()
 
             }
         }
@@ -111,95 +133,177 @@ class MainActivity : Activity() {
 
             if (gameStateManager.useLaserUpgrade()) {
 
-                glSurfaceView.renderer.activateLaserUpgrade()
-
                 Toast.makeText(
                     this,
-                    "Laser upgraded!",
+                    "Laser upgraded",
                     Toast.LENGTH_SHORT
                 ).show()
 
             } else {
 
-                promptBuyLasers()
+                openShop()
 
             }
         }
 
         shopButton.setOnClickListener {
 
-            startActivity(
-                Intent(this, ShopActivity::class.java)
-            )
-
+            openShop()
         }
 
-        // ✅ WATCH AD FOR COINS
         rewardButton.setOnClickListener {
 
             showRewardAd()
-
         }
-
-        updatePowerUpButtons()
     }
+
+    private fun openShop() {
+
+        startActivity(
+            Intent(
+                this,
+                ShopActivity::class.java
+            )
+        )
+    }
+
+    // =========================
+    // OBSERVE STATE
+    // =========================
 
     private fun observeGameState() {
 
         lifecycleScope.launch {
 
-            gameStateManager.coins.collect { coins ->
+            gameStateManager.coins.collect {
 
-                coinText.text = "💰 $coins"
-
+                coinText.text =
+                    "💰 $it"
             }
         }
 
         lifecycleScope.launch {
 
-            gameStateManager.shieldCount.collect { count ->
+            gameStateManager.shieldCount.collect {
 
-                shieldButton.text = "🛡️ $count"
-                shieldButton.alpha =
-                    if (count > 0) 1f else 0.5f
-
+                shieldButton.text =
+                    "🛡 $it"
             }
         }
 
         lifecycleScope.launch {
 
-            gameStateManager.laserUpgradeCount.collect { count ->
+            gameStateManager.laserUpgradeCount.collect {
 
-                laserButton.text = "⚡ $count"
-                laserButton.alpha =
-                    if (count > 0) 1f else 0.5f
-
+                laserButton.text =
+                    "⚡ $it"
             }
         }
     }
 
-    private fun promptBuyShields() {
+    // =========================
+    // DAILY REWARD
+    // =========================
 
-        startActivity(
-            Intent(this, ShopActivity::class.java)
+    private fun giveDailyReward() {
+
+        val reward =
+            gameStateManager
+                .giveDailyReward()
+
+        if (reward > 0) {
+
+            Toast.makeText(
+                this,
+                "Daily reward +$reward coins",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    // =========================
+    // ADMOB
+    // =========================
+
+    private fun loadBannerAd() {
+
+        adView =
+            findViewById(R.id.adView)
+
+        val request =
+            AdRequest.Builder().build()
+
+        adView.loadAd(request)
+    }
+
+    private fun loadRewardAd() {
+
+        val request =
+            AdRequest.Builder().build()
+
+        RewardedAd.load(
+            this,
+            "ca-app-pub-5850163781981893/3862181045",
+            request,
+            object : RewardedAdLoadCallback() {
+
+                override fun onAdLoaded(
+                    ad: RewardedAd
+                ) {
+                    rewardedAd = ad
+                }
+            }
         )
     }
 
-    private fun promptBuyLasers() {
+    private fun showRewardAd() {
 
-        startActivity(
-            Intent(this, ShopActivity::class.java)
+        if (rewardedAd != null) {
+
+            rewardedAd?.show(this) {
+
+                gameStateManager.addCoins(200)
+
+                Toast.makeText(
+                    this,
+                    "+200 coins",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+        } else {
+
+            loadRewardAd()
+        }
+    }
+
+    private fun loadInterstitialAd() {
+
+        val request =
+            AdRequest.Builder().build()
+
+        InterstitialAd.load(
+            this,
+            "ca-app-pub-5850163781981893/4201092392",
+            request,
+            object :
+                InterstitialAdLoadCallback() {
+
+                override fun onAdLoaded(
+                    ad: InterstitialAd
+                ) {
+                    interstitialAd = ad
+                }
+            }
         )
     }
 
-    private fun updatePowerUpButtons() {
+    fun showInterstitial() {
 
-        shieldButton.text =
-            "🛡️ ${gameStateManager.shieldCount.value}"
-
-        laserButton.text =
-            "⚡ ${gameStateManager.laserUpgradeCount.value}"
+        interstitialAd?.show(this)
     }
+
+    // =========================
 
     override fun onPause() {
         super.onPause()
@@ -215,86 +319,5 @@ class MainActivity : Activity() {
     override fun onDestroy() {
         super.onDestroy()
         billingManager.disconnect()
-    }
-
-    // ============================
-    // ADS
-    // ============================
-
-    private fun loadRewardAd() {
-
-        val adRequest = AdRequest.Builder().build()
-
-        RewardedAd.load(
-            this,
-            "ca-app-pub-5850163781981893/3862181045",
-            adRequest,
-            object : RewardedAdLoadCallback() {
-
-                override fun onAdLoaded(ad: RewardedAd) {
-
-                    rewardedAd = ad
-
-                }
-            }
-        )
-    }
-
-    fun showRewardAd() {
-
-        if (rewardedAd != null) {
-
-            rewardedAd?.show(this) {
-
-                gameStateManager.addCoins(200)
-
-                Toast.makeText(
-                    this,
-                    "+200 coins",
-                    Toast.LENGTH_SHORT
-                ).show()
-
-            }
-
-        } else {
-
-            loadRewardAd()
-
-        }
-    }
-
-    private fun loadInterstitialAd() {
-
-        val adRequest = AdRequest.Builder().build()
-
-        InterstitialAd.load(
-            this,
-            "ca-app-pub-5850163781981893/4201092392",
-            adRequest,
-            object : InterstitialAdLoadCallback() {
-
-                override fun onAdLoaded(ad: InterstitialAd) {
-
-                    interstitialAd = ad
-
-                }
-            }
-        )
-    }
-
-    fun showInterstitial() {
-
-        interstitialAd?.show(this)
-
-    }
-
-    private fun loadBannerAd() {
-
-        adView = findViewById(R.id.adView)
-
-        val adRequest = AdRequest.Builder().build()
-
-        adView.loadAd(adRequest)
-
     }
 }
