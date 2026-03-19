@@ -43,3 +43,15 @@ class GameGLSurfaceView(
     fun getBossHealth(): Int = renderer.getBossHealth()
     fun getBossMaxHealth(): Int = renderer.getBossMaxHealth()
 }
+
+fun getBossHealth(): Int = renderer.getBossHealth()
+fun getBossMaxHealth(): Int = renderer.getBossMaxHealth()
+fun isLevelComplete(): Boolean = renderer.isLevelComplete()
+fun isGameOver(): Boolean = renderer.getIsGameOver()
+fun canContinue(): Boolean = renderer.canContinue()
+
+fun continueGame() {
+    renderer.ship.health = renderer.ship.maxHealth
+    renderer.isGameOver = false
+    renderer.setContinueUsed()
+}
