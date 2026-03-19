@@ -12,7 +12,10 @@ import com.nebulastrike.spacefighter.billing.BillingManager
 import com.nebulastrike.spacefighter.data.GameStateManager
 import com.nebulastrike.spacefighter.ui.ShopActivity
 import kotlinx.coroutines.launch
+import android.widget.FrameLayout
 import android.widget.ProgressBar
+import android.os.Handler
+import android.os.Looper
 import com.nebulastrike.spacefighter.ui.LevelCompleteDialog
 import com.nebulastrike.spacefighter.ui.GameOverDialog
 
@@ -30,6 +33,7 @@ class MainActivity : Activity() {
     private lateinit var billingManager: BillingManager
     
     private lateinit var bossBar: ProgressBar
+    private lateinit var gameContainer: FrameLayout
 
     private lateinit var coinText: TextView
     private lateinit var shieldButton: Button
@@ -38,7 +42,8 @@ class MainActivity : Activity() {
     private lateinit var rewardButton: Button
 
     private val continueCost = 500
-    
+    private val handler = Handler(Looper.getMainLooper())
+    private lateinit var updateRunnable: Runnable
 
     // ADS
     private var rewardedAd: RewardedAd? = null
@@ -53,13 +58,9 @@ class MainActivity : Activity() {
 
         val level = intent.getIntExtra("LEVEL", 1)
 
-        window.addFlags(
-            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-        )
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-        setContentView(
-            R.layout.activity_main_game
-        )
+        setContentView(R.layout.activity_main_game)
 
         // ADMOB INIT
         MobileAds.initialize(this)
@@ -68,235 +69,176 @@ class MainActivity : Activity() {
         loadRewardAd()
         loadInterstitialAd()
 
+        // Initialize views FIRST
+        initializeViews()
+        
+        // Setup game view with proper parameters
         setupGameView(level)
+        
         setupUI()
         observeGameState()
 
         giveDailyReward()
+        
+        // Start update loop
+        startUpdateLoop()
     }
 
     // =========================
-    // GAME VIEW
+    // INITIALIZE VIEWS
+    // =========================
+
+    private fun initializeViews() {
+        gameContainer = findViewById(R.id.gameContainer)
+        coinText = findViewById(R.id.coinText)
+        shieldButton = findViewById(R.id.shieldButton)
+        laserButton = findViewById(R.id.laserButton)
+        shopButton = findViewById(R.id.shopButton)
+        rewardButton = findViewById(R.id.rewardButton)
+        bossBar = findViewById(R.id.bossBar)
+        adView = findViewById(R.id.adView)
+    }
+
+    // =========================
+    // GAME VIEW - FIXED
     // =========================
 
     private fun setupGameView(level: Int) {
-
-        glSurfaceView =
-            findViewById(R.id.glSurfaceView)
-
-        val renderer =
-            GameRenderer(
-                this,
-                level,
-                gameStateManager
-            )
-
-        glSurfaceView.setRenderer(renderer)
-
-        glSurfaceView.setOnTouchListener { _, event ->
-            renderer.handleTouch(event)
-            true
-        }
+        // Create GL Surface View with all required parameters
+        glSurfaceView = GameGLSurfaceView(this, level, gameStateManager)
+        
+        // Add to container
+        gameContainer.addView(glSurfaceView)
     }
 
     // =========================
-    // UI
+    // UPDATE LOOP
+    // =========================
+
+    private fun startUpdateLoop() {
+        updateRunnable = object : Runnable {
+            override fun run() {
+                updateBossBar()
+                handler.postDelayed(this, 100)
+            }
+        }
+        handler.post(updateRunnable)
+    }
+
+    // =========================
+    // UI SETUP
     // =========================
 
     private fun setupUI() {
-
-        coinText =
-            findViewById(R.id.coinText)
-
-        shieldButton =
-            findViewById(R.id.shieldButton)
-
-        laserButton =
-            findViewById(R.id.laserButton)
-
-        shopButton =
-            findViewById(R.id.shopButton)
-
-        rewardButton =
-            findViewById(R.id.rewardButton)
-
-        bossBar = 
-            findViewById(R.id.bossBar)
-
         shieldButton.setOnClickListener {
-
             if (gameStateManager.useShield()) {
-
-                Toast.makeText(
-                    this,
-                    "Shield activated",
-                    Toast.LENGTH_SHORT
-                ).show()
-
+                Toast.makeText(this, "Shield activated", Toast.LENGTH_SHORT).show()
             } else {
-
                 openShop()
-
             }
         }
 
         laserButton.setOnClickListener {
-
             if (gameStateManager.useLaserUpgrade()) {
-
-                Toast.makeText(
-                    this,
-                    "Laser upgraded",
-                    Toast.LENGTH_SHORT
-                ).show()
-
+                Toast.makeText(this, "Laser upgraded", Toast.LENGTH_SHORT).show()
             } else {
-
                 openShop()
-
             }
         }
 
         shopButton.setOnClickListener {
-
             openShop()
         }
 
         rewardButton.setOnClickListener {
-
             showRewardAd()
         }
     }
 
     private fun openShop() {
-
-        startActivity(
-            Intent(
-                this,
-                ShopActivity::class.java
-            )
-        )
+        startActivity(Intent(this, ShopActivity::class.java))
     }
 
     // =========================
-    // BOSS HEALTH
+    // BOSS HEALTH & GAME STATE
     // =========================
 
     private fun updateBossBar() {
-
-        val renderer = glSurfaceView.renderer
-
-        val max = renderer.getBossMaxHealth()
+        val max = glSurfaceView.getBossMaxHealth()
 
         if (max > 0) {
-
             bossBar.max = max
-            bossBar.progress =
-                renderer.getBossHealth()
-
+            bossBar.progress = glSurfaceView.getBossHealth()
+            bossBar.visibility = android.view.View.VISIBLE
         } else {
-
-            bossBar.progress = 0
+            bossBar.visibility = android.view.View.GONE
         }
 
-        if (renderer.getIsGameOver() && renderer.canContinue()) {
-
+        if (glSurfaceView.isGameOver() && glSurfaceView.canContinue()) {
             GameOverDialog.show(
                 this,
                 gameStateManager.coins.value,
                 continueCost,
                 onContinue = {
                     if (gameStateManager.spendCoins(continueCost)) {
-                        renderer.ship.health = renderer.ship.maxHealth
-                        renderer.isGameOver = false
-                        renderer.setContinueUsed()
+                        // Access ship through a method you'll add to GameGLSurfaceView
+                        glSurfaceView.continueGame()
                     }
                 },
                 onExit = {
-                    finish() // or return to main menu
+                    finish()
                 }
             )
         }
 
-        if (renderer.isLevelComplete()) {
-
+        if (glSurfaceView.isLevelComplete()) {
             showLevelComplete()
         }
     }
 
-    
     // =========================
     // OBSERVE STATE
     // =========================
 
     private fun observeGameState() {
-
         lifecycleScope.launch {
-
             gameStateManager.coins.collect {
-
-                coinText.text =
-                    "💰 $it"
+                coinText.text = "💰 $it"
             }
         }
 
         lifecycleScope.launch {
-
             gameStateManager.shieldCount.collect {
-
-                shieldButton.text =
-                    "🛡 $it"
+                shieldButton.text = "🛡 $it"
             }
         }
 
         lifecycleScope.launch {
-
             gameStateManager.laserUpgradeCount.collect {
-
-                laserButton.text =
-                    "⚡ $it"
+                laserButton.text = "⚡ $it"
             }
         }
     }
 
     private fun showLevelComplete() {
+        val level = gameStateManager.currentLevel.value
 
-        val level =
-            gameStateManager.currentLevel.value
-
-        LevelCompleteDialog.show(
-            this,
-            level
-        ) {
-
-            gameStateManager.saveCurrentLevel(
-                level + 1
-            )
-
+        LevelCompleteDialog.show(this, level) {
+            gameStateManager.saveCurrentLevel(level + 1)
             showInterstitial()
-
             finish()
         }
     }
 
-    
     // =========================
     // DAILY REWARD
     // =========================
 
     private fun giveDailyReward() {
-
-        val reward =
-            gameStateManager
-                .giveDailyReward()
+        val reward = gameStateManager.giveDailyReward()
 
         if (reward > 0) {
-
-            Toast.makeText(
-                this,
-                "Daily reward +$reward coins",
-                Toast.LENGTH_LONG
-            ).show()
+            Toast.makeText(this, "Daily reward +$reward coins", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -305,30 +247,19 @@ class MainActivity : Activity() {
     // =========================
 
     private fun loadBannerAd() {
-
-        adView =
-            findViewById(R.id.adView)
-
-        val request =
-            AdRequest.Builder().build()
-
+        val request = AdRequest.Builder().build()
         adView.loadAd(request)
     }
 
     private fun loadRewardAd() {
-
-        val request =
-            AdRequest.Builder().build()
+        val request = AdRequest.Builder().build()
 
         RewardedAd.load(
             this,
             "ca-app-pub-5850163781981893/3862181045",
             request,
             object : RewardedAdLoadCallback() {
-
-                override fun onAdLoaded(
-                    ad: RewardedAd
-                ) {
+                override fun onAdLoaded(ad: RewardedAd) {
                     rewardedAd = ad
                 }
             }
@@ -336,41 +267,21 @@ class MainActivity : Activity() {
     }
 
     private fun showRewardAd() {
-
-        if (rewardedAd != null) {
-
-            rewardedAd?.show(this) {
-
-                gameStateManager.addCoins(200)
-
-                Toast.makeText(
-                    this,
-                    "+200 coins",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-
-        } else {
-
-            loadRewardAd()
-        }
+        rewardedAd?.show(this) {
+            gameStateManager.addCoins(200)
+            Toast.makeText(this, "+200 coins", Toast.LENGTH_SHORT).show()
+        } ?: loadRewardAd()
     }
 
     private fun loadInterstitialAd() {
-
-        val request =
-            AdRequest.Builder().build()
+        val request = AdRequest.Builder().build()
 
         InterstitialAd.load(
             this,
             "ca-app-pub-5850163781981893/4201092392",
             request,
-            object :
-                InterstitialAdLoadCallback() {
-
-                override fun onAdLoaded(
-                    ad: InterstitialAd
-                ) {
+            object : InterstitialAdLoadCallback() {
+                override fun onAdLoaded(ad: InterstitialAd) {
                     interstitialAd = ad
                 }
             }
@@ -378,38 +289,33 @@ class MainActivity : Activity() {
     }
 
     fun showInterstitial() {
-
         interstitialAd?.show(this)
     }
 
     // =========================
+    // LIFECYCLE
+    // =========================
 
     override fun onPause() {
         super.onPause()
-        glSurfaceView.onPause()
+        if (::glSurfaceView.isInitialized) {
+            glSurfaceView.onPause()
+        }
+        handler.removeCallbacks(updateRunnable)
     }
 
-    override fun onResume(
-        glSurfaceView.postDelayed(object : Runnable {
-
-            override fun run() {
-
-                updateBossBar()
-
-                glSurfaceView.postDelayed(
-                    this,
-                    100
-                )
-            }
-
-        }, 100)) {
+    override fun onResume() {
         super.onResume()
-        glSurfaceView.onResume()
+        if (::glSurfaceView.isInitialized) {
+            glSurfaceView.onResume()
+        }
         billingManager.queryPurchases()
+        handler.post(updateRunnable)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         billingManager.disconnect()
+        handler.removeCallbacks(updateRunnable)
     }
 }
