@@ -1299,6 +1299,7 @@ class NebulaStrike {
 let game;
 
 window.addEventListener('DOMContentLoaded', () => {
+  dailyReward();
   game = new NebulaStrike();
 });
 
