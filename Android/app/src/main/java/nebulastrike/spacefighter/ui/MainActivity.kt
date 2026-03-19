@@ -14,6 +14,7 @@ import com.nebulastrike.spacefighter.ui.ShopActivity
 import kotlinx.coroutines.launch
 import android.widget.ProgressBar
 import com.nebulastrike.spacefighter.ui.LevelCompleteDialog
+import com.nebulastrike.spacefighter.ui.GameOverDialog
 
 // ADMOB
 import com.google.android.gms.ads.*
@@ -35,6 +36,8 @@ class MainActivity : Activity() {
     private lateinit var laserButton: Button
     private lateinit var shopButton: Button
     private lateinit var rewardButton: Button
+
+    private val continueCost = 500
     
 
     // ADS
@@ -194,6 +197,25 @@ class MainActivity : Activity() {
         } else {
 
             bossBar.progress = 0
+        }
+
+        if (renderer.getIsGameOver() && renderer.canContinue()) {
+
+            GameOverDialog.show(
+                this,
+                gameStateManager.coins.value,
+                continueCost,
+                onContinue = {
+                    if (gameStateManager.spendCoins(continueCost)) {
+                        renderer.ship.health = renderer.ship.maxHealth
+                        renderer.isGameOver = false
+                        renderer.setContinueUsed()
+                    }
+                },
+                onExit = {
+                    finish() // or return to main menu
+                }
+            )
         }
 
         if (renderer.isLevelComplete()) {
