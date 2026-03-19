@@ -129,6 +129,33 @@ class GameState {
 }
 
 // ============================================
+// DAILY REWARD SYSTEM
+// ============================================
+
+function dailyReward() {
+
+  let last = localStorage.getItem("daily");
+
+  let now = Date.now();
+
+  if (!last || now - last > 86400000) {
+
+    let coins =
+      parseInt(localStorage.getItem("nebula_coins")) || 0;
+
+    coins += 200;
+
+    localStorage.setItem("nebula_coins", coins);
+
+    localStorage.setItem("daily", now);
+
+    alert("Daily reward +200 coins");
+
+  }
+
+}
+
+// ============================================
 // WEBGL RENDERER
 // ============================================
 
