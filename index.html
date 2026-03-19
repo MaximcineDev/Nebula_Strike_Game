@@ -1,71 +1,86 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nebula Strike</title>
 
   <!-- Manifest -->
-<link rel="manifest" href="./manifest.json">
+  <link rel="manifest" href="./manifest.json">
 
-<!-- Service Worker Registration -->
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', async () => {
-    try {
+  <!-- Favicon (optional) -->
+  <link rel="icon" href="icon.png" type="image/png">
 
-      const registration = await navigator.serviceWorker.register('./service-worker.js');
+  <!-- Styles -->
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
 
-      console.log('[PWA] SW registered:', registration.scope);
+  <!-- Game Canvas -->
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
 
-      registration.addEventListener('updatefound', () => {
-        const newWorker = registration.installing;
+  <!-- Offline message -->
+  <div id="offlineMessage" style="display:none;position:fixed;top:0;width:100%;background:red;color:white;text-align:center;padding:10px;">
+    You are offline
+  </div>
 
-        newWorker.addEventListener('statechange', () => {
-          if (
-            newWorker.state === 'installed' &&
-            navigator.serviceWorker.controller
-          ) {
-            showUpdatePrompt(newWorker);
-          }
-        });
-      });
+  <!-- Game Script -->
+  <script src="./main.js"></script>
 
-      navigator.serviceWorker.addEventListener('message', (event) => {
-        if (event.data?.type === 'ASSETS_CACHED') {
-          console.log(`[PWA] ${event.data.count} assets cached`);
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', async () => {
+        try {
+          const registration = await navigator.serviceWorker.register('./service-worker.js');
+          console.log('[PWA] SW registered:', registration.scope);
+
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                showUpdatePrompt(newWorker);
+              }
+            });
+          });
+
+          navigator.serviceWorker.addEventListener('message', (event) => {
+            if (event.data?.type === 'ASSETS_CACHED') {
+              console.log(`[PWA] ${event.data.count} assets cached`);
+            }
+          });
+
+        } catch (error) {
+          console.error('[PWA] SW registration failed:', error);
         }
       });
-
-    } catch (error) {
-      console.error('[PWA] SW registration failed:', error);
     }
-  });
-}
 
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
 
-// Install Prompt
-let deferredPrompt;
+    function showUpdatePrompt(worker) {
+      console.log("Update available");
+      worker.postMessage({ type: "SKIP_WAITING" });
+      window.location.reload();
+    }
 
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-});
+    function updateOnlineStatus() {
+      if (navigator.onLine) {
+        document.body.classList.remove('offline');
+        document.getElementById('offlineMessage').style.display = 'none';
+      } else {
+        document.body.classList.add('offline');
+        document.getElementById('offlineMessage').style.display = 'block';
+      }
+    }
 
-function showUpdatePrompt(worker) {
-  console.log("Update available");
-
-  worker.postMessage({ type: "SKIP_WAITING" });
-  window.location.reload();
-}
-
-
-// Online / Offline
-function updateOnlineStatus() {
-  if (navigator.onLine) {
-    document.body.classList.remove('offline');
-  } else {
-    document.body.classList.add('offline');
-  }
-}
-
-window.addEventListener('online', updateOnlineStatus);
-window.addEventListener('offline', updateOnlineStatus);
-updateOnlineStatus();
-
-</script>
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus();
+  </script>
+</body>
+</html>
