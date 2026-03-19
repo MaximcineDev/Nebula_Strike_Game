@@ -16,6 +16,13 @@ import com.nebulastrike.spacefighter.billing.BillingManager
 import com.nebulastrike.spacefighter.data.GameStateManager
 import com.nebulastrike.spacefighter.ui.ShopActivity
 import kotlinx.coroutines.launch
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.OnUserEarnedRewardListener;
+import android.webkit.JavascriptInterface;
 
 class MainActivity : Activity() {
     private lateinit var glSurfaceView: GameGLSurfaceView
