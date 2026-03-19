@@ -1,4 +1,4 @@
-// GameGLSurfaceView.kt - Fixed Version
+// GameGLSurfaceView.kt
 package com.nebulastrike.spacefighter
 
 import android.content.Context
