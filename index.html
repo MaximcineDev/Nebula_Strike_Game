@@ -13,6 +13,14 @@
 
   <!-- Styles -->
   <link rel="stylesheet" href="./style.css">
+  <script>
+  // Force service worker update on load
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then(registration => {
+      registration.update();
+    });
+  }
+</script>
 </head>
 <body>
 
