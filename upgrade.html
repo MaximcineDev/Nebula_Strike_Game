@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <script src="https://js.paystack.co/v1/inline.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nebula Strike - Upgrade</title>
 
@@ -70,8 +71,8 @@
       Cost: <b>1000 coins</b>
     </p>
 
-    <button class="premium-btn" onclick="unlockPremium()">
-      ⭐ Unlock Premium
+    <button class="premium-btn" onclick="payWithPaystack()">
+    ⭐ Unlock Premium (₦1000)
     </button>
 
     <button class="back-btn menu-btn" onclick="goBack()">
@@ -123,6 +124,40 @@ function goBack() {
 
 }
 
+function payWithPaystack() {
+
+  let handler = PaystackPop.setup({
+
+    key: "pk_test_xxxxxxxxx",
+
+    email: "player@nebula.com",
+
+    amount: 100000, // 1000 naira
+
+    currency: "NGN",
+
+    callback: function(response) {
+
+      localStorage.setItem(
+        "nebula_premium",
+        "true"
+      );
+
+      alert("Payment successful!");
+
+      window.location.href = "/";
+
+    },
+
+    onClose: function() {
+      alert("Payment cancelled");
+    }
+
+  });
+
+  handler.openIframe();
+
+}
 </script>
 
 </body>
