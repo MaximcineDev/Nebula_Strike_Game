@@ -39,6 +39,7 @@
     const items = [
       { id: 'shields', name: 'Shield Pack', icon: '🛡️', cost: 200, count: 3 },
       { id: 'laserUpgrades', name: 'Laser Boost', icon: '⚡', cost: 300, count: 3 },
+      { id: 'premium', name: 'Premium Unlock', icon: '⭐', cost: 1000 },
       { id: 'coins', name: 'Coin Pack', icon: '💰', cost: 0, realMoney: '$0.99' }
     ];
     
@@ -67,18 +68,41 @@
     });
     
     function buy(id, cost) {
+
       let coins = parseInt(localStorage.getItem('nebula_coins')) || 0;
+
       if (coins >= cost) {
+
         coins -= cost;
         localStorage.setItem('nebula_coins', coins);
-        
-        const inv = JSON.parse(localStorage.getItem('nebula_inventory') || '{}');
+
+        // PREMIUM UNLOCK
+        if (id === "premium") {
+
+          localStorage.setItem("nebula_premium", "true");
+
+          alert("Premium unlocked! All levels available.");
+          location.reload();
+          return;
+
+        }
+
+        const inv = JSON.parse(
+          localStorage.getItem('nebula_inventory') || '{}'
+        );
+
         inv[id] = (inv[id] || 0) + 3;
-        localStorage.setItem('nebula_inventory', JSON.stringify(inv));
-        
+
+        localStorage.setItem(
+          'nebula_inventory',
+          JSON.stringify(inv)
+        );
+
         alert('Purchase successful!');
         location.reload();
+
       }
+
     }
   </script>
 </body>
