@@ -1,45 +1,125 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Upgrade Required</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nebula Strike - Upgrade</title>
+
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+
+    body {
+      background: #0a0a1a;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    .upgrade-container {
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .upgrade-box {
+      border: 2px solid #00d4ff;
+      border-radius: 15px;
+      padding: 25px;
+      margin-top: 40px;
+      background: rgba(0,0,40,0.7);
+    }
+
+    .premium-btn {
+      padding: 15px;
+      font-size: 18px;
+      border-radius: 10px;
+      border: none;
+      background: #00d4ff;
+      color: black;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .back-btn {
+      margin-top: 20px;
+      padding: 12px;
+      width: 100%;
+    }
+
+  </style>
+
 </head>
-<body style="background:black;color:white;text-align:center">
+<body>
 
-<h1>🚀 Upgrade Required</h1>
+<div class="upgrade-container">
 
-<p>You reached Level 10</p>
-<p>Unlock premium to continue</p>
+  <h1>🚀 LEVEL LOCKED</h1>
 
-<button onclick="buyWithCoins()">Buy with 1000 coins</button>
-<button onclick="buyPremium()">Buy Premium</button>
+  <div class="upgrade-box">
+
+    <h2>Unlock Full Game</h2>
+
+    <p>
+      You reached Level 10.<br>
+      Upgrade to Premium to continue playing.
+    </p>
+
+    <p>
+      Cost: <b>1000 coins</b>
+    </p>
+
+    <button class="premium-btn" onclick="unlockPremium()">
+      ⭐ Unlock Premium
+    </button>
+
+    <button class="back-btn menu-btn" onclick="goBack()">
+      ← Back
+    </button>
+
+  </div>
+
+</div>
+
 
 <script>
 
-function buyWithCoins() {
+function unlockPremium() {
 
-  let coins = parseInt(localStorage.getItem("nebula_coins")) || 0;
+  let coins = parseInt(
+    localStorage.getItem("nebula_coins")
+  ) || 0;
 
-  if (coins >= 1000) {
-
-    coins -= 1000;
-    localStorage.setItem("nebula_coins", coins);
-
-    localStorage.setItem("nebula_premium", "true");
-
-    alert("Unlocked!");
-
-    location.href = "/";
-
-  } else {
+  if (coins < 1000) {
 
     alert("Not enough coins");
 
+    return;
   }
+
+  coins -= 1000;
+
+  localStorage.setItem(
+    "nebula_coins",
+    coins
+  );
+
+  localStorage.setItem(
+    "nebula_premium",
+    "true"
+  );
+
+  alert("Premium unlocked!");
+
+  window.location.href = "/";
+
 }
 
-function buyPremium() {
 
-  alert("Premium purchase coming soon");
+function goBack() {
+
+  window.location.href = "/";
 
 }
 
