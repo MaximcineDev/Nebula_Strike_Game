@@ -69,7 +69,16 @@
 
     </LinearLayout>
 
-
+   <ProgressBar
+       android:id="@+id/bossBar"
+       style="?android:attr/progressBarStyleHorizontal"
+       android:layout_width="match_parent"
+       android:layout_height="8dp"
+       android:max="100"
+       android:progress="100"
+       android:layout_alignParentTop="true"
+   />
+    
     <!-- BANNER AD -->
     <com.google.android.gms.ads.AdView
         android:id="@+id/adView"
