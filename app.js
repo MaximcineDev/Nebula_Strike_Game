@@ -12,6 +12,8 @@ let bullets = [];
 let enemies = [];
 let explosions = [];
 let stars = [];
+let stars2 = [];
+let stars3 = [];
 
 let boss = null;
 
@@ -137,13 +139,25 @@ function init() {
     requestAnimationFrame(loop);
 
     // stars
-    for (let i = 0; i < 60; i++) {
-
+    for (let i = 0; i < 40; i++) {
         stars.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height
         });
+    }
 
+    for (let i = 0; i < 30; i++) {
+        stars2.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height
+        });
+    }
+
+    for (let i = 0; i < 20; i++) {
+        stars3.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height
+        });
     }
 }
 
@@ -230,9 +244,9 @@ function update() {
             ) {
 
                 explosions.push({
-                    x: e.x,
-                    y: e.y,
-                    time: 20
+                    x: boss.x,
+                    y: boss.y,
+                    frame: 0
                 });
 
                 playSound(boomSound);
@@ -296,23 +310,29 @@ function update() {
     /* explosions */
 
     explosions.forEach(ex => {
-        ex.time--;
+        ex.frame++;
     });
 
     explosions = explosions.filter(
-        ex => ex.time > 0
+        ex => ex.frame < 20
     );
 
 
     /* stars */
 
     stars.forEach(s => {
-
         s.y += 1;
+        if (s.y > canvas.height) s.y = 0;
+    });
 
-        if (s.y > canvas.height) {
-            s.y = 0;
-        }
+    stars2.forEach(s => {
+        s.y += 2;
+        if (s.y > canvas.height) s.y = 0;
+    });
+
+    stars3.forEach(s => {
+        s.y += 3;
+        if (s.y > canvas.height) s.y = 0;
     });
 
 }
@@ -333,15 +353,15 @@ function draw() {
     /* stars */
 
     stars.forEach(s => {
+        ctx.drawImage(starImg, s.x, s.y, 2, 2);
+    });
 
-        ctx.drawImage(
-            starImg,
-            s.x,
-            s.y,
-            4,
-            4
-        );
+    stars2.forEach(s => {
+        ctx.drawImage(starImg, s.x, s.y, 3, 3);
+    });
 
+    stars3.forEach(s => {
+        ctx.drawImage(starImg, s.x, s.y, 4, 4);
     });
 
 
@@ -400,6 +420,32 @@ function draw() {
         );
     }
 
+    if (boss) {
+
+        let maxHP = 30;
+
+        let w = 300;
+        let h = 20;
+
+        let x = canvas.width / 2 - w / 2;
+        let y = 20;
+
+        ctx.fillStyle = "black";
+        ctx.fillRect(x, y, w, h);
+
+        ctx.fillStyle = "red";
+
+        ctx.fillRect(
+            x,
+            y,
+            w * (boss.hp / maxHP),
+            h
+        );
+
+        ctx.strokeStyle = "white";
+        ctx.strokeRect(x, y, w, h);
+    }
+
 
     /* explosions */
 
@@ -407,6 +453,8 @@ function draw() {
 
         ctx.drawImage(
             explosionImg,
+            ex.frame * 64, 0,   // sprite frame
+            64, 64,
             ex.x - 32,
             ex.y - 32,
             64,
