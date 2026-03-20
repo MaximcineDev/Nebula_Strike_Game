@@ -13,78 +13,110 @@
     <title>Nebula Strike</title>
 
     <link rel="stylesheet" href="styles.css">
-    
-    <link rel="icon" href="assets/icons/icon-192x192.png">
+
+    <link rel="manifest" href="manifest.json">
+
+    <link rel="icon" href="icons/icon-192x192.png">
+
+    <meta name="theme-color" content="#00d4ff">
+
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
 </head>
+
 
 <body>
 
 
-<!-- SPLASH -->
+    <!-- SPLASH -->
 
-<div id="splash">
+    <div id="splash">
 
-    <h1>Nebula Strike</h1>
+        <h1>Nebula Strike</h1>
 
-    <p>Loading...</p>
+        <p>Loading...</p>
 
-</div>
+    </div>
 
 
-<!-- MENU -->
 
-<div id="main-menu">
+    <!-- MENU -->
 
-    <h1>Nebula Strike</h1>
+    <div id="main-menu">
 
-    <button onclick="startGame()">
-        Start Game
+        <h1>Nebula Strike</h1>
+
+        <button onclick="startGame()">
+            Start Game
+        </button>
+
+        <button onclick="openShop()">
+            Shop
+        </button>
+
+        <button onclick="openAchievements()">
+            Achievements
+        </button>
+
+    </div>
+
+
+
+    <!-- HUD -->
+
+    <div id="hud">
+
+        <div id="score">0</div>
+
+        <div id="coins">0</div>
+
+    </div>
+
+
+
+    <!-- GAME -->
+
+    <canvas id="gameCanvas"></canvas>
+
+
+
+    <!-- SHOOT BUTTON -->
+
+    <button
+        id="shootBtn"
+        ontouchstart="shoot()"
+        onmousedown="shoot()"
+    >
+        FIRE
     </button>
 
-    <button onclick="openShop()">
-        Shop
-    </button>
-
-    <button onclick="openAchievements()">
-        Achievements
-    </button>
-
-</div>
 
 
-<!-- HUD -->
+    <!-- ADMOB -->
 
-<div id="hud">
-
-    <div id="score">0</div>
-    <div id="coins">0</div>
-
-</div>
+    <div id="adBanner"></div>
 
 
-<!-- GAME -->
 
-<canvas id="gameCanvas"></canvas>
-
-
-<!-- SHOOT BUTTON -->
-
-<button
-    id="shootBtn"
-    ontouchstart="shoot()"
-    onmousedown="shoot()"
->
-    FIRE
-</button>
+    <script src="app.js"></script>
 
 
-<!-- ADMOB PLACEHOLDER -->
 
-<div id="adBanner"></div>
+    <script>
 
+        if ("serviceWorker" in navigator) {
 
-<script src="app.js"></script>
+            navigator.serviceWorker
+                .register("service-worker.js")
+                .then(() => console.log("SW registered"))
+                .catch(err => console.log(err));
+
+        }
+
+    </script>
+
 
 </body>
 
