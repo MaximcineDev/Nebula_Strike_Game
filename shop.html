@@ -1,103 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    >
 
     <title>Shop - Nebula Strike</title>
 
-    <link rel="stylesheet" href="./styles.css">
+    <link rel="stylesheet" href="styles.css">
 
 </head>
 
+
 <body>
 
-    <div class="game-container">
+
+    <div class="menu">
 
         <h1>Shop</h1>
 
-        <p>
-            Coins:
-            <span id="coins">0</span>
+
+        <!-- COINS -->
+
+        <p id="coinText">
+            Coins: 0
         </p>
 
-        <button onclick="buySkin('red', 100)">
-            Red Skin - 100
-        </button>
 
-        <button onclick="buySkin('green', 150)">
-            Green Skin - 150
-        </button>
 
-        <button onclick="buySkin('gold', 300)">
-            Gold Skin - 300
-        </button>
+        <!-- ITEMS -->
 
-        <br><br>
+        <div class="shop-item">
+
+            <h2>Laser Upgrade</h2>
+
+            <button onclick="buyItem('laser')">
+                Buy - 50
+            </button>
+
+        </div>
+
+
+
+        <div class="shop-item">
+
+            <h2>Shield</h2>
+
+            <button onclick="buyItem('shield')">
+                Buy - 100
+            </button>
+
+        </div>
+
+
+
+        <div class="shop-item">
+
+            <h2>Ship Skin</h2>
+
+            <button onclick="buyItem('skin')">
+                Buy - 150
+            </button>
+
+        </div>
+
+
+
+        <br>
+
 
         <button onclick="goBack()">
             Back
         </button>
 
+
     </div>
+
 
 
 <script>
 
-const SAVE_KEY = "nebula_save";
+
+let coins = localStorage.getItem("coins");
+
+if (!coins) coins = 0;
+
+coins = parseInt(coins);
+
+document.getElementById("coinText").innerText =
+    "Coins: " + coins;
 
 
-function loadSave() {
 
-    let s = localStorage.getItem(SAVE_KEY);
+function buyItem(item)
+{
 
-    if (!s) {
-        return {
-            coins: 0,
-            skin: "default",
-            achievements: {}
-        };
-    }
+    let price = 0;
 
-    return JSON.parse(s);
-}
+    if (item === "laser") price = 50;
+
+    if (item === "shield") price = 100;
+
+    if (item === "skin") price = 150;
 
 
-function saveGame(data) {
+    if (coins >= price)
+    {
 
-    localStorage.setItem(
-        SAVE_KEY,
-        JSON.stringify(data)
-    );
+        coins -= price;
 
-}
+        localStorage.setItem("coins", coins);
 
-
-let SAVE = loadSave();
-
-
-document.getElementById("coins").innerText =
-    SAVE.coins;
-
-
-function buySkin(name, price) {
-
-    if (SAVE.coins >= price) {
-
-        SAVE.skin = name;
-
-        SAVE.coins -= price;
-
-        saveGame(SAVE);
-
-        alert("Skin bought!");
+        alert("Purchased " + item);
 
         location.reload();
 
-    } else {
+    }
+    else
+    {
 
         alert("Not enough coins");
 
@@ -106,14 +131,18 @@ function buySkin(name, price) {
 }
 
 
-function goBack() {
 
-    window.location.href = "./index.html";
+function goBack()
+{
+
+    window.location.href = "index.html";
 
 }
+
 
 </script>
 
 
 </body>
+
 </html>
