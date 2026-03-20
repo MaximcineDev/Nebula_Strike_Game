@@ -1,6 +1,6 @@
 # 🚀 Nebula Strike
 
-[![Platform](https://img.shields.io/badge/platform-Web%20%7C%20PWA-blue.svg)](https://github.com/yourusername/nebula-strike)  
+[![Platform](https://img.shields.io/badge/platform-Web%20%7C%20PWA-blue.svg)](https://github.com/chinabel/nebula-strike)  
 [![Language](https://img.shields.io/badge/JavaScript-ES2022-orange.svg)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)  
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)  
 [![PWA](https://img.shields.io/badge/PWA-Ready-5A0FC8?logo=pwa)](https://web.dev/progressive-web-apps/)
