@@ -61,7 +61,11 @@ window.onload = function () {
 
     setTimeout(() => {
 
-        document.getElementById("splash").style.display = "none";
+        let splash = document.getElementById("splash");
+
+        if (splash) {
+            splash.style.display = "none";
+        }
 
     }, 1000);
 
@@ -236,8 +240,11 @@ function update() {
     SAVE.coins = Math.floor(coins);
     saveGame(SAVE);
 
-    document.getElementById("score").innerText = score;
-    document.getElementById("coins").innerText = Math.floor(coins);
+    let scoreEl = document.getElementById("score");
+    let coinsEl = document.getElementById("coins");
+
+    if (scoreEl) scoreEl.innerText = score;
+    if (coinsEl) coinsEl.innerText = Math.floor(coins);
 
 
     if (shake > 0) shake--;
@@ -395,6 +402,10 @@ function update() {
     bossBullets.forEach(b => {
         b.y += b.vy;
     });
+
+    bossBullets = bossBullets.filter(
+        b => b.y < canvas.height
+    );
 
 
     /* explosions */
