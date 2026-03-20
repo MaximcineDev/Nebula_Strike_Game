@@ -11,6 +11,7 @@ let playerX = 0;
 let bullets = [];
 let enemies = [];
 let explosions = [];
+
 let stars = [];
 let stars2 = [];
 let stars3 = [];
@@ -106,9 +107,11 @@ function openAchievements() {
     window.location.href = "./achievements.html";
 }
 
+
 function screenShake(power) {
     shake = power;
 }
+
 
 /* ---------- SHOOT ---------- */
 
@@ -152,7 +155,6 @@ function init() {
 
     requestAnimationFrame(loop);
 
-    // stars
     for (let i = 0; i < 40; i++) {
         stars.push({
             x: Math.random() * canvas.width,
@@ -183,7 +185,6 @@ function resize() {
 }
 
 window.addEventListener("resize", resize);
-
 
 window.addEventListener("mousemove", e => {
     playerX = e.clientX;
@@ -221,10 +222,10 @@ function update() {
     document.getElementById("score").innerText = score;
     document.getElementById("coins").innerText = Math.floor(coins);
 
-    if (shake > 0) {
-        shake--;
-    }
-    
+
+    if (shake > 0) shake--;
+
+
     /* bullets */
 
     bullets.forEach(b => {
@@ -236,19 +237,30 @@ function update() {
 
     /* spawn enemies */
 
-    if (Math.random() < 0.03) {
+    if (Math.random() < 0.02 + level * 0.002) {
 
         enemies.push({
-
             x: Math.random() * canvas.width,
             y: -20,
             type: Math.floor(Math.random() * 3)
-
         });
-
     }
 
-    if (Math.random() < 0.02 + level * 0.002)
+
+    /* enemy movement */
+
+    enemies.forEach(e => {
+
+        if (e.type === 0) e.y += 3;
+
+        if (e.type === 1) {
+            e.y += 2;
+            e.x += Math.sin(e.y * 0.05) * 2;
+        }
+
+        if (e.type === 2) e.y += 4;
+
+    });
 
 
     /* bullet hit */
@@ -263,12 +275,30 @@ function update() {
             ) {
 
                 explosions.push({
-                    x: boss.x,
-                    y: boss.y,
+                    x: e.x,
+                    y: e.y,
                     frame: 0
                 });
 
+                screenShake(10);
+
+                for (let i = 0; i < 5; i++) {
+
+                    particles.push({
+                        x: e.x,
+                        y: e.y,
+                        vx: Math.random() * 4 - 2,
+                        vy: Math.random() * 4 - 2,
+                        life: 20
+                    });
+
+                }
+
                 playSound(boomSound);
+
+                combo++;
+                comboTimer = 60;
+                score += combo * 2;
 
                 e.y = 9999;
 
@@ -280,51 +310,15 @@ function update() {
 
     });
 
-    enemies.forEach(e => {
 
-        if (e.type === 0) e.y += 3;
-
-        if (e.type === 1) {
-            e.y += 2;
-            e.x += Math.sin(e.y * 0.05) * 2;
-        }
-
-        if (e.type === 2) {
-            e.y += 4;
-        }
-
-    });
+    if (comboTimer > 0) comboTimer--;
+    else combo = 0;
 
 
     enemies = enemies.filter(
         e => e.y < canvas.height
     );
 
-    screenShake(10);
-
-    for (let i = 0; i < 5; i++) {
-
-        particles.push({
-
-            x: e.x,
-            y: e.y,
-            vx: Math.random() * 4 - 2,
-            vy: Math.random() * 4 - 2,
-            life: 20
-
-        });
-
-    }
-
-    combo++;
-    comboTimer = 60;
-    score += combo * 2;
-
-    if (comboTimer > 0) {
-        comboTimer--;
-    } else {
-        combo = 0;
-    }
 
     /* boss */
 
@@ -336,6 +330,7 @@ function update() {
             hp: 30
         };
     }
+
 
     if (boss) {
 
@@ -350,38 +345,40 @@ function update() {
 
         });
 
+
         if (boss.hp <= 0) {
 
             explosions.push({
                 x: boss.x,
                 y: boss.y,
-                time: 40
+                frame: 0
             });
+
+            screenShake(20);
 
             boss = null;
 
             score += 200;
             coins += 50;
         }
+
+
+        if (Math.random() < 0.05) {
+
+            bossBullets.push({
+                x: boss.x,
+                y: boss.y,
+                vy: 5
+            });
+
+        }
     }
 
-    if (boss && Math.random() < 0.05) {
-
-        bossBullets.push({
-
-            x: boss.x,
-            y: boss.y,
-            vy: 5
-
-        });
-
-    }
 
     bossBullets.forEach(b => {
         b.y += b.vy;
     });
 
-    screenShake(20);
 
     /* explosions */
 
@@ -411,6 +408,9 @@ function update() {
         if (s.y > canvas.height) s.y = 0;
     });
 
+
+    /* particles */
+
     particles.forEach(p => {
 
         p.x += p.vx;
@@ -423,192 +423,9 @@ function update() {
         p => p.life > 0
     );
 
+
     if (score > level * 500) {
         level++;
     }
 
-}
-
-
-/* ---------- DRAW ---------- */
-
-function draw() {
-
-    ctx.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
-
-    ctx.save();
-
-    if (shake > 0) {
-
-        ctx.translate(
-            Math.random() * shake - shake / 2,
-            Math.random() * shake - shake / 2
-        );
-
-    }
-
-
-    /* stars */
-
-    stars.forEach(s => {
-        ctx.drawImage(starImg, s.x, s.y, 2, 2);
-    });
-
-    stars2.forEach(s => {
-        ctx.drawImage(starImg, s.x, s.y, 3, 3);
-    });
-
-    stars3.forEach(s => {
-        ctx.drawImage(starImg, s.x, s.y, 4, 4);
-    });
-
-
-    /* player */
-
-    ctx.drawImage(
-        playerImg,
-        playerX - 32,
-        canvas.height - 80,
-        64,
-        64
-    );
-
-
-    /* bullets */
-
-    bullets.forEach(b => {
-
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = "cyan";
-
-        ctx.fillStyle = "cyan";
-
-        ctx.fillRect(
-            b.x,
-            b.y,
-            4,
-            12
-        );
-
-        ctx.shadowBlur = 0;
-
-    });
-
-
-    /* enemies */
-
-    enemies.forEach(e => {
-
-        ctx.drawImage(
-            enemyImg,
-            e.x - 32,
-            e.y - 32,
-            64,
-            64
-        );
-
-    });
-
-
-    /* boss */
-
-    if (boss) {
-
-        ctx.drawImage(
-            bossImg,
-            boss.x - 64,
-            boss.y - 32,
-            128,
-            64
-        );
-    }
-
-    if (boss) {
-
-        let maxHP = 30;
-
-        let w = 300;
-        let h = 20;
-
-        let x = canvas.width / 2 - w / 2;
-        let y = 20;
-
-        ctx.fillStyle = "black";
-        ctx.fillRect(x, y, w, h);
-
-        ctx.fillStyle = "red";
-
-        ctx.fillRect(
-            x,
-            y,
-            w * (boss.hp / maxHP),
-            h
-        );
-
-        ctx.strokeStyle = "white";
-        ctx.strokeRect(x, y, w, h);
-    }
-
-    bossBullets.forEach(b => {
-
-        ctx.fillStyle = "red";
-
-        ctx.fillRect(
-            b.x,
-            b.y,
-            4,
-            10
-        );
-
-    });
-
-
-    /* explosions */
-
-    explosions.forEach(ex => {
-
-        ctx.drawImage(
-            explosionImg,
-            ex.frame * 64, 0,   // sprite frame
-            64, 64,
-            ex.x - 32,
-            ex.y - 32,
-            64,
-            64
-        );
-
-    });
-
-    particles.forEach(p => {
-
-        ctx.fillStyle = "orange";
-
-        ctx.fillRect(
-            p.x,
-            p.y,
-            2,
-            2
-        );
-
-    });
-
-    ctx.fillStyle = "white";
-    ctx.fillText(
-        "Level " + level,
-        20,
-        60
-    );
-
-    ctx.fillText(
-        "Combo " + combo,
-        20,
-        90
-    );
-
-    ctx.restore();
 }
