@@ -193,27 +193,16 @@ function rewardPlayer(coinsEarned=100){
 
 /* ---------- REWARDED AD SETUP ---------- */
 function setupRewardedAd(){
-    window.googletag = window.googletag||{cmd:[]};
-    googletag.cmd.push(function(){
-        const rewardedAdUnit = '/3862181045';
-        const slot = googletag.defineOutOfPageSlot(rewardedAdUnit,'rewarded-ad').addService(googletag.pubads());
-        googletag.pubads().enableSingleRequest();
-        googletag.enableServices();
+    const watchBtn = document.getElementById('watch-ad-btn');
+    const adContainer = document.getElementById('rewarded-ad');
 
-        googletag.pubads().addEventListener('rewardedSlotClosed', function(event){
-            document.getElementById('rewarded-ad')?.style.display='none';
-            rewardPlayer(); // give coins
-        });
-    });
-
-    document.getElementById('watch-ad-btn').addEventListener('click', function(){
-        const adContainer = document.getElementById('rewarded-ad');
-        if(adContainer) adContainer.style.display='block';
-        googletag.cmd.push(function(){
-            googletag.pubads().addEventListener('rewardedSlotReady', function(event){
-                event.makeRewardedVisible();
-            });
-            googletag.display('rewarded-ad');
-        });
+    watchBtn.addEventListener('click', ()=>{
+        adContainer.style.display='block';
+        // Mock rewarded ad logic for PWA
+        setTimeout(()=>{
+            adContainer.style.display='none';
+            rewardPlayer(100);
+            alert('You earned +100 Coins!');
+        }, 3000); // 3s simulate ad
     });
 }
