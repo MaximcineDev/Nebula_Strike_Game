@@ -86,7 +86,8 @@ function playSound(s) {
 /* ---------- INIT ---------- */
 function init() {
     canvas = document.getElementById("gameCanvas");
-    ctx = canvas.getContext("2d");
+    ctx = canvas.getContext("webgl2") || canvas.getContext("webgl");
+       if (!ctx) alert("Failed to initialize game. Please check if WebGL is enabled.");
     resize();
     requestAnimationFrame(loop);
 
