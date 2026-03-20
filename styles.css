@@ -1,103 +1,87 @@
 body {
+
     margin: 0;
     overflow: hidden;
+    background: black;
     font-family: Arial, sans-serif;
 
-    background: radial-gradient(
-        circle,
-        #020024,
-        #000010,
-        #000000
-    );
-
-    color: white;
 }
 
-.game-container {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-}
 
 canvas {
-    width: 100%;
-    height: 100%;
-    display: block;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
 }
 
+
 #main-menu {
+
     position: absolute;
 
-    top: 50%;
+    top: 40%;
     left: 50%;
 
     transform: translate(-50%, -50%);
 
-    padding: 30px;
-
-    background: rgba(0, 0, 40, 0.6);
-
-    border-radius: 15px;
-
-    box-shadow: 0 0 20px #00eaff;
-
     text-align: center;
-
-    animation: fadeIn 1s;
-}
-
-button {
-    padding: 12px 20px;
-    margin: 8px;
-
-    font-size: 16px;
-
-    border: none;
-    border-radius: 10px;
-
-    background: linear-gradient(
-        45deg,
-        #00eaff,
-        #0066ff
-    );
 
     color: white;
 
-    box-shadow:
-        0 0 10px #00eaff,
-        0 0 20px #0066ff;
+    z-index: 10;
+
 }
 
-button:active {
-    transform: scale(0.95);
+
+button {
+
+    padding: 12px 20px;
+    margin: 10px;
+
+    font-size: 18px;
+
+    cursor: pointer;
+
 }
+
 
 #hud {
+
     position: absolute;
 
     top: 10px;
     left: 10px;
 
+    color: white;
+
+    z-index: 5;
+
     font-size: 18px;
 
-    text-shadow: 0 0 10px #00eaff;
 }
 
-#touch {
+
+#shootBtn {
+
     position: absolute;
 
-    bottom: 20px;
-    right: 20px;
-}
+    bottom: 30px;
+    right: 30px;
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translate(-50%, -60%);
-    }
+    width: 80px;
+    height: 80px;
 
-    to {
-        opacity: 1;
-        transform: translate(-50%, -50%);
-    }
+    border-radius: 40px;
+
+    background: red;
+    color: white;
+
+    font-size: 18px;
+
+    border: none;
+
+    z-index: 20;
+
 }
