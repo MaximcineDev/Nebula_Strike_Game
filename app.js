@@ -25,6 +25,14 @@ const bossImg = new Image(); bossImg.src = "./assets/boss.png";
 const explosionImg = new Image(); explosionImg.src = "./assets/explosion.png";
 const starImg = new Image(); starImg.src = "./assets/star.png";
 
+/* ---------- UI ASSETS ---------- */
+const coinIcon = new Image(); coinIcon.src = "./assets/ui/coin-icon.png";
+const lockedLevel = new Image(); lockedLevel.src = "./assets/ui/locked-level.png";
+const premiumBadge = new Image(); premiumBadge.src = "./assets/ui/premium-badge.png";
+const premiumScreen = new Image(); premiumScreen.src = "./assets/ui/premium-screen.png";
+const shopPremium = new Image(); shopPremium.src = "./assets/ui/shop-premium.png";
+const upgradeButton = new Image(); upgradeButton.src = "./assets/ui/upgrade-button.png";
+
 /* ---------- SOUND ---------- */
 const boomSound = new Audio("./assets/sounds/explosion.wav");
 const shootSound = new Audio("./assets/sounds/shoot.wav");
@@ -86,7 +94,6 @@ function init() {
     for(let i=0;i<30;i++) stars2.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height });
     for(let i=0;i<20;i++) stars3.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height });
 
-    /* ---------- AD SETUP ---------- */
     setupRewardedAd();
 }
 
@@ -120,9 +127,11 @@ function update() {
 
     if(shake>0) shake--;
 
+    // bullets
     bullets.forEach(b=>{b.y-=10;});
     bullets = bullets.filter(b=>b.y>0);
 
+    // spawn enemies
     if(Math.random() < 0.02 + level*0.002) {
         enemies.push({ x: Math.random()*canvas.width, y:-20, type: Math.floor(Math.random()*3) });
     }
@@ -133,6 +142,7 @@ function update() {
         if(e.type===2) e.y+=4;
     });
 
+    // bullet hit
     bullets.forEach(b=>{
         enemies.forEach(e=>{
             if(Math.abs(b.x-e.x)<20 && Math.abs(b.y-e.y)<20){
@@ -150,6 +160,7 @@ function update() {
     if(comboTimer>0) comboTimer--; else combo=0;
     enemies = enemies.filter(e=>e.y<canvas.height);
 
+    // boss spawn
     if(score>500 && !boss) boss={x:canvas.width/2, y:50, hp:30};
     if(boss){
         bullets.forEach(b=>{if(Math.abs(b.x-boss.x)<50 && Math.abs(b.y-boss.y)<50) boss.hp--;});
@@ -165,20 +176,23 @@ function update() {
     bossBullets.forEach(b=>{b.y+=b.vy;});
     bossBullets=bossBullets.filter(b=>b.y<canvas.height);
 
+    // explosions
     explosions.forEach(ex=>{ex.frame++;});
     explosions = explosions.filter(ex=>ex.frame<20);
 
+    // stars
     stars.forEach(s=>{s.y+=1;if(s.y>canvas.height)s.y=0;});
     stars2.forEach(s=>{s.y+=2;if(s.y>canvas.height)s.y=0;});
     stars3.forEach(s=>{s.y+=3;if(s.y>canvas.height)s.y=0;});
 
+    // particles
     particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.life--;});
     particles = particles.filter(p=>p.life>0);
 
     if(score>level*500) level++;
 }
 
-/* ---------- REWARD FUNCTION ---------- */
+/* ---------- REWARD PLAYER ---------- */
 function rewardPlayer(coinsEarned=100){
     coins+=coinsEarned;
     SAVE.coins=Math.floor(coins);
@@ -198,11 +212,66 @@ function setupRewardedAd(){
 
     watchBtn.addEventListener('click', ()=>{
         adContainer.style.display='block';
-        // Mock rewarded ad logic for PWA
+        // Simulate rewarded ad
         setTimeout(()=>{
             adContainer.style.display='none';
             rewardPlayer(100);
             alert('You earned +100 Coins!');
-        }, 3000); // 3s simulate ad
+        }, 3000);
     });
+}
+
+/* ---------- DRAW HUD & UI ---------- */
+function draw() {
+    if(!ctx) return;
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    // Stars background
+    stars.forEach(s=>{ctx.fillStyle='white'; ctx.fillRect(s.x,s.y,2,2);});
+    stars2.forEach(s=>{ctx.fillStyle='lightblue'; ctx.fillRect(s.x,s.y,2,2);});
+    stars3.forEach(s=>{ctx.fillStyle='cyan'; ctx.fillRect(s.x,s.y,2,2);});
+
+    // Player
+    ctx.drawImage(playerImg, playerX-25, canvas.height-80, 50, 50);
+
+    // Bullets
+    bullets.forEach(b=>{ctx.fillStyle='yellow'; ctx.fillRect(b.x-2,b.y-10,4,10);});
+
+    // Enemies
+    enemies.forEach(e=>{ctx.drawImage(enemyImg,e.x-20,e.y-20,40,40);});
+
+    // Boss
+    if(boss) ctx.drawImage(bossImg,boss.x-50,boss.y-50,100,100);
+
+    // Explosions
+    explosions.forEach(ex=>{ctx.drawImage(explosionImg, ex.x-25, ex.y-25, 50, 50);});
+
+    // Particles
+    particles.forEach(p=>{ctx.fillStyle='orange'; ctx.fillRect(p.x,p.y,2,2);});
+
+    // Boss bullets
+    bossBullets.forEach(b=>{ctx.fillStyle='red'; ctx.fillRect(b.x-3,b.y,6,12);});
+
+    // HUD / UI
+    // Coins top-left
+    ctx.drawImage(coinIcon, 10, 10, 32, 32);
+    ctx.fillStyle='gold';
+    ctx.font='20px Arial';
+    ctx.fillText(Math.floor(coins), 50, 32);
+
+    // Premium badge top-right
+    ctx.drawImage(premiumBadge, canvas.width-50, 10, 40, 40);
+
+    // Locked level top-center
+    ctx.drawImage(lockedLevel, canvas.width/2-20, 10, 40, 40);
+
+    // Premium screen preview bottom-left
+    ctx.drawImage(premiumScreen, 10, canvas.height-150, 120, 120);
+
+    // Shop premium item bottom-center
+    ctx.drawImage(shopPremium, canvas.width/2-60, canvas.height-140, 120, 120);
+
+    // Upgrade button bottom-right
+    ctx.drawImage(upgradeButton, canvas.width-130, canvas.height-60, 120, 50);
 }
