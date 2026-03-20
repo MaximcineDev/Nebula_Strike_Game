@@ -1,4 +1,6 @@
 {
+    "id": "com.nebulastrike.game",
+    
     "name": "Nebula Strike",
 
     "short_name": "NebulaStrike",
@@ -66,4 +68,17 @@
         }
 
     ]
+
+    "screenshots": [
+        {
+          "src": "screenshots/shot1.png",
+          "sizes": "1280x720",
+          "type": "image/png"
+        },
+        {
+          "src": "screenshots/shot2.png",
+          "sizes": "1280x720",
+          "type": "image/png"
+        }
+  ]
 }
