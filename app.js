@@ -16,6 +16,21 @@ let boss = null;
 
 const SAVE_KEY = "nebula_save";
 
+const playerImg = new Image();
+playerImg.src = "./assets/player.png";
+
+const enemyImg = new Image();
+enemyImg.src = "./assets/enemy.png";
+
+const bossImg = new Image();
+bossImg.src = "./assets/boss.png";
+
+const explosionImg = new Image();
+explosionImg.src = "./assets/explosion.png";
+
+const starImg = new Image();
+starImg.src = "./assets/star.png";
+
 function loadSave() {
 
     let s = localStorage.getItem(SAVE_KEY);
