@@ -1,21 +1,162 @@
+
+/* =========================
+        NEBULA STRIKE
+   ========================= */
+
+html,
 body {
 
     margin: 0;
+    padding: 0;
+
+    width: 100%;
+    height: 100%;
+
     overflow: hidden;
+
     background: black;
-    font-family: Arial, sans-serif;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    color: white;
 
 }
 
+
+/* ---------- CANVAS ---------- */
 
 canvas {
 
     position: absolute;
+
     top: 0;
     left: 0;
 
+    width: 100%;
+    height: 100%;
+
+    background: black;
+
 }
 
+
+/* ---------- MENU ---------- */
+
+.menu {
+
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+
+    text-align: center;
+
+}
+
+
+.menu h1 {
+
+    font-size: 40px;
+
+    margin-bottom: 20px;
+
+}
+
+
+.menu button {
+
+    display: block;
+
+    margin: 10px auto;
+
+    padding: 12px 25px;
+
+    font-size: 18px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #00aaff;
+
+    color: white;
+
+    cursor: pointer;
+
+}
+
+
+.menu button:hover {
+
+    background: #0088cc;
+
+}
+
+
+/* ---------- HUD ---------- */
+
+#hud {
+
+    position: absolute;
+
+    top: 10px;
+    left: 10px;
+
+    font-size: 18px;
+
+    z-index: 10;
+
+}
+
+
+#score {
+
+    margin-bottom: 5px;
+
+}
+
+
+#coins {
+
+    color: gold;
+
+}
+
+
+/* ---------- SHOP ---------- */
+
+.shop-item {
+
+    margin: 10px;
+
+    padding: 10px;
+
+    border: 2px solid white;
+
+    border-radius: 10px;
+
+}
+
+
+/* ---------- ACHIEVEMENTS ---------- */
+
+#achievementList {
+
+    margin-top: 20px;
+
+}
+
+
+#achievementList p {
+
+    margin: 8px;
+
+}
+
+
+/* ---------- SPLASH ---------- */
 
 #splash {
 
@@ -28,95 +169,62 @@ canvas {
     height: 100%;
 
     background: black;
-    color: white;
 
     display: flex;
-    flex-direction: column;
 
     align-items: center;
     justify-content: center;
 
-    z-index: 50;
+    font-size: 40px;
+
+    z-index: 100;
 
 }
 
 
-#main-menu {
-
-    position: absolute;
-
-    top: 40%;
-    left: 50%;
-
-    transform: translate(-50%, -50%);
-
-    text-align: center;
-
-    color: white;
-
-    z-index: 10;
-
-}
-
+/* ---------- MOBILE FIX ---------- */
 
 button {
 
-    padding: 12px 20px;
-    margin: 10px;
-
-    font-size: 18px;
+    touch-action: manipulation;
 
 }
 
 
-#hud {
+/* ---------- BOSS BAR ---------- */
+
+#bossBar {
 
     position: absolute;
 
     top: 10px;
-    left: 10px;
+    left: 50%;
 
-    color: white;
+    transform: translateX(-50%);
 
-    z-index: 5;
+    width: 60%;
+    height: 15px;
+
+    border: 2px solid white;
 
 }
 
 
-#shootBtn {
+#bossHP {
 
-    position: absolute;
-
-    bottom: 30px;
-    right: 30px;
-
-    width: 80px;
-    height: 80px;
-
-    border-radius: 40px;
+    height: 100%;
 
     background: red;
-    color: white;
 
-    border: none;
-
-    z-index: 20;
+    width: 100%;
 
 }
 
 
-#adBanner {
+/* ---------- FULLSCREEN FIX ---------- */
 
-    position: absolute;
+* {
 
-    bottom: 0;
-    left: 0;
-
-    width: 100%;
-    height: 50px;
-
-    background: #111;
-
-    z-index: 30;
+    box-sizing: border-box;
 
 }
