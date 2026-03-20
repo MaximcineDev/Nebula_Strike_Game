@@ -1,68 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    >
 
     <title>Nebula Strike</title>
 
-    <link rel="manifest" href="./manifest.json">
-    <link rel="stylesheet" href="./styles.css">
+    <link
+        rel="stylesheet"
+        href="styles.css"
+    >
 
-    <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin">
-    <meta http-equiv="Cross-Origin-Embedder-Policy" content="require-corp">
 </head>
 
 <body>
 
-    <div class="game-container">
+    <div id="main-menu">
 
-        <canvas id="gameCanvas"></canvas>
+        <h1>Nebula Strike</h1>
 
-        <div id="loading-screen">
-            Loading...
-        </div>
+        <button onclick="startGame()">
+            Start Game
+        </button>
 
-        <div id="main-menu">
+        <button onclick="openShop()">
+            Shop
+        </button>
 
-            <h1>Nebula Strike</h1>
-
-            <button onclick="startGame()">
-                Play
-            </button>
-
-            <button onclick="openShop()">
-                Shop
-            </button>
-
-            <button onclick="openAchievements()">
-                Achievements
-            </button>
-
-        </div>
-
-        <div id="hud">
-            Score: <span id="score">0</span>
-            Coins: <span id="coins">0</span>
-        </div>
-
-        <div id="touch">
-            <button onclick="shoot()">
-                FIRE
-            </button>
-        </div>
+        <button onclick="openAchievements()">
+            Achievements
+        </button>
 
     </div>
 
-    <script src="./app.js"></script>
 
-    <script>
-        if ("serviceWorker" in navigator) {
-            navigator.serviceWorker.register("./service-worker.js");
-        }
-    </script>
+    <div id="hud">
+
+        <div id="score">0</div>
+        <div id="coins">0</div>
+
+    </div>
+
+
+    <canvas id="gameCanvas"></canvas>
+
+
+    <button
+        id="shootBtn"
+        ontouchstart="shoot()"
+        onmousedown="shoot()"
+    >
+        FIRE
+    </button>
+
+
+    <script src="app.js"></script>
 
 </body>
+
 </html>
