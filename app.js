@@ -12,7 +12,11 @@ let bullets = [];
 
 let enemies = [];
 
-let boss = null;
+let boss = null;,
+
+let explosions = [];
+
+let stars = [];
 
 const SAVE_KEY = "nebula_save";
 
@@ -30,6 +34,12 @@ explosionImg.src = "./assets/explosion.png";
 
 const starImg = new Image();
 starImg.src = "./assets/star.png";
+
+const boomSound =
+new Audio("./assets/sounds/explosion.wav");
+
+boomSound.currentTime = 0;
+boomSound.play();
 
 function loadSave() {
 
@@ -132,6 +142,15 @@ function init() {
     resize();
 
     requestAnimationFrame(loop);
+
+    for (let i = 0; i < 50; i++) {
+
+        stars.push({
+            x: Math.random() * 800,
+            y: Math.random() * 600
+        });
+
+    }
 }
 
 
@@ -214,6 +233,20 @@ function update() {
 
     });
 
+    explosions.push({
+        x: e.x,
+        y: e.y,
+        time: 20
+    });
+
+    explosions.forEach(ex => {
+        ex.time--;
+    });
+
+    explosions = explosions.filter(
+        ex => ex.time > 0
+    );
+
     bullets.forEach(b => {
 
         enemies.forEach(e => {
@@ -273,6 +306,16 @@ function update() {
         }
 
     }
+
+    stars.forEach(s => {
+
+        s.y += 1;
+
+        if (s.y > canvas.height) {
+            s.y = 0;
+        }
+
+    });
 }
 
 
@@ -287,11 +330,28 @@ function draw() {
 
     ctx.fillStyle = "cyan";
 
-    ctx.fillRect(
-        playerX - 20,
-        canvas.height - 60,
-        40,
-        40
+    ctx.drawImage(
+        playerImg,
+        playerX - 32,
+        canvas.height - 80,
+        64,
+        64
+    );
+
+    ctx.drawImage(
+        enemyImg,
+        e.x - 32,
+        e.y - 32,
+        64,
+        64
+    );
+
+    ctx.drawImage(
+        bossImg,
+        boss.x - 64,
+        boss.y - 32,
+        128,
+        64
     );
 
     ctx.fillStyle = "cyan";
@@ -332,4 +392,28 @@ function draw() {
         );
 
     }
+
+    explosions.forEach(ex => {
+
+        ctx.drawImage(
+            explosionImg,
+            ex.x - 32,
+            ex.y - 32,
+            64,
+            64
+        );
+
+    });
+
+    stars.forEach(s => {
+
+        ctx.drawImage(
+            starImg,
+            s.x,
+            s.y,
+            4,
+            4
+        );
+
+    });
 }
