@@ -1,93 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nebula Strike</title>
+    <meta charset="UTF-8">
 
-  <!-- Manifest -->
-  <link rel="manifest" href="./manifest.json">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
-  <!-- Favicon (optional) -->
-  <link rel="icon" href="icon.png" type="image/png">
+    <title>Nebula Strike</title>
 
-  <!-- Styles -->
-  <link rel="stylesheet" href="./styles.css">
-  <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      window.location.reload();
-    });
-  }
-</script>
+    <link rel="manifest" href="./manifest.json">
+    <link rel="stylesheet" href="./styles.css">
+
+    <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin">
+    <meta http-equiv="Cross-Origin-Embedder-Policy" content="require-corp">
 </head>
+
 <body>
 
-  <!-- Game Canvas -->
-  <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div class="game-container">
 
-  <!-- Offline message -->
-  <div id="offlineMessage" style="display:none;position:fixed;top:0;width:100%;background:red;color:white;text-align:center;padding:10px;">
-    You are offline
-  </div>
+        <canvas id="gameCanvas"></canvas>
 
-  <!-- Game Script -->
-  <script src="./app.js"></script>
+        <div id="loading-screen">
+            Loading...
+        </div>
 
-  <!-- Service Worker Registration -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', async () => {
-        try {
-          const registration = await navigator.serviceWorker.register('./service-worker.js');
-          console.log('[PWA] SW registered:', registration.scope);
+        <div id="main-menu">
 
-          registration.addEventListener('updatefound', () => {
-            const newWorker = registration.installing;
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                showUpdatePrompt(newWorker);
-              }
-            });
-          });
+            <h1>Nebula Strike</h1>
 
-          navigator.serviceWorker.addEventListener('message', (event) => {
-            if (event.data?.type === 'ASSETS_CACHED') {
-              console.log(`[PWA] ${event.data.count} assets cached`);
-            }
-          });
+            <button onclick="startGame()">
+                Play
+            </button>
 
-        } catch (error) {
-          console.error('[PWA] SW registration failed:', error);
+            <button onclick="openShop()">
+                Shop
+            </button>
+
+            <button onclick="openAchievements()">
+                Achievements
+            </button>
+
+        </div>
+
+        <div id="hud">
+            Score: <span id="score">0</span>
+            Coins: <span id="coins">0</span>
+        </div>
+
+        <div id="touch">
+            <button onclick="shoot()">
+                FIRE
+            </button>
+        </div>
+
+    </div>
+
+    <script src="./app.js"></script>
+
+    <script>
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("./service-worker.js");
         }
-      });
-    }
+    </script>
 
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-    });
-
-    function showUpdatePrompt(worker) {
-      console.log("Update available");
-      worker.postMessage({ type: "SKIP_WAITING" });
-      window.location.reload();
-    }
-
-    function updateOnlineStatus() {
-      if (navigator.onLine) {
-        document.body.classList.remove('offline');
-        document.getElementById('offlineMessage').style.display = 'none';
-      } else {
-        document.body.classList.add('offline');
-        document.getElementById('offlineMessage').style.display = 'block';
-      }
-    }
-
-    window.addEventListener('online', updateOnlineStatus);
-    window.addEventListener('offline', updateOnlineStatus);
-    updateOnlineStatus();
-  </script>
 </body>
 </html>
