@@ -57,6 +57,16 @@ const boomSound = new Audio("./assets/sounds/explosion.wav");
 const shootSound = new Audio("./assets/sounds/shoot.wav");
 
 
+window.onload = function () {
+
+    setTimeout(() => {
+
+        document.getElementById("splash").style.display = "none";
+
+    }, 1000);
+
+};
+
 /* ---------- SAVE ---------- */
 
 function loadSave() {
