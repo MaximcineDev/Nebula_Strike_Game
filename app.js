@@ -67,6 +67,13 @@ window.onload = function () {
 
 };
 
+document.addEventListener(
+    "touchstart",
+    () => {},
+    { passive: true }
+);
+
+
 /* ---------- SAVE ---------- */
 
 function loadSave() {
