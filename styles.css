@@ -24,7 +24,7 @@ canvas {
 }
 
 /* ---------- MENU ---------- */
-.menu {
+.menu, #main-menu {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -32,12 +32,12 @@ canvas {
     text-align: center;
 }
 
-.menu h1 {
+.menu h1, #main-menu h1 {
     font-size: 40px;
     margin-bottom: 20px;
 }
 
-.menu button {
+.menu button, #main-menu button {
     display: block;
     margin: 10px auto;
     padding: 12px 25px;
@@ -49,7 +49,7 @@ canvas {
     cursor: pointer;
 }
 
-.menu button:hover {
+.menu button:hover, #main-menu button:hover {
     background: #0088cc;
 }
 
@@ -60,46 +60,54 @@ canvas {
     left: 10px;
     font-size: 18px;
     z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 #score {
     margin-bottom: 5px;
 }
 
-/* Coin Display (Neon Sci-Fi) */
-.coin-display {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 24px;
-    font-weight: bold;
-    color: #00ffff;
-    text-shadow:
-        0 0 5px #00ffff,
-        0 0 10px #00ffff,
-        0 0 20px #00ffff,
-        0 0 40px #1a73e8,
-        0 0 80px #1a73e8;
-    padding: 8px 16px;
-    background: rgba(0, 0, 0, 0.5);
-    border: 2px solid #00ffff;
-    border-radius: 12px;
-    box-shadow: 0 0 20px #00ffff, 0 0 40px #1a73e8;
+#coins {
+    color: gold;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
-/* ---------- SHOP ---------- */
-.shop-item {
-    margin: 10px;
-    padding: 10px;
-    border: 2px solid white;
-    border-radius: 10px;
+#watch-ad-btn {
+    margin-top: 10px;
+    padding: 8px 12px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    background: #ffaa00;
+    color: black;
+    cursor: pointer;
+}
+#watch-ad-btn:hover {
+    background: #ff8800;
 }
 
-/* ---------- ACHIEVEMENTS ---------- */
-#achievementList {
-    margin-top: 20px;
+/* ---------- SHOOT BUTTON ---------- */
+#shootBtn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    padding: 15px 25px;
+    font-size: 18px;
+    border: none;
+    border-radius: 8px;
+    background: #00ffcc;
+    color: black;
+    cursor: pointer;
+    z-index: 15;
 }
 
-#achievementList p {
-    margin: 8px;
+/* ---------- UPGRADE BUTTON ---------- */
+#upgradeBtnCanvas {
+    /* Optional: invisible overlay if needed for touch area */
 }
 
 /* ---------- SPLASH ---------- */
@@ -117,7 +125,7 @@ canvas {
     z-index: 100;
 }
 
-/* ---------- BUTTON FIX ---------- */
+/* ---------- MOBILE FIX ---------- */
 button {
     touch-action: manipulation;
 }
@@ -132,7 +140,6 @@ button {
     height: 15px;
     border: 2px solid white;
 }
-
 #bossHP {
     height: 100%;
     background: red;
@@ -142,28 +149,4 @@ button {
 /* ---------- FULLSCREEN FIX ---------- */
 * {
     box-sizing: border-box;
-}
-
-/* ---------- SCI-FI REWARDED BUTTON ---------- */
-.sci-fi-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1000;
-    padding: 12px 24px;
-    font-size: 18px;
-    font-weight: bold;
-    color: #fff;
-    background: linear-gradient(90deg, #0ff, #1a73e8);
-    border: 2px solid #0ff;
-    border-radius: 12px;
-    cursor: pointer;
-    text-transform: uppercase;
-    box-shadow: 0 0 15px #0ff, 0 0 25px #1a73e8;
-    transition: 0.3s all;
-}
-
-.sci-fi-btn:hover {
-    box-shadow: 0 0 25px #0ff, 0 0 45px #1a73e8;
-    transform: scale(1.05);
 }
