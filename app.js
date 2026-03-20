@@ -50,7 +50,7 @@ document.addEventListener("touchstart", () => {}, { passive: true });
 /* ---------- SAVE ---------- */
 function loadSave() {
     let s = localStorage.getItem(SAVE_KEY);
-    if(!s) return { coins: 0 };
+    if(!s) return { coins: 0, upgrades: {} };
     return JSON.parse(s);
 }
 function saveGame(data) {
@@ -58,6 +58,7 @@ function saveGame(data) {
 }
 let SAVE = loadSave();
 coins = SAVE.coins || 0;
+SAVE.upgrades = SAVE.upgrades || { laser: false, shield: false, skin: false };
 
 /* ---------- START ---------- */
 function startGame() {
@@ -66,7 +67,6 @@ function startGame() {
     init();
 }
 
-function openShop() { window.location.href = "./shop.html"; }
 function openAchievements() { window.location.href = "./achievements.html"; }
 function screenShake(power) { shake = power; }
 
@@ -95,6 +95,9 @@ function init() {
     for(let i=0;i<20;i++) stars3.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height });
 
     setupRewardedAd();
+
+    // Canvas click for upgrade button
+    canvas.addEventListener('click', handleCanvasClick);
 }
 
 function resize() {
@@ -119,11 +122,6 @@ function update() {
     coins += 0.1;
     SAVE.coins = Math.floor(coins);
     saveGame(SAVE);
-
-    let scoreEl = document.getElementById("score");
-    let coinsEl = document.getElementById("coin-display");
-    if(scoreEl) scoreEl.innerText = score;
-    if(coinsEl) coinsEl.innerText = Math.floor(coins);
 
     if(shake>0) shake--;
 
@@ -150,15 +148,11 @@ function update() {
                 screenShake(10);
                 for(let i=0;i<5;i++) particles.push({ x:e.x, y:e.y, vx:Math.random()*4-2, vy:Math.random()*4-2, life:20 });
                 playSound(boomSound);
-                combo++; comboTimer=60;
                 score+=10; coins+=1;
                 e.y=9999;
             }
         });
     });
-
-    if(comboTimer>0) comboTimer--; else combo=0;
-    enemies = enemies.filter(e=>e.y<canvas.height);
 
     // boss spawn
     if(score>500 && !boss) boss={x:canvas.width/2, y:50, hp:30};
@@ -192,6 +186,35 @@ function update() {
     if(score>level*500) level++;
 }
 
+/* ---------- SHOP / UPGRADES ---------- */
+function handleCanvasClick(e){
+    const rect = canvas.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+
+    // Upgrade button area (bottom-right)
+    if(clickX >= canvas.width-130 && clickX <= canvas.width-10 &&
+       clickY >= canvas.height-60 && clickY <= canvas.height-10){
+        buyItem('laser', 50);
+    }
+}
+
+function buyItem(item, price){
+    if(SAVE.upgrades[item]){
+        alert(item + " already purchased");
+        return;
+    }
+    if(coins>=price){
+        coins-=price;
+        SAVE.coins = Math.floor(coins);
+        SAVE.upgrades[item]=true;
+        saveGame(SAVE);
+        alert("Purchased " + item + "!");
+    } else {
+        alert("Not enough coins");
+    }
+}
+
 /* ---------- REWARD PLAYER ---------- */
 function rewardPlayer(coinsEarned=100){
     coins+=coinsEarned;
@@ -209,10 +232,9 @@ function rewardPlayer(coinsEarned=100){
 function setupRewardedAd(){
     const watchBtn = document.getElementById('watch-ad-btn');
     const adContainer = document.getElementById('rewarded-ad');
-
+    if(!watchBtn || !adContainer) return;
     watchBtn.addEventListener('click', ()=>{
         adContainer.style.display='block';
-        // Simulate rewarded ad
         setTimeout(()=>{
             adContainer.style.display='none';
             rewardPlayer(100);
