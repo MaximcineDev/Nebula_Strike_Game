@@ -9,16 +9,16 @@ let running = false;
 let playerX = 0;
 
 let bullets = [];
-
 let enemies = [];
-
-let boss = null;,
-
 let explosions = [];
-
 let stars = [];
 
+let boss = null;
+
 const SAVE_KEY = "nebula_save";
+
+
+/* ---------- IMAGES ---------- */
 
 const playerImg = new Image();
 playerImg.src = "./assets/player.png";
@@ -35,11 +35,15 @@ explosionImg.src = "./assets/explosion.png";
 const starImg = new Image();
 starImg.src = "./assets/star.png";
 
-const boomSound =
-new Audio("./assets/sounds/explosion.wav");
 
-boomSound.currentTime = 0;
-boomSound.play();
+/* ---------- SOUND ---------- */
+
+const boomSound = new Audio("./assets/sounds/explosion.wav");
+
+const shootSound = new Audio("./assets/sounds/shoot.wav");
+
+
+/* ---------- SAVE ---------- */
 
 function loadSave() {
 
@@ -62,11 +66,12 @@ function saveGame(data) {
         SAVE_KEY,
         JSON.stringify(data)
     );
-
 }
 
 let SAVE = loadSave();
 
+
+/* ---------- START ---------- */
 
 function startGame() {
 
@@ -81,18 +86,15 @@ function startGame() {
 
 
 function openShop() {
-
     window.location.href = "./shop.html";
-
 }
-
 
 function openAchievements() {
-
     window.location.href = "./achievements.html";
-
 }
 
+
+/* ---------- SHOOT ---------- */
 
 function shoot() {
 
@@ -104,13 +106,7 @@ function shoot() {
     });
 
     playSound(shootSound);
-
 }
-
-
-let shootSound = new Audio(
-    "./assets/sounds/shoot.wav"
-);
 
 
 function playSound(s) {
@@ -119,21 +115,18 @@ function playSound(s) {
 
     s.currentTime = 0;
 
-    s.play().catch(() => { });
-
+    s.play().catch(() => {});
 }
 
 
+/* ---------- INIT ---------- */
+
 function init() {
 
-    canvas = document.getElementById(
-        "gameCanvas"
-    );
+    canvas = document.getElementById("gameCanvas");
 
     if (!canvas) {
-
         alert("Canvas missing");
-
         return;
     }
 
@@ -143,11 +136,12 @@ function init() {
 
     requestAnimationFrame(loop);
 
-    for (let i = 0; i < 50; i++) {
+    // stars
+    for (let i = 0; i < 60; i++) {
 
         stars.push({
-            x: Math.random() * 800,
-            y: Math.random() * 600
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height
         });
 
     }
@@ -158,15 +152,21 @@ function resize() {
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-
 }
 
+window.addEventListener("resize", resize);
 
-window.addEventListener(
-    "resize",
-    resize
-);
 
+window.addEventListener("mousemove", e => {
+    playerX = e.clientX;
+});
+
+window.addEventListener("touchmove", e => {
+    playerX = e.touches[0].clientX;
+});
+
+
+/* ---------- LOOP ---------- */
 
 function loop() {
 
@@ -179,6 +179,8 @@ function loop() {
 }
 
 
+/* ---------- UPDATE ---------- */
+
 function update() {
 
     score++;
@@ -186,66 +188,37 @@ function update() {
     coins += 0.1;
 
     SAVE.coins = Math.floor(coins);
-
     saveGame(SAVE);
 
     document.getElementById("score").innerText = score;
+    document.getElementById("coins").innerText = Math.floor(coins);
 
-    document.getElementById("coins").innerText =
-        Math.floor(coins);
 
-    playerX += 0;
-
-    window.addEventListener("mousemove", e => {
-
-        playerX = e.clientX;
-
-    });
-
-    window.addEventListener("touchmove", e => {
-
-        playerX = e.touches[0].clientX;
-
-    });
+    /* bullets */
 
     bullets.forEach(b => {
-
         b.y -= 10;
-
     });
 
     bullets = bullets.filter(b => b.y > 0);
 
+
+    /* spawn enemies */
+
     if (Math.random() < 0.02) {
 
         enemies.push({
-
             x: Math.random() * canvas.width,
             y: -20
-
         });
-
     }
 
     enemies.forEach(e => {
-
         e.y += 3;
-
     });
 
-    explosions.push({
-        x: e.x,
-        y: e.y,
-        time: 20
-    });
 
-    explosions.forEach(ex => {
-        ex.time--;
-    });
-
-    explosions = explosions.filter(
-        ex => ex.time > 0
-    );
+    /* bullet hit */
 
     bullets.forEach(b => {
 
@@ -256,30 +229,41 @@ function update() {
                 Math.abs(b.y - e.y) < 20
             ) {
 
+                explosions.push({
+                    x: e.x,
+                    y: e.y,
+                    time: 20
+                });
+
+                playSound(boomSound);
+
                 e.y = 9999;
 
                 score += 10;
-
                 coins += 1;
-
             }
 
         });
 
     });
 
+
+    enemies = enemies.filter(
+        e => e.y < canvas.height
+    );
+
+
+    /* boss */
+
     if (score > 500 && !boss) {
 
         boss = {
-
             x: canvas.width / 2,
             y: 50,
             hp: 30
-
         };
-
     }
-    
+
     if (boss) {
 
         bullets.forEach(b => {
@@ -288,24 +272,39 @@ function update() {
                 Math.abs(b.x - boss.x) < 50 &&
                 Math.abs(b.y - boss.y) < 50
             ) {
-
                 boss.hp--;
-
             }
 
         });
 
         if (boss.hp <= 0) {
 
+            explosions.push({
+                x: boss.x,
+                y: boss.y,
+                time: 40
+            });
+
             boss = null;
 
             score += 200;
-
             coins += 50;
-
         }
-
     }
+
+
+    /* explosions */
+
+    explosions.forEach(ex => {
+        ex.time--;
+    });
+
+    explosions = explosions.filter(
+        ex => ex.time > 0
+    );
+
+
+    /* stars */
 
     stars.forEach(s => {
 
@@ -314,10 +313,12 @@ function update() {
         if (s.y > canvas.height) {
             s.y = 0;
         }
-
     });
+
 }
 
+
+/* ---------- DRAW ---------- */
 
 function draw() {
 
@@ -328,7 +329,23 @@ function draw() {
         canvas.height
     );
 
-    ctx.fillStyle = "cyan";
+
+    /* stars */
+
+    stars.forEach(s => {
+
+        ctx.drawImage(
+            starImg,
+            s.x,
+            s.y,
+            4,
+            4
+        );
+
+    });
+
+
+    /* player */
 
     ctx.drawImage(
         playerImg,
@@ -338,21 +355,8 @@ function draw() {
         64
     );
 
-    ctx.drawImage(
-        enemyImg,
-        e.x - 32,
-        e.y - 32,
-        64,
-        64
-    );
 
-    ctx.drawImage(
-        bossImg,
-        boss.x - 64,
-        boss.y - 32,
-        128,
-        64
-    );
+    /* bullets */
 
     ctx.fillStyle = "cyan";
 
@@ -367,31 +371,37 @@ function draw() {
 
     });
 
-    ctx.fillStyle = "red";
+
+    /* enemies */
 
     enemies.forEach(e => {
 
-        ctx.fillRect(
-            e.x,
-            e.y,
-            30,
-            30
+        ctx.drawImage(
+            enemyImg,
+            e.x - 32,
+            e.y - 32,
+            64,
+            64
         );
 
     });
 
+
+    /* boss */
+
     if (boss) {
 
-        ctx.fillStyle = "orange";
-
-        ctx.fillRect(
-            boss.x - 50,
-            boss.y,
-            100,
-            40
+        ctx.drawImage(
+            bossImg,
+            boss.x - 64,
+            boss.y - 32,
+            128,
+            64
         );
-
     }
+
+
+    /* explosions */
 
     explosions.forEach(ex => {
 
@@ -405,15 +415,4 @@ function draw() {
 
     });
 
-    stars.forEach(s => {
-
-        ctx.drawImage(
-            starImg,
-            s.x,
-            s.y,
-            4,
-            4
-        );
-
-    });
 }
