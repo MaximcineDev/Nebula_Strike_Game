@@ -22,7 +22,7 @@ const LOW_MODE = true;
 /* ---------- ASSET LOADER ---------- */
 
 let assetsLoaded = 0;
-let assetsToLoad = 5;
+let assetsToLoad = 0;
 
 function assetLoaded() {
 
@@ -62,24 +62,34 @@ coins = getCoins();
 
 /* ---------- IMAGES ---------- */
 
+assetsToLoad++;
 const playerImg = new Image();
 playerImg.onload = assetLoaded;
+playerImg.onerror = assetLoaded;
 playerImg.src = "assets/player.png";
 
+assetsToLoad++;
 const enemyImg = new Image();
 enemyImg.onload = assetLoaded;
+enemyImg.onerror = assetLoaded;
 enemyImg.src = "assets/enemy.png";
 
+assetsToLoad++;
 const bossImg = new Image();
 bossImg.onload = assetLoaded;
+bossImg.onerror = assetLoaded;
 bossImg.src = "assets/boss.png";
 
+assetsToLoad++;
 const explosionImg = new Image();
 explosionImg.onload = assetLoaded;
+explosionImg.onerror = assetLoaded;
 explosionImg.src = "assets/explosion.png";
 
+assetsToLoad++;
 const starImg = new Image();
 starImg.onload = assetLoaded;
+starImg.onerror = assetLoaded;
 starImg.src = "assets/star.png";
 
 /* ---------- UI ---------- */
