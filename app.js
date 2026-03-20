@@ -1,3 +1,7 @@
+/* =========================
+        NEBULA STRIKE
+   ========================= */
+
 let canvas;
 let ctx;
 
@@ -53,9 +57,10 @@ starImg.src = "./assets/star.png";
 /* ---------- SOUND ---------- */
 
 const boomSound = new Audio("./assets/sounds/explosion.wav");
-
 const shootSound = new Audio("./assets/sounds/shoot.wav");
 
+
+/* ---------- SPLASH ---------- */
 
 window.onload = function () {
 
@@ -70,6 +75,7 @@ window.onload = function () {
     }, 1000);
 
 };
+
 
 document.addEventListener(
     "touchstart",
@@ -86,14 +92,13 @@ function loadSave() {
 
     if (!s) {
         return {
-            coins: 0,
-            skin: "default",
-            achievements: {}
+            coins: 0
         };
     }
 
     return JSON.parse(s);
 }
+
 
 function saveGame(data) {
 
@@ -101,6 +106,7 @@ function saveGame(data) {
         SAVE_KEY,
         JSON.stringify(data)
     );
+
 }
 
 let SAVE = loadSave();
@@ -156,6 +162,7 @@ function playSound(s) {
     s.currentTime = 0;
 
     s.play().catch(() => {});
+
 }
 
 
@@ -165,16 +172,12 @@ function init() {
 
     canvas = document.getElementById("gameCanvas");
 
-    if (!canvas) {
-        alert("Canvas missing");
-        return;
-    }
-
     ctx = canvas.getContext("2d");
 
     resize();
 
     requestAnimationFrame(loop);
+
 
     for (let i = 0; i < 40; i++) {
         stars.push({
@@ -196,6 +199,7 @@ function init() {
             y: Math.random() * canvas.height
         });
     }
+
 }
 
 
@@ -203,9 +207,11 @@ function resize() {
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+
 }
 
 window.addEventListener("resize", resize);
+
 
 window.addEventListener("mousemove", e => {
     playerX = e.clientX;
@@ -226,6 +232,7 @@ function loop() {
     draw();
 
     requestAnimationFrame(loop);
+
 }
 
 
@@ -238,7 +245,9 @@ function update() {
     coins += 0.1;
 
     SAVE.coins = Math.floor(coins);
+
     saveGame(SAVE);
+
 
     let scoreEl = document.getElementById("score");
     let coinsEl = document.getElementById("coins");
@@ -268,10 +277,9 @@ function update() {
             y: -20,
             type: Math.floor(Math.random() * 3)
         });
+
     }
 
-
-    /* enemy movement */
 
     enemies.forEach(e => {
 
@@ -322,12 +330,12 @@ function update() {
 
                 combo++;
                 comboTimer = 60;
-                score += combo * 2;
-
-                e.y = 9999;
 
                 score += 10;
                 coins += 1;
+
+                e.y = 9999;
+
             }
 
         });
@@ -353,6 +361,7 @@ function update() {
             y: 50,
             hp: 30
         };
+
     }
 
 
@@ -384,6 +393,7 @@ function update() {
 
             score += 200;
             coins += 50;
+
         }
 
 
@@ -396,6 +406,7 @@ function update() {
             });
 
         }
+
     }
 
 
