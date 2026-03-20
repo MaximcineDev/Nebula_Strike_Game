@@ -12,55 +12,77 @@
 
     <title>Nebula Strike</title>
 
-    <link
-        rel="stylesheet"
-        href="styles.css"
-    >
+    <link rel="stylesheet" href="styles.css">
 
 </head>
 
 <body>
 
-    <div id="main-menu">
 
-        <h1>Nebula Strike</h1>
+<!-- SPLASH -->
 
-        <button onclick="startGame()">
-            Start Game
-        </button>
+<div id="splash">
 
-        <button onclick="openShop()">
-            Shop
-        </button>
+    <h1>Nebula Strike</h1>
 
-        <button onclick="openAchievements()">
-            Achievements
-        </button>
+    <p>Loading...</p>
 
-    </div>
+</div>
 
 
-    <div id="hud">
+<!-- MENU -->
 
-        <div id="score">0</div>
-        <div id="coins">0</div>
+<div id="main-menu">
 
-    </div>
+    <h1>Nebula Strike</h1>
 
-
-    <canvas id="gameCanvas"></canvas>
-
-
-    <button
-        id="shootBtn"
-        ontouchstart="shoot()"
-        onmousedown="shoot()"
-    >
-        FIRE
+    <button onclick="startGame()">
+        Start Game
     </button>
 
+    <button onclick="openShop()">
+        Shop
+    </button>
 
-    <script src="app.js"></script>
+    <button onclick="openAchievements()">
+        Achievements
+    </button>
+
+</div>
+
+
+<!-- HUD -->
+
+<div id="hud">
+
+    <div id="score">0</div>
+    <div id="coins">0</div>
+
+</div>
+
+
+<!-- GAME -->
+
+<canvas id="gameCanvas"></canvas>
+
+
+<!-- SHOOT BUTTON -->
+
+<button
+    id="shootBtn"
+    ontouchstart="shoot()"
+    onmousedown="shoot()"
+>
+    FIRE
+</button>
+
+
+<!-- ADMOB PLACEHOLDER -->
+
+<div id="adBanner"></div>
+
+
+<script src="app.js"></script>
 
 </body>
 
