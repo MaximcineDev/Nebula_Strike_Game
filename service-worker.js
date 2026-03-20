@@ -1,4 +1,4 @@
-// Nebula Strike - Service Worker (Fixed for GitHub Pages subdirectory)
+// Nebula Strike - Service Worker
 // Version: 1.0.1
 
 const CACHE_NAME = 'nebula-strike-v1.0.1';
