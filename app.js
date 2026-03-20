@@ -85,20 +85,60 @@ function playSound(s) {
 
 /* ---------- INIT ---------- */
 function init() {
+
     canvas = document.getElementById("gameCanvas");
-    ctx = canvas.getContext("webgl2") || canvas.getContext("webgl");
-       if (!ctx) alert("Failed to initialize game. Please check if WebGL is enabled.");
+
+    if (!canvas) {
+        alert("Canvas not found");
+        return;
+    }
+
+    // Try WebGL first (optional)
+    let gl =
+        canvas.getContext("webgl2") ||
+        canvas.getContext("webgl") ||
+        canvas.getContext("experimental-webgl");
+
+    if (gl) {
+        console.log("WebGL available");
+    } else {
+        console.log("WebGL not available, using 2D");
+    }
+
+    // Use 2D context for this game
+    ctx = canvas.getContext("2d");
+
+    if (!ctx) {
+        alert("Failed to initialize game.");
+        return;
+    }
+
     resize();
+
     requestAnimationFrame(loop);
 
-    for(let i=0;i<40;i++) stars.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height });
-    for(let i=0;i<30;i++) stars2.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height });
-    for(let i=0;i<20;i++) stars3.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height });
+    // Stars
+    for (let i = 0; i < 40; i++)
+        stars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height
+        });
+
+    for (let i = 0; i < 30; i++)
+        stars2.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height
+        });
+
+    for (let i = 0; i < 20; i++)
+        stars3.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height
+        });
 
     setupRewardedAd();
 
-    // Canvas click for upgrade button
-    canvas.addEventListener('click', handleCanvasClick);
+    canvas.addEventListener("click", handleCanvasClick);
 }
 
 function resize() {
