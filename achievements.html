@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Achievements - Nebula Strike</title>
+
+    <link rel="stylesheet" href="./styles.css">
+
+</head>
+
+<body>
+
+<div class="game-container">
+
+    <h1>Achievements</h1>
+
+    <pre id="list"></pre>
+
+    <button onclick="goBack()">
+        Back
+    </button>
+
+</div>
+
+
+<script>
+
+const SAVE_KEY = "nebula_save";
+
+
+function loadSave() {
+
+    let s = localStorage.getItem(SAVE_KEY);
+
+    if (!s) {
+
+        return {
+            coins: 0,
+            skin: "default",
+            achievements: {}
+        };
+
+    }
+
+    return JSON.parse(s);
+}
+
+
+let SAVE = loadSave();
+
+
+document.getElementById("list").innerText =
+    JSON.stringify(
+        SAVE.achievements,
+        null,
+        2
+    );
+
+
+function goBack() {
+
+    window.location.href =
+        "./index.html";
+
+}
+
+</script>
+
+
+</body>
+</html>
