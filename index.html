@@ -2,121 +2,69 @@
 <html lang="en">
 
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
-    <meta charset="UTF-8">
+  <title>Nebula Strike</title>
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
-    >
+  <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192x192.png">
+  <meta name="theme-color" content="#00d4ff">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
-    <title>Nebula Strike</title>
-
-    <link rel="stylesheet" href="styles.css">
-
-    <link rel="manifest" href="manifest.json">
-
-    <link rel="icon" href="icons/icon-192x192.png">
-
-    <meta name="theme-color" content="#00d4ff">
-
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-
+  <!-- Google GPT (for rewarded ads) -->
+  <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
 </head>
-
 
 <body>
 
+  <!-- SPLASH -->
+  <div id="splash">
+    <h1>Nebula Strike</h1>
+    <p>Loading...</p>
+  </div>
 
-    <!-- SPLASH -->
+  <!-- MENU -->
+  <div id="main-menu">
+    <h1>Nebula Strike</h1>
+    <button onclick="startGame()">Start Game</button>
+    <button onclick="openShop()">Shop</button>
+    <button onclick="openAchievements()">Achievements</button>
+  </div>
 
-    <div id="splash">
+  <!-- HUD -->
+  <div id="hud">
+    <div id="score">0</div>
+    <div id="coin-display" class="coin-display">Coins: 0</div>
+  </div>
 
-        <h1>Nebula Strike</h1>
+  <!-- GAME -->
+  <canvas id="gameCanvas"></canvas>
 
-        <p>Loading...</p>
+  <!-- SHOOT BUTTON -->
+  <button id="shootBtn" ontouchstart="shoot()" onmousedown="shoot()">FIRE</button>
 
-    </div>
+  <!-- REWARDED AD BUTTON -->
+  <button id="watch-ad-btn" class="sci-fi-btn">Watch Ad for Coins</button>
 
+  <!-- ADMOB / Banner Placeholder -->
+  <div id="adBanner"></div>
 
+  <!-- Scripts -->
+  <script src="app.js"></script>
+  <script src="ads.js"></script>
 
-    <!-- MENU -->
-
-    <div id="main-menu">
-
-        <h1>Nebula Strike</h1>
-
-        <button onclick="startGame()">
-            Start Game
-        </button>
-
-        <button onclick="openShop()">
-            Shop
-        </button>
-
-        <button onclick="openAchievements()">
-            Achievements
-        </button>
-
-    </div>
-
-
-
-    <!-- HUD -->
-
-    <div id="hud">
-
-        <div id="score">0</div>
-
-        <div id="coins">0</div>
-
-    </div>
-
-
-
-    <!-- GAME -->
-
-    <canvas id="gameCanvas"></canvas>
-
-
-
-    <!-- SHOOT BUTTON -->
-
-    <button
-        id="shootBtn"
-        ontouchstart="shoot()"
-        onmousedown="shoot()"
-    >
-        FIRE
-    </button>
-
-
-
-    <!-- ADMOB -->
-
-    <div id="adBanner"></div>
-
-
-
-    <script src="app.js"></script>
-
-
-
-    <script>
-
-        if ("serviceWorker" in navigator) {
-
-            navigator.serviceWorker
-                .register("service-worker.js")
-                .then(() => console.log("SW registered"))
-                .catch(err => console.log(err));
-
-        }
-
-    </script>
-
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("service-worker.js")
+        .then(() => console.log("SW registered"))
+        .catch(err => console.log(err));
+    }
+  </script>
 
 </body>
 
