@@ -17,6 +17,17 @@ let stars3 = [];
 
 let boss = null;
 
+let shake = 0;
+
+let particles = [];
+
+let bossBullets = [];
+
+let level = 1;
+
+let combo = 0;
+let comboTimer = 0;
+
 const SAVE_KEY = "nebula_save";
 
 
@@ -95,6 +106,9 @@ function openAchievements() {
     window.location.href = "./achievements.html";
 }
 
+function screenShake(power) {
+    shake = power;
+}
 
 /* ---------- SHOOT ---------- */
 
@@ -207,7 +221,10 @@ function update() {
     document.getElementById("score").innerText = score;
     document.getElementById("coins").innerText = Math.floor(coins);
 
-
+    if (shake > 0) {
+        shake--;
+    }
+    
     /* bullets */
 
     bullets.forEach(b => {
@@ -219,17 +236,19 @@ function update() {
 
     /* spawn enemies */
 
-    if (Math.random() < 0.02) {
+    if (Math.random() < 0.03) {
 
         enemies.push({
+
             x: Math.random() * canvas.width,
-            y: -20
+            y: -20,
+            type: Math.floor(Math.random() * 3)
+
         });
+
     }
 
-    enemies.forEach(e => {
-        e.y += 3;
-    });
+    if (Math.random() < 0.02 + level * 0.002)
 
 
     /* bullet hit */
@@ -261,11 +280,51 @@ function update() {
 
     });
 
+    enemies.forEach(e => {
+
+        if (e.type === 0) e.y += 3;
+
+        if (e.type === 1) {
+            e.y += 2;
+            e.x += Math.sin(e.y * 0.05) * 2;
+        }
+
+        if (e.type === 2) {
+            e.y += 4;
+        }
+
+    });
+
 
     enemies = enemies.filter(
         e => e.y < canvas.height
     );
 
+    screenShake(10);
+
+    for (let i = 0; i < 5; i++) {
+
+        particles.push({
+
+            x: e.x,
+            y: e.y,
+            vx: Math.random() * 4 - 2,
+            vy: Math.random() * 4 - 2,
+            life: 20
+
+        });
+
+    }
+
+    combo++;
+    comboTimer = 60;
+    score += combo * 2;
+
+    if (comboTimer > 0) {
+        comboTimer--;
+    } else {
+        combo = 0;
+    }
 
     /* boss */
 
@@ -306,6 +365,23 @@ function update() {
         }
     }
 
+    if (boss && Math.random() < 0.05) {
+
+        bossBullets.push({
+
+            x: boss.x,
+            y: boss.y,
+            vy: 5
+
+        });
+
+    }
+
+    bossBullets.forEach(b => {
+        b.y += b.vy;
+    });
+
+    screenShake(20);
 
     /* explosions */
 
@@ -335,6 +411,22 @@ function update() {
         if (s.y > canvas.height) s.y = 0;
     });
 
+    particles.forEach(p => {
+
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life--;
+
+    });
+
+    particles = particles.filter(
+        p => p.life > 0
+    );
+
+    if (score > level * 500) {
+        level++;
+    }
+
 }
 
 
@@ -348,6 +440,17 @@ function draw() {
         canvas.width,
         canvas.height
     );
+
+    ctx.save();
+
+    if (shake > 0) {
+
+        ctx.translate(
+            Math.random() * shake - shake / 2,
+            Math.random() * shake - shake / 2
+        );
+
+    }
 
 
     /* stars */
@@ -378,16 +481,21 @@ function draw() {
 
     /* bullets */
 
-    ctx.fillStyle = "cyan";
-
     bullets.forEach(b => {
+
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "cyan";
+
+        ctx.fillStyle = "cyan";
 
         ctx.fillRect(
             b.x,
             b.y,
             4,
-            10
+            12
         );
+
+        ctx.shadowBlur = 0;
 
     });
 
@@ -446,6 +554,19 @@ function draw() {
         ctx.strokeRect(x, y, w, h);
     }
 
+    bossBullets.forEach(b => {
+
+        ctx.fillStyle = "red";
+
+        ctx.fillRect(
+            b.x,
+            b.y,
+            4,
+            10
+        );
+
+    });
+
 
     /* explosions */
 
@@ -463,4 +584,31 @@ function draw() {
 
     });
 
+    particles.forEach(p => {
+
+        ctx.fillStyle = "orange";
+
+        ctx.fillRect(
+            p.x,
+            p.y,
+            2,
+            2
+        );
+
+    });
+
+    ctx.fillStyle = "white";
+    ctx.fillText(
+        "Level " + level,
+        20,
+        60
+    );
+
+    ctx.fillText(
+        "Combo " + combo,
+        20,
+        90
+    );
+
+    ctx.restore();
 }
