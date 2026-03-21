@@ -15,9 +15,9 @@ const ASSETS = [
     "./icons/icon-152x152.png",
     "./icons/icon-192x192.png",
     "./icons/icon-384x384.png",
-    "./icons/icon-512x512.png"
+    "./icons/icon-512x512.png",
 
-    "./screenshots/shot1.png"
+    "./screenshots/shot1.png",
     "./screenshots/shot2.png"
 
 ];
@@ -28,11 +28,8 @@ self.addEventListener("install", event => {
     event.waitUntil(
 
         caches.open(CACHE_NAME)
-
             .then(cache => {
-
                 return cache.addAll(ASSETS);
-
             })
 
     );
@@ -45,11 +42,8 @@ self.addEventListener("fetch", event => {
     event.respondWith(
 
         caches.match(event.request)
-
             .then(response => {
-
                 return response || fetch(event.request);
-
             })
 
     );
