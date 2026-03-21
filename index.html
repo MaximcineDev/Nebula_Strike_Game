@@ -34,15 +34,31 @@
 
     <!-- SHOP -->
     <div id="shop" style="display:none">
+
         <img src="ui/shop-premium.png" id="shopBg">
+
         <div id="shopPanel">
+
             <img src="ui/premium-screen.png" id="shopScreen">
+
             <img src="ui/premium-badge.png" id="premiumBadge">
-            <button onclick="buyWeapon()">Weapon</button>
-            <button onclick="buySkin()">Skin</button>
-            <button onclick="buyPremium()">Premium</button>
-            <button onclick="closeShop()">Back</button>
+
+            <h2>UPGRADES</h2>
+
+            <button onclick="buyDamage()">
+                Damage Upgrade (10)
+            </button>
+
+            <button onclick="buyFireRate()">
+                Fire Rate Upgrade (10)
+            </button>
+
+            <button onclick="closeShop()">
+                Back
+            </button>
+
         </div>
+
     </div>
 
     <canvas id="gameCanvas"></canvas>
