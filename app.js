@@ -7,8 +7,16 @@ window.addEventListener("load", () => {
     const splash = document.getElementById("splashScreen");
 
     setTimeout(() => {
-        splash.style.display = "none";
-    }, 2000); // 2 seconds
+
+        splash.style.opacity = "0";
+
+        setTimeout(() => {
+
+            splash.style.display = "none";
+
+        }, 1000);
+
+    }, 2500);
 
 });
 
