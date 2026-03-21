@@ -1,5 +1,5 @@
 /* =========================
-   Nebula Strike FINAL BUILD
+   NEBULA STRIKE
 ========================= */
 
 const canvas = document.getElementById("gameCanvas");
