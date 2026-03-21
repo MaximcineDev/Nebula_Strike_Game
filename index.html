@@ -3,120 +3,51 @@
 
 <head>
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Nebula Strike</title>
-
     <link rel="stylesheet" href="./styles.css">
-
-    <link rel="manifest" href="./manifest.json">
-
-    <link rel="icon" href="./icons/icon-192x192.png">
-
-    <meta name="theme-color" content="#00d4ff">
-
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-
 </head>
 
 <body>
 
-
-    <!-- ================= SPLASH ================= -->
-
+    <!-- SPLASH -->
     <div id="splashScreen">
-
         <img src="ui/splash-screen.png" id="splashLogo">
-
-        <div id="loadingText">
-            Loading...
-        </div>
-
+        <div id="loadingText">Loading...</div>
     </div>
 
-
-    <!-- ================= MENU ================= -->
-
+    <!-- MENU -->
     <div id="main-menu">
-
         <h1>Nebula Strike</h1>
-
-        <button id="startBtn">
-            Start Game
-        </button>
-
-        <button onclick="alert('Achievements coming soon!')">
-            Achievements
-        </button>
-
+        <button id="startBtn">Start</button>
+        <button onclick="openShop()">Shop</button>
     </div>
 
-
-    <!-- ================= HUD ================= -->
-
+    <!-- HUD -->
     <div id="hud">
-
-        <div id="scoreText">
-            Score: 0
-        </div>
-
+        <div id="scoreText">Score: 0</div>
         <div id="coins">
-
-            <img src="./assets/ui/coin-icon.png"
-                width="24"
-                height="24">
-
-            <span id="coinText">
-                0
-            </span>
-
+            <img src="assets/ui/coin-icon.png" width="24">
+            <span id="coinText">0</span>
         </div>
-
     </div>
 
-
-    <!-- ================= GAME ================= -->
+    <!-- SHOP -->
+    <div id="shop" style="display:none">
+        <img src="ui/shop-premium.png" id="shopBg">
+        <div id="shopPanel">
+            <img src="ui/premium-screen.png" id="shopScreen">
+            <img src="ui/premium-badge.png" id="premiumBadge">
+            <button onclick="buyWeapon()">Weapon</button>
+            <button onclick="buySkin()">Skin</button>
+            <button onclick="buyPremium()">Premium</button>
+            <button onclick="closeShop()">Back</button>
+        </div>
+    </div>
 
     <canvas id="gameCanvas"></canvas>
 
-
-
-    <!-- ================= REWARDED AD ================= -->
-
-    <div id="rewarded-ad">
-        Playing Ad...
-    </div>
-
-
-
-    <!-- ================= SCRIPT ================= -->
-
-    <script src="./app.js"></script>
-
-
-
-    <!-- ================= SERVICE WORKER ================= -->
-
-    <script>
-
-        if ('serviceWorker' in navigator) {
-
-            navigator.serviceWorker
-                .register('./service-worker.js')
-
-                .then(() => console.log('SW registered'))
-
-                .catch(err => console.log(err));
-
-        }
-
-    </script>
-
-
+    <script src="app.js"></script>
 </body>
 
 </html>
