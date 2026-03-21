@@ -44,12 +44,22 @@ function updateUI() {
 
     const scoreText = document.getElementById("scoreText");
     const coinText = document.getElementById("coinText");
+    const badge = document.getElementById("premiumBadge");
 
     if (scoreText)
         scoreText.textContent = "Score: " + score;
 
     if (coinText)
-        coinText.textContent = score;
+        coinText.textContent = coins;
+
+    if (badge) {
+
+        if (damage > 1 || fireRate < 300)
+            badge.style.display = "block";
+        else
+            badge.style.display = "none";
+
+    }
 
 }
 
@@ -538,5 +548,23 @@ function gameOver() {
     alert("Game Over");
 
     location.reload();
+
+}
+
+/* ---------- SHOP ---------- */
+function openShop() {
+
+    document.getElementById("main-menu").style.display = "none";
+    document.getElementById("shop").style.display = "block";
+
+    loadGame();
+    updateUI();
+
+}
+
+function closeShop() {
+
+    document.getElementById("shop").style.display = "none";
+    document.getElementById("main-menu").style.display = "flex";
 
 }
