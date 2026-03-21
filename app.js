@@ -5,6 +5,9 @@
 window.addEventListener("load", () => {
 
     const splash = document.getElementById("splashScreen");
+    const menu = document.getElementById("main-menu");
+
+    if (menu) menu.style.display = "none";
 
     setTimeout(() => {
 
@@ -14,11 +17,14 @@ window.addEventListener("load", () => {
 
             splash.style.display = "none";
 
+            if (menu) menu.style.display = "flex";
+
         }, 1000);
 
     }, 2500);
 
 });
+
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -76,26 +82,6 @@ let moveLeft = false;
 let moveRight = false;
 let moveUp = false;
 let moveDown = false;
-
-
-/* STARTUP */
-
-window.addEventListener("load", () => {
-
-    initGame();
-
-});
-
-
-function initGame() {
-
-    const splash = document.getElementById("splash");
-    const menu = document.getElementById("main-menu");
-
-    if (splash) splash.style.display = "none";
-    if (menu) menu.style.display = "flex";
-
-}
 
 
 /* START GAME */
