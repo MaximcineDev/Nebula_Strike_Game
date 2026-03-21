@@ -2,6 +2,9 @@
    NEBULA STRIKE
 ========================= */
 
+
+/* ---------- SPLASH ---------- */
+
 window.addEventListener("load", () => {
 
     const splash = document.getElementById("splashScreen");
@@ -26,6 +29,8 @@ window.addEventListener("load", () => {
 });
 
 
+/* ---------- CANVAS ---------- */
+
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -33,7 +38,23 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 
-/* IMAGES */
+/* ---------- UI UPDATE ---------- */
+
+function updateUI() {
+
+    const scoreText = document.getElementById("scoreText");
+    const coinText = document.getElementById("coinText");
+
+    if (scoreText)
+        scoreText.textContent = "Score: " + score;
+
+    if (coinText)
+        coinText.textContent = score;
+
+}
+
+
+/* ---------- IMAGES ---------- */
 
 const playerImg = new Image();
 playerImg.src = "./assets/player.png";
@@ -48,7 +69,7 @@ const bgImg = new Image();
 bgImg.src = "./assets/background.png";
 
 
-/* GAME STATE */
+/* ---------- GAME STATE ---------- */
 
 let gameRunning = false;
 
@@ -65,7 +86,7 @@ let boss = null;
 let bossHealth = 100;
 
 
-/* PLAYER */
+/* ---------- PLAYER ---------- */
 
 const player = {
     x: canvas.width / 2,
@@ -76,7 +97,7 @@ const player = {
 };
 
 
-/* MOVEMENT FLAGS */
+/* ---------- MOVEMENT FLAGS ---------- */
 
 let moveLeft = false;
 let moveRight = false;
@@ -84,13 +105,16 @@ let moveUp = false;
 let moveDown = false;
 
 
-/* START GAME */
+/* ---------- START GAME ---------- */
 
 document.getElementById("startBtn").addEventListener("click", startGame);
 
 function startGame() {
 
     document.getElementById("main-menu").style.display = "none";
+
+    score = 0;
+    updateUI();
 
     createStars();
 
@@ -101,7 +125,26 @@ function startGame() {
 }
 
 
-/* STARS */
+/* ---------- TAP TO SHOOT ---------- */
+
+canvas.addEventListener("touchstart", () => {
+
+    if (!gameRunning) return;
+
+    shoot();
+
+});
+
+canvas.addEventListener("click", () => {
+
+    if (!gameRunning) return;
+
+    shoot();
+
+});
+
+
+/* ---------- STARS ---------- */
 
 function createStars() {
 
@@ -142,7 +185,7 @@ function drawStars() {
 }
 
 
-/* MOVEMENT */
+/* ---------- MOVEMENT ---------- */
 
 function updatePlayerMove() {
 
@@ -162,7 +205,7 @@ function updatePlayerMove() {
 }
 
 
-/* KEYBOARD */
+/* ---------- KEYBOARD ---------- */
 
 window.addEventListener("keydown", (e) => {
 
@@ -183,7 +226,7 @@ window.addEventListener("keyup", (e) => {
 });
 
 
-/* TOUCH */
+/* ---------- TOUCH MOVE ---------- */
 
 canvas.addEventListener("touchmove", (e) => {
 
@@ -195,7 +238,7 @@ canvas.addEventListener("touchmove", (e) => {
 });
 
 
-/* MOUSE */
+/* ---------- MOUSE MOVE ---------- */
 
 canvas.addEventListener("mousemove", (e) => {
 
@@ -205,7 +248,7 @@ canvas.addEventListener("mousemove", (e) => {
 });
 
 
-/* SHOOT */
+/* ---------- SHOOT ---------- */
 
 function shoot() {
 
@@ -219,7 +262,7 @@ function shoot() {
 }
 
 
-/* ENEMY SPAWN */
+/* ---------- ENEMY SPAWN ---------- */
 
 setInterval(() => {
 
@@ -235,7 +278,7 @@ setInterval(() => {
 }, 1500);
 
 
-/* BOSS SPAWN */
+/* ---------- BOSS SPAWN ---------- */
 
 setInterval(() => {
 
@@ -257,7 +300,7 @@ setInterval(() => {
 }, 4000);
 
 
-/* EXPLOSION */
+/* ---------- EXPLOSION ---------- */
 
 function createExplosion(x, y) {
 
@@ -271,7 +314,7 @@ function createExplosion(x, y) {
 }
 
 
-/* GAME LOOP */
+/* ---------- GAME LOOP ---------- */
 
 function gameLoop() {
 
@@ -299,7 +342,7 @@ function gameLoop() {
 }
 
 
-/* PLAYER */
+/* ---------- PLAYER ---------- */
 
 function drawPlayer() {
 
@@ -314,7 +357,7 @@ function drawPlayer() {
 }
 
 
-/* BULLETS */
+/* ---------- BULLETS ---------- */
 
 function updateBullets() {
 
@@ -340,6 +383,7 @@ function updateBullets() {
                 bullets.splice(i, 1);
 
                 score += 10;
+                updateUI();
 
             }
 
@@ -365,6 +409,7 @@ function updateBullets() {
                     boss = null;
 
                     score += 500;
+                    updateUI();
 
                 }
 
@@ -377,7 +422,7 @@ function updateBullets() {
 }
 
 
-/* ENEMIES */
+/* ---------- ENEMIES ---------- */
 
 function updateEnemies() {
 
@@ -403,7 +448,7 @@ function updateEnemies() {
 }
 
 
-/* ENEMY BULLETS */
+/* ---------- ENEMY BULLETS ---------- */
 
 function updateEnemyBullets() {
 
@@ -434,7 +479,7 @@ function updateEnemyBullets() {
 }
 
 
-/* BOSS */
+/* ---------- BOSS ---------- */
 
 function updateBoss() {
 
@@ -460,7 +505,7 @@ function updateBoss() {
 }
 
 
-/* EXPLOSIONS */
+/* ---------- EXPLOSIONS ---------- */
 
 function drawExplosions() {
 
@@ -484,7 +529,7 @@ function drawExplosions() {
 }
 
 
-/* GAME OVER */
+/* ---------- GAME OVER ---------- */
 
 function gameOver() {
 
