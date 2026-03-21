@@ -1,6 +1,6 @@
 {
     "id": "com.nebulastrike.game",
-    
+
     "name": "Nebula Strike",
 
     "short_name": "NebulaStrike",
@@ -30,7 +30,7 @@
             "sizes": "96x96",
             "type": "image/png"
         },
-      
+
         {
             "src": "icons/icon-128x128.png",
             "sizes": "128x128",
@@ -54,7 +54,7 @@
             "sizes": "192x192",
             "type": "image/png"
         },
-      
+
         {
             "src": "icons/icon-384x384.png",
             "sizes": "384x384",
@@ -67,18 +67,18 @@
             "type": "image/png"
         }
 
-    ]
+    ],
 
     "screenshots": [
         {
-          "src": "screenshots/shot1.png",
-          "sizes": "1280x720",
-          "type": "image/png"
+            "src": "screenshots/shot1.png",
+            "sizes": "1280x720",
+            "type": "image/png"
         },
         {
-          "src": "screenshots/shot2.png",
-          "sizes": "1280x720",
-          "type": "image/png"
+            "src": "screenshots/shot2.png",
+            "sizes": "1280x720",
+            "type": "image/png"
         }
-  ]
+    ]
 }
