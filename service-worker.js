@@ -17,6 +17,9 @@ const ASSETS = [
     "./icons/icon-384x384.png",
     "./icons/icon-512x512.png"
 
+    "./screenshots/shot1.png"
+    "./screenshots/shot2.png"
+
 ];
 
 
