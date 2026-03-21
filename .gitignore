@@ -1,58 +1,120 @@
-# ===============================
-# Nebula Strike .gitignore
-# Web / PWA / GitHub Pages
-# ===============================
+# ---------------------------
+# Node / JS / Web / PWA
+# ---------------------------
 
-# ---------- OS ----------
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# OS-specific
 .DS_Store
 Thumbs.db
 ehthumbs.db
-*.swp
-*~
-.directory
-
-# ---------- Logs ----------
-*.log
-
-# ---------- VS Code ----------
-.vscode/
-
-# ---------- Node / build ----------
-node_modules/
-dist/
-.cache/
-.tmp/
-
-# ---------- Service worker cache ----------
-sw.js.map
-
-# ---------- Backup ----------
 *.bak
 *.tmp
 *.temp
-*.orig
+*.swp
+*~
 
-# ---------- Keystore (if you build Android later) ----------
+# ---------------------------
+# Git
+# ---------------------------
+
+*.orig
+.vscode/
+.idea/
+*.iml
+
+# ---------------------------
+# MacOS
+# ---------------------------
+
+.AppleDouble
+.LSOverride
+
+# ---------------------------
+# Windows
+# ---------------------------
+
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# ---------------------------
+# Linux
+# ---------------------------
+
+.directory
+
+# ---------------------------
+# Android / Java / Gradle
+# ---------------------------
+
+*.apk
+*.ap_
+*.aab
+*.aar
+*.dex
+*.class
+bin/
+gen/
+out/
+.gradle/
+build/
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+gradletasknamecache
+local.properties
+.idea/
 *.jks
 *.keystore
 *.p12
 *.key
+*.mobileprovision
 signing.properties
 keystore.properties
+.externalNativeBuild
+.cxx/
 
-# ---------- Ignore screenshots source files ----------
-screenshots/*.psd
-screenshots/*.xcf
+# ---------------------------
+# Fastlane
+# ---------------------------
 
-# ===============================
-# KEEP GAME FILES
-# ===============================
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+fastlane/readme.md
 
-!assets/
-!icons/
-!screenshots/
-!index.html
-!app.js
+# ---------------------------
+# PWA / App specific
+# ---------------------------
+
+# Temporary / cache
+.cache/
+tmp/
+*.log
+.navigation/
+captures/
+
+# Optional: Comment these if you want to keep mapping / builds for Android
+# app/release/
+# app/debug/
+# *.mapping
+
+# ---------------------------
+# Nebula Strike assets you want to keep
+# ---------------------------
+
+# Keep these for the PWA
+!assets/**
+!icons/**
+!screenshots/**
 !styles.css
+!app.js
+!index.html
 !manifest.json
 !service-worker.js
