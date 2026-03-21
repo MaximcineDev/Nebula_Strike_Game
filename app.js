@@ -2,6 +2,16 @@
    NEBULA STRIKE
 ========================= */
 
+window.addEventListener("load", () => {
+
+    const splash = document.getElementById("splashScreen");
+
+    setTimeout(() => {
+        splash.style.display = "none";
+    }, 2000); // 2 seconds
+
+});
+
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
