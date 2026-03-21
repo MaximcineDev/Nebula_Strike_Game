@@ -7,7 +7,7 @@
     "scope": "./",
     "display": "standalone",
     "display_override": ["window-controls-overlay","standalone"],
-    "orientation": "landscape"
+    "orientation": "landscape",
     "background_color": "#0a0a1a",
     "theme_color": "#00d4ff",
     "icons": [
