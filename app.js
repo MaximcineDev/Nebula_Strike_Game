@@ -1,542 +1,155 @@
-/* =========================
-   NEBULA STRIKE
-========================= */
+let coins = 0;
+let score = 0;
 
+let weaponLevel = 1;
+let skin = 0;
+let premium = false;
 
-/* ---------- SPLASH ---------- */
-
-window.addEventListener("load", () => {
-
-    const splash = document.getElementById("splashScreen");
-    const menu = document.getElementById("main-menu");
-
-    if (menu) menu.style.display = "none";
-
-    setTimeout(() => {
-
-        splash.style.opacity = "0";
-
-        setTimeout(() => {
-
-            splash.style.display = "none";
-
-            if (menu) menu.style.display = "flex";
-
-        }, 1000);
-
-    }, 2500);
-
-});
-
-
-/* ---------- CANVAS ---------- */
+let gameRunning = false;
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-
-/* ---------- UI UPDATE ---------- */
-
-function updateUI() {
-
-    const scoreText = document.getElementById("scoreText");
-    const coinText = document.getElementById("coinText");
-
-    if (scoreText)
-        scoreText.textContent = "Score: " + score;
-
-    if (coinText)
-        coinText.textContent = score;
-
-}
-
-
-/* ---------- IMAGES ---------- */
+canvas.width = innerWidth;
+canvas.height = innerHeight;
 
 const playerImg = new Image();
-playerImg.src = "./assets/player.png";
-
-const enemyImg = new Image();
-enemyImg.src = "./assets/enemy.png";
-
-const bossImg = new Image();
-bossImg.src = "./assets/boss.png";
-
-const bgImg = new Image();
-bgImg.src = "./assets/background.png";
-
-
-/* ---------- GAME STATE ---------- */
-
-let gameRunning = false;
-
-let score = 0;
-let playerHealth = 100;
+playerImg.src = "assets/player.png";
 
 let bullets = [];
-let enemies = [];
-let enemyBullets = [];
-let explosions = [];
-let stars = [];
-
-let boss = null;
-let bossHealth = 100;
-
-
-/* ---------- PLAYER ---------- */
 
 const player = {
-    x: canvas.width / 2,
-    y: canvas.height - 120,
+    x: 200,
+    y: 400,
     width: 50,
-    height: 50,
-    speed: 6
+    height: 50
 };
 
+window.addEventListener("load", () => {
+    loadGame();
 
-/* ---------- MOVEMENT FLAGS ---------- */
+    const splash = document.getElementById("splashScreen");
 
-let moveLeft = false;
-let moveRight = false;
-let moveUp = false;
-let moveDown = false;
+    setTimeout(() => {
+        splash.style.opacity = 0;
 
+        setTimeout(() => {
+            splash.style.display = "none";
+        }, 1000);
 
-/* ---------- START GAME ---------- */
+    }, 2000);
+});
 
 document.getElementById("startBtn").addEventListener("click", startGame);
 
 function startGame() {
-
-    document.getElementById("main-menu").style.display = "none";
-
+    gameRunning = true;
     score = 0;
     updateUI();
-
-    createStars();
-
-    gameRunning = true;
-
-    gameLoop();
-
+    loop();
 }
 
-
-/* ---------- TAP TO SHOOT ---------- */
-
-canvas.addEventListener("touchstart", () => {
-
-    if (!gameRunning) return;
-
-    shoot();
-
-});
-
-canvas.addEventListener("click", () => {
-
-    if (!gameRunning) return;
-
-    shoot();
-
-});
-
-
-/* ---------- STARS ---------- */
-
-function createStars() {
-
-    stars = [];
-
-    for (let i = 0; i < 100; i++) {
-
-        stars.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            size: Math.random() * 2,
-            speed: Math.random() * 2 + 1
-        });
-
-    }
-
-}
-
-function drawStars() {
-
-    ctx.fillStyle = "white";
-
-    stars.forEach(star => {
-
-        ctx.fillRect(star.x, star.y, star.size, star.size);
-
-        star.y += star.speed;
-
-        if (star.y > canvas.height) {
-
-            star.y = 0;
-            star.x = Math.random() * canvas.width;
-
-        }
-
-    });
-
-}
-
-
-/* ---------- MOVEMENT ---------- */
-
-function updatePlayerMove() {
-
-    if (moveLeft) player.x -= player.speed;
-    if (moveRight) player.x += player.speed;
-    if (moveUp) player.y -= player.speed;
-    if (moveDown) player.y += player.speed;
-
-    if (player.x < 0) player.x = 0;
-    if (player.x > canvas.width - player.width)
-        player.x = canvas.width - player.width;
-
-    if (player.y < 0) player.y = 0;
-    if (player.y > canvas.height - player.height)
-        player.y = canvas.height - player.height;
-
-}
-
-
-/* ---------- KEYBOARD ---------- */
-
-window.addEventListener("keydown", (e) => {
-
-    if (e.key === "ArrowLeft") moveLeft = true;
-    if (e.key === "ArrowRight") moveRight = true;
-    if (e.key === "ArrowUp") moveUp = true;
-    if (e.key === "ArrowDown") moveDown = true;
-
-});
-
-window.addEventListener("keyup", (e) => {
-
-    if (e.key === "ArrowLeft") moveLeft = false;
-    if (e.key === "ArrowRight") moveRight = false;
-    if (e.key === "ArrowUp") moveUp = false;
-    if (e.key === "ArrowDown") moveDown = false;
-
-});
-
-
-/* ---------- TOUCH MOVE ---------- */
-
-canvas.addEventListener("touchmove", (e) => {
-
-    const t = e.touches[0];
-
-    player.x = t.clientX - player.width / 2;
-    player.y = t.clientY - player.height / 2;
-
-});
-
-
-/* ---------- MOUSE MOVE ---------- */
-
-canvas.addEventListener("mousemove", (e) => {
-
-    player.x = e.clientX - player.width / 2;
-    player.y = e.clientY - player.height / 2;
-
-});
-
-
-/* ---------- SHOOT ---------- */
-
-function shoot() {
-
-    bullets.push({
-        x: player.x + player.width / 2 - 2,
-        y: player.y,
-        width: 4,
-        height: 12
-    });
-
-}
-
-
-/* ---------- ENEMY SPAWN ---------- */
-
-setInterval(() => {
-
-    if (!gameRunning) return;
-
-    enemies.push({
-        x: Math.random() * canvas.width,
-        y: -50,
-        width: 40,
-        height: 40
-    });
-
-}, 1500);
-
-
-/* ---------- BOSS SPAWN ---------- */
-
-setInterval(() => {
-
-    if (!gameRunning) return;
-
-    if (score > 200 && !boss) {
-
-        boss = {
-            x: canvas.width / 2 - 80,
-            y: 50,
-            width: 160,
-            height: 160
-        };
-
-        bossHealth = 100;
-
-    }
-
-}, 4000);
-
-
-/* ---------- EXPLOSION ---------- */
-
-function createExplosion(x, y) {
-
-    explosions.push({
-        x,
-        y,
-        size: 10,
-        life: 20
-    });
-
-}
-
-
-/* ---------- GAME LOOP ---------- */
-
-function gameLoop() {
-
+function loop() {
     if (!gameRunning) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-
-    drawStars();
-
-    updatePlayerMove();
-
     drawPlayer();
-
     updateBullets();
-    updateEnemies();
-    updateEnemyBullets();
-    updateBoss();
 
-    drawExplosions();
-
-    requestAnimationFrame(gameLoop);
-
+    requestAnimationFrame(loop);
 }
-
-
-/* ---------- PLAYER ---------- */
 
 function drawPlayer() {
-
-    ctx.drawImage(
-        playerImg,
-        player.x,
-        player.y,
-        player.width,
-        player.height
-    );
-
+    ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
 }
 
+function shoot() {
+    if (weaponLevel === 1) {
+        bullets.push({ x: player.x + 20, y: player.y });
+    }
 
-/* ---------- BULLETS ---------- */
+    if (weaponLevel >= 2) {
+        bullets.push({ x: player.x + 10, y: player.y });
+        bullets.push({ x: player.x + 30, y: player.y });
+    }
+}
+
+canvas.addEventListener("click", shoot);
+canvas.addEventListener("touchstart", shoot);
 
 function updateBullets() {
-
-    bullets.forEach((b, i) => {
-
+    bullets.forEach(b => {
         b.y -= 10;
-
-        ctx.fillStyle = "#00ffff";
-        ctx.fillRect(b.x, b.y, b.width, b.height);
-
-        enemies.forEach((e, ei) => {
-
-            if (
-                b.x < e.x + e.width &&
-                b.x + b.width > e.x &&
-                b.y < e.y + e.height &&
-                b.y + b.height > e.y
-            ) {
-
-                createExplosion(e.x, e.y);
-
-                enemies.splice(ei, 1);
-                bullets.splice(i, 1);
-
-                score += 10;
-                updateUI();
-
-            }
-
-        });
-
-        if (boss) {
-
-            if (
-                b.x < boss.x + boss.width &&
-                b.x + b.width > boss.x &&
-                b.y < boss.y + boss.height &&
-                b.y + b.height > boss.y
-            ) {
-
-                bossHealth -= 5;
-
-                bullets.splice(i, 1);
-
-                if (bossHealth <= 0) {
-
-                    createExplosion(boss.x, boss.y);
-
-                    boss = null;
-
-                    score += 500;
-                    updateUI();
-
-                }
-
-            }
-
-        }
-
+        ctx.fillRect(b.x, b.y, 4, 10);
     });
-
 }
 
+/* SAVE & LOAD */
 
-/* ---------- ENEMIES ---------- */
-
-function updateEnemies() {
-
-    enemies.forEach((e) => {
-
-        e.y += 2;
-
-        ctx.drawImage(enemyImg, e.x, e.y, e.width, e.height);
-
-        if (Math.random() < 0.01) {
-
-            enemyBullets.push({
-                x: e.x + 10,
-                y: e.y,
-                width: 4,
-                height: 10
-            });
-
-        }
-
-    });
-
-}
-
-
-/* ---------- ENEMY BULLETS ---------- */
-
-function updateEnemyBullets() {
-
-    enemyBullets.forEach((b, i) => {
-
-        b.y += 5;
-
-        ctx.fillStyle = "red";
-        ctx.fillRect(b.x, b.y, b.width, b.height);
-
-        if (
-            b.x < player.x + player.width &&
-            b.x + b.width > player.x &&
-            b.y < player.y + player.height &&
-            b.y + b.height > player.y
-        ) {
-
-            playerHealth -= 10;
-
-            enemyBullets.splice(i, 1);
-
-            if (playerHealth <= 0) gameOver();
-
-        }
-
-    });
-
-}
-
-
-/* ---------- BOSS ---------- */
-
-function updateBoss() {
-
-    if (!boss) return;
-
-    ctx.drawImage(
-        bossImg,
-        boss.x,
-        boss.y,
-        boss.width,
-        boss.height
+function saveGame() {
+    localStorage.setItem(
+        "nebulaSave",
+        JSON.stringify({
+            coins,
+            weaponLevel,
+            skin,
+            premium
+        })
     );
-
-    ctx.fillStyle = "red";
-
-    ctx.fillRect(
-        boss.x,
-        boss.y - 10,
-        boss.width * (bossHealth / 100),
-        6
-    );
-
 }
 
+function loadGame() {
+    let s = localStorage.getItem("nebulaSave");
+    if (!s) return;
 
-/* ---------- EXPLOSIONS ---------- */
-
-function drawExplosions() {
-
-    explosions.forEach((ex, i) => {
-
-        ctx.beginPath();
-
-        ctx.arc(ex.x, ex.y, ex.size, 0, Math.PI * 2);
-
-        ctx.fillStyle = "orange";
-
-        ctx.fill();
-
-        ex.size += 2;
-        ex.life--;
-
-        if (ex.life <= 0) explosions.splice(i, 1);
-
-    });
-
+    let d = JSON.parse(s);
+    coins = d.coins || 0;
+    weaponLevel = d.weaponLevel || 1;
+    skin = d.skin || 0;
+    premium = d.premium || false;
 }
 
+/* UI */
 
-/* ---------- GAME OVER ---------- */
+function updateUI() {
+    document.getElementById("coinText").textContent = coins;
+    document.getElementById("scoreText").textContent = "Score: " + score;
+}
 
-function gameOver() {
+/* SHOP */
 
-    gameRunning = false;
+function openShop() {
+    document.getElementById("shop").style.display = "block";
+}
 
-    alert("Game Over");
+function closeShop() {
+    document.getElementById("shop").style.display = "none";
+}
 
-    location.reload();
+function buyWeapon() {
+    if (coins < 20) return;
 
+    coins -= 20;
+    weaponLevel++;
+    saveGame();
+    updateUI();
+}
+
+function buySkin() {
+    if (coins < 15) return;
+
+    coins -= 15;
+    skin++;
+    saveGame();
+    updateUI();
+}
+
+function buyPremium() {
+    if (coins < 50) return;
+
+    coins -= 50;
+    premium = true;
+    saveGame();
+    updateUI();
 }
