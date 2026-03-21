@@ -135,3 +135,23 @@ body, html {
     #splash { font-size: 36px; }
     #hud { font-size: 16px; }
 }
+
+/* Splash Screen */
+
+#splashScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+#splashImage {
+    width: 100%;
+    max-width: 500px;
+}
