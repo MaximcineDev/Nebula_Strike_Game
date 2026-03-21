@@ -1,8 +1,8 @@
 /* ===============================
         Nebula Strike Styles
-   =============================== */
+=============================== */
 
-/* Reset and basic body */
+/* Reset & body */
 body, html {
     margin: 0;
     padding: 0;
@@ -33,7 +33,7 @@ body, html {
 
 /* MAIN MENU */
 #main-menu {
-    display: none; /* hidden initially */
+    display: none;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -88,10 +88,11 @@ body, html {
     display: block;
     width: 100%;
     height: 100%;
-    background: black;
+    background: url('./assets/background.png') no-repeat center center;
+    background-size: cover;
 }
 
-/* FIRE BUTTON (mobile) */
+/* FIRE BUTTON */
 #shootBtn {
     position: absolute;
     bottom: 20px;
@@ -112,7 +113,7 @@ body, html {
     background: #cc0000;
 }
 
-/* REWARDED AD (hidden by default) */
+/* REWARDED AD */
 #rewarded-ad {
     display: none;
     position: absolute;
@@ -127,25 +128,10 @@ body, html {
     z-index: 200;
 }
 
-/* BOSS WARNING (glow text handled in canvas draw) */
-
-/* Responsive adjustments for smaller screens */
+/* RESPONSIVE */
 @media (max-width: 600px) {
-    #main-menu button {
-        font-size: 20px;
-        padding: 10px 20px;
-    }
-
-    #shootBtn {
-        font-size: 20px;
-        padding: 12px 20px;
-    }
-
-    #splash {
-        font-size: 36px;
-    }
-
-    #hud {
-        font-size: 16px;
-    }
+    #main-menu button { font-size: 20px; padding: 10px 20px; }
+    #shootBtn { font-size: 20px; padding: 12px 20px; }
+    #splash { font-size: 36px; }
+    #hud { font-size: 16px; }
 }
