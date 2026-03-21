@@ -3,61 +3,119 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
     <title>Nebula Strike</title>
+
     <link rel="stylesheet" href="./styles.css">
+
     <link rel="manifest" href="./manifest.json">
+
     <link rel="icon" href="./icons/icon-192x192.png">
+
     <meta name="theme-color" content="#00d4ff">
+
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
 </head>
 
 <body>
 
-    <!-- Splash Screen -->
+
+    <!-- ================= SPLASH ================= -->
+
     <div id="splashScreen">
+
         <img src="ui/splash-screen.png" id="splashLogo">
-        <div id="loadingText">Loading...</div>
-    </div>
 
-    <!-- MAIN MENU -->
-    <div id="main-menu">
-        <h1>Nebula Strike</h1>
-        <button id="startBtn">Start Game</button>
-        <button onclick="alert('Achievements coming soon!')">Achievements</button>
-    </div>
-
-    <!-- HUD -->
-    <div id="hud">
-        <div id="score-display">Score: 0</div>
-        <div id="coins">
-            <img src="./assets/ui/coin-icon.png" width="24" height="24">
-            <span id="coin-display">0</span>
+        <div id="loadingText">
+            Loading...
         </div>
+
     </div>
 
-    <!-- GAME CANVAS -->
+
+    <!-- ================= MENU ================= -->
+
+    <div id="main-menu">
+
+        <h1>Nebula Strike</h1>
+
+        <button id="startBtn">
+            Start Game
+        </button>
+
+        <button onclick="alert('Achievements coming soon!')">
+            Achievements
+        </button>
+
+    </div>
+
+
+    <!-- ================= HUD ================= -->
+
+    <div id="hud">
+
+        <div id="scoreText">
+            Score: 0
+        </div>
+
+        <div id="coins">
+
+            <img src="./assets/ui/coin-icon.png"
+                width="24"
+                height="24">
+
+            <span id="coinText">
+                0
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= GAME ================= -->
+
     <canvas id="gameCanvas"></canvas>
 
-    <!-- SHOOT BUTTON (for mobile) -->
-    <button id="shootBtn" ontouchstart="shoot()" onmousedown="shoot()">FIRE</button>
 
-    <!-- REWARDED AD SIMULATION -->
-    <div id="rewarded-ad">Playing Ad...</div>
 
-    <!-- APP SCRIPT -->
+    <!-- ================= REWARDED AD ================= -->
+
+    <div id="rewarded-ad">
+        Playing Ad...
+    </div>
+
+
+
+    <!-- ================= SCRIPT ================= -->
+
     <script src="./app.js"></script>
 
-    <!-- SERVICE WORKER -->
+
+
+    <!-- ================= SERVICE WORKER ================= -->
+
     <script>
+
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./service-worker.js')
+
+            navigator.serviceWorker
+                .register('./service-worker.js')
+
                 .then(() => console.log('SW registered'))
+
                 .catch(err => console.log(err));
+
         }
+
     </script>
+
 
 </body>
 
