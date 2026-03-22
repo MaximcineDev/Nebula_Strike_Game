@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
 
     <meta name="viewport"
-        content="width=device-width, initial-scale=1">
+          content="width=device-width, initial-scale=1">
 
     <title>Nebula Strike</title>
 
@@ -17,56 +17,65 @@
 <body>
 
 
-<!-- ================= SPLASH ================= -->
+    <!-- SPLASH -->
 
-<div id="splashScreen">
+    <div id="splashScreen">
 
-    <img src="ui/splash-screen.png" 
-         id="splashLogo">
+        <img src="ui/splash-screen.png"
+             id="splashLogo">
 
-    <p>Loading...</p>
+        <p>Loading...</p>
 
-</div>
-
-
-
-<!-- ================= MENU ================= -->
-
-<div id="main-menu">
-
-    <h1>Nebula Strike</h1>
-
-    <button id="startBtn">
-        Start
-    </button>
-
-    <button onclick="openShop()">
-        Shop
-    </button>
-
-    <button onclick="openSettings()">
-        Settings
-    </button>
-
-</div>
-
-
-
-<!-- ================= HUD ================= -->
-
-<div id="hud">
-
-    <div id="scoreText">
-        Score: 0
     </div>
 
-    <div id="coinBox">
 
-        <img src="ui/coin-icon.png">
 
-        <span id="coinText">
-            0
-        </span>
+    <!-- MAIN MENU -->
+
+    <div id="main-menu">
+
+        <h1>Nebula Strike</h1>
+
+        <button id="startBtn">
+            Start
+        </button>
+
+        <button onclick="openShop()">
+            Shop
+        </button>
+
+        <button onclick="openSettings()">
+            Settings
+        </button>
+
+    </div>
+
+
+
+    <!-- HUD -->
+
+    <div id="hud">
+
+        <div id="scoreText">
+            Score: 0
+        </div>
+
+
+        <div id="coinBox">
+
+            <img src="ui/coin-icon.png">
+
+            <span id="coinText">
+                0
+            </span>
+
+        </div>
+
+
+        <div id="levelText">
+            Lv 1
+        </div>
+
 
         <button id="pauseBtn">
             Pause
@@ -74,76 +83,63 @@
 
     </div>
 
-    <div id="levelText">
-        Lv 1
+
+
+    <!-- SHOP -->
+
+    <div id="shop">
+
+        <img src="ui/shop-premium.png"
+             id="shopBg">
+
+
+        <div id="shopPanel">
+
+            <h2>Shop</h2>
+
+
+            <button onclick="buyWeapon()">
+                Weapon
+            </button>
+
+
+            <button onclick="buyShield()">
+                Shield
+            </button>
+
+
+            <button onclick="closeShop()">
+                Back
+            </button>
+
+        </div>
+
     </div>
 
-    <button id="pauseBtn">
-        Pause
-    </button>
-
-</div>
 
 
+    <!-- SETTINGS -->
 
-<!-- ================= SHOP ================= -->
+    <div id="settings">
 
-<div id="shop">
+        <h2>Settings</h2>
 
-    <img src="ui/shop-premium.png"
-         id="shopBg">
-
-    <div id="shopPanel">
-
-        <h2>UPGRADES</h2>
-
-        <button onclick="buyWeapon()">
-            Weapon (50)
-        </button>
-
-        <button onclick="buySkin()">
-            Skin (15)
-        </button>
-
-        <button onclick="buyShield()">
-            Shield (30)
-        </button>
-
-        <button onclick="buyPremium()">
-            Premium (100)
-        </button>
-
-        <button onclick="closeShop()">
+        <button onclick="closeSettings()">
             Back
         </button>
 
     </div>
 
-</div>
+
+
+    <!-- CANVAS -->
+
+    <canvas id="gameCanvas"></canvas>
 
 
 
-<!-- ================= SETTINGS ================= -->
-
-<div id="settings">
-
-    <h2>Settings</h2>
-
-    <button onclick="closeSettings()">
-        Back
-    </button>
-
-</div>
-
-
-
-<!-- ================= CANVAS ================= -->
-
-<canvas id="gameCanvas"></canvas>
-
-
-
-<script src="app.js"></script>
+    <script src="app.js"></script>
 
 </body>
+
 </html>
