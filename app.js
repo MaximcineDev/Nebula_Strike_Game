@@ -109,6 +109,12 @@ let stars = [];
 let boss = null;
 let bossHealth = 100;
 
+let shieldLevel = 0;
+let shieldActive = false;
+let shieldTime = 0;
+
+let powerups = [];
+
 
 /* ---------- PLAYER ---------- */
 
@@ -145,6 +151,53 @@ function startGame() {
     gameRunning = true;
 
     gameLoop();
+
+}
+
+
+/* ---------- SAVE GAME ---------- */
+
+function saveGame() {
+
+    const data = {
+
+        coins,
+        damage,
+        fireRate,
+        weaponLevel,
+        skin,
+        premium
+
+    };
+
+    localStorage.setItem(
+        "nebulaSave",
+        JSON.stringify(data)
+    );
+    localStorage.setItem("coins", coins);
+    localStorage.setItem("weaponLevel", weaponLevel);
+    localStorage.setItem("shieldLevel", shieldLevel);
+
+}
+
+
+/* ---------- LOAD GAME ---------- */
+
+function loadGame() {
+
+    const save = localStorage.getItem("nebulaSave");
+
+    if (!save) return;
+
+    const data = JSON.parse(save);
+
+    coins = parseInt(localStorage.getItem("coins")) || 0;
+    damage = parseInt(localStorage.getItem("damage")) || 1;
+    fireRate = parseInt(localStorage.getItem("fireRate")) || 300;
+    weaponLevel = parseInt(localStorage.getItem("weaponLevel")) || 1;
+    shieldLevel = parseInt(localStorage.getItem("shieldLevel")) || 0;
+    skin = parseInt(localStorage.getItem("skin")) || 0;
+    premium = parseInt(localStorage.getItem("premium")) || false;
 
 }
 
@@ -404,6 +457,37 @@ function gameLoop() {
 
 }
 
+function updatePowerups() {
+
+    powerups.forEach((p, i) => {
+
+        p.y += 2;
+
+        ctx.fillStyle = "cyan";
+
+        ctx.fillRect(p.x, p.y, 20, 20);
+
+        if (
+            p.x < player.x + player.width &&
+            p.x + 20 > player.x &&
+            p.y < player.y + player.height &&
+            p.y + 20 > player.y
+        ) {
+
+            if (p.type === "shield") {
+
+                shieldActive = true;
+
+            }
+
+            powerups.splice(i, 1);
+
+        }
+
+    });
+
+}
+
 
 /* ---------- PLAYER ---------- */
 
@@ -440,6 +524,27 @@ function drawPlayer() {
 }
 
 
+function drawShield() {
+
+    if (!shieldActive) return;
+
+    ctx.beginPath();
+
+    ctx.arc(
+        player.x + player.width / 2,
+        player.y + player.height / 2,
+        40,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.strokeStyle = "cyan";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+}
+
+
 /* ---------- BULLETS ---------- */
 
 function updateBullets() {
@@ -461,6 +566,16 @@ function updateBullets() {
             ) {
 
                 createExplosion(e.x, e.y);
+
+                if (Math.random() < 0.3) {
+
+                    powerups.push({
+                        x: e.x,
+                        y: e.y,
+                        type: "shield"
+                    });
+
+                }
 
                 enemies.splice(ei, 1);
                 bullets.splice(i, 1);
@@ -553,7 +668,15 @@ function updateEnemyBullets() {
             b.y + b.height > player.y
         ) {
 
+        if (shieldActive) {
+
+            shieldActive = false;
+
+        } else {
+
             playerHealth -= 10;
+
+        }
 
             enemyBullets.splice(i, 1);
 
@@ -643,49 +766,6 @@ function closeShop() {
 
     document.getElementById("shop").style.display = "none";
     document.getElementById("main-menu").style.display = "flex";
-
-}
-
-
-/* ---------- SAVE GAME ---------- */
-
-function saveGame() {
-
-    const data = {
-
-        coins,
-        damage,
-        fireRate,
-        weaponLevel,
-        skin,
-        premium
-
-    };
-
-    localStorage.setItem(
-        "nebulaSave",
-        JSON.stringify(data)
-    );
-
-}
-
-
-/* ---------- LOAD GAME ---------- */
-
-function loadGame() {
-
-    const save = localStorage.getItem("nebulaSave");
-
-    if (!save) return;
-
-    const data = JSON.parse(save);
-
-    coins = data.coins || 0;
-    damage = data.damage || 1;
-    fireRate = data.fireRate || 300;
-    weaponLevel = data.weaponLevel || 1;
-    skin = data.skin || 0;
-    premium = data.premium || false;
 
 }
 
