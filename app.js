@@ -54,6 +54,11 @@ function updateUI() {
 
     if (badge) {
 
+       if (premium)
+            badge.style.display = "block";
+        else
+            badge.style.display = "none";
+
         if (damage > 1 || fireRate < 300)
             badge.style.display = "block";
         else
