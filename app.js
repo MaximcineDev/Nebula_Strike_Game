@@ -821,3 +821,23 @@ function buyPremium() {
     updateUI();
 
 }
+
+
+/* ---------- PURCHASE SHIELD ---------- */
+
+function buyShield() {
+
+    if (coins >= 30) {
+
+        coins -= 30;
+
+        shieldLevel++;
+
+        updateUI();
+        saveGame();
+
+        alert("Shield upgraded");
+
+    }
+
+}
