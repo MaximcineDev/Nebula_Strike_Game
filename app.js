@@ -84,12 +84,21 @@ const bgImg = new Image();
 bgImg.src = "./assets/background.png";
 
 
+/* ---------- SOUNDS ---------- */
+
+const shootSound = new Audio("sounds/shoot.wav");
+const explosionSound = new Audio("sounds/explosion.wav");
+
+
 /* ---------- GAME STATE ---------- */
 
 let gameRunning = false;
 
 let score = 0;
+let coins = 0;
 let playerHealth = 100;
+
+let weaponLevel = 1;
 
 let bullets = [];
 let enemies = [];
@@ -267,10 +276,13 @@ canvas.addEventListener("mousemove", (e) => {
 
 function shoot() {
 
+    shootSound.currentTime = 0;
+    shootSound.play();
+
     if (weaponLevel === 1) {
 
         bullets.push({
-            x: player.x + 20,
+            x: player.x + player.width / 2 - 2,
             y: player.y,
             width: 4,
             height: 12
@@ -281,14 +293,14 @@ function shoot() {
     if (weaponLevel >= 2) {
 
         bullets.push({
-            x: player.x + 10,
+            x: player.x + 5,
             y: player.y,
             width: 4,
             height: 12
         });
 
         bullets.push({
-            x: player.x + 30,
+            x: player.x + 35,
             y: player.y,
             width: 4,
             height: 12
@@ -299,8 +311,8 @@ function shoot() {
     if (weaponLevel >= 3) {
 
         bullets.push({
-            x: player.x + 20,
-            y: player.y - 10,
+            x: player.x + 15,
+            y: player.y - 5,
             width: 4,
             height: 12
         });
@@ -351,6 +363,9 @@ setInterval(() => {
 /* ---------- EXPLOSION ---------- */
 
 function createExplosion(x, y) {
+
+    explosionSound.currentTime = 0;
+    explosionSound.play();
 
     explosions.push({
         x,
@@ -451,6 +466,8 @@ function updateBullets() {
                 bullets.splice(i, 1);
 
                 score += 10;
+                coins += 5;
+               
                 updateUI();
 
             }
@@ -477,6 +494,8 @@ function updateBullets() {
                     boss = null;
 
                     score += 500;
+                    coins += 100;
+                   
                     updateUI();
 
                 }
