@@ -44,6 +44,7 @@ function updateUI() {
 
     const scoreText = document.getElementById("scoreText");
     const coinText = document.getElementById("coinText");
+    const levelText = document.getElementById("levelText");
     const badge = document.getElementById("premiumBadge");
 
     if (scoreText)
@@ -51,6 +52,9 @@ function updateUI() {
 
     if (coinText)
         coinText.textContent = coins;
+
+    if (levelText) 
+       levelText.textContent = "Lv " + level;
 
     if (badge) {
 
@@ -105,6 +109,8 @@ let enemies = [];
 let enemyBullets = [];
 let explosions = [];
 let stars = [];
+let level = 1;
+let enemiesKilled = 0;
 
 let boss = null;
 let bossHealth = 100;
@@ -587,8 +593,20 @@ function updateBullets() {
 
                 score += 10;
                 coins += 5;
+
+                enemiesKilled++;
+
+                if (enemiesKilled > 10 * level) {
+
+                    level++;
+                    enemiesKilled = 0;
+
+                    alert("LEVEL " + level);
+
+                }
                
                 updateUI();
+                saveGame();
 
             }
 
