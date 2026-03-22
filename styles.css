@@ -23,7 +23,7 @@ body {
 #splashScreen {
 
     position: fixed;
-   
+
     top: 0;
     left: 0;
 
@@ -39,31 +39,12 @@ body {
 
     z-index: 9999;
 
-    transition: opacity 1s;
-
 }
 
 #splashLogo {
 
     width: 300px;
     max-width: 80%;
-
-}
-
-#loadingText {
-
-    margin-top: 20px;
-    color: cyan;
-
-    animation: blink 1s infinite;
-
-}
-
-@keyframes blink {
-
-    0% {opacity:1}
-    50% {opacity:0.3}
-    100% {opacity:1}
 
 }
 
