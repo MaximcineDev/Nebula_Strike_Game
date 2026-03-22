@@ -1,23 +1,34 @@
-/* ===== GLOBAL ===== */
+/* =========================
+   GLOBAL
+========================= */
 
 body {
 
     margin: 0;
     overflow: hidden;
+
     font-family: Arial, sans-serif;
+
     background: black;
     color: white;
 
 }
 
 
-/* ===== SPLASH ===== */
+
+/* =========================
+   SPLASH
+========================= */
 
 #splashScreen {
 
     position: fixed;
+    top: 0;
+    left: 0;
+
     width: 100%;
     height: 100%;
+
     background: black;
 
     display: flex;
@@ -42,6 +53,7 @@ body {
 
     margin-top: 20px;
     color: cyan;
+
     animation: blink 1s infinite;
 
 }
@@ -55,11 +67,17 @@ body {
 }
 
 
-/* ===== MENU ===== */
+
+/* =========================
+   MENU
+========================= */
 
 #main-menu {
 
     position: fixed;
+
+    top: 0;
+    left: 0;
 
     width: 100%;
     height: 100%;
@@ -71,56 +89,103 @@ body {
     justify-content: center;
     align-items: center;
 
-    z-index: 1000;
+    z-index: 2000;
 
 }
 
 #main-menu button {
 
     margin: 10px;
-    padding: 10px 20px;
+    padding: 12px 20px;
+
     font-size: 18px;
 
 }
 
 
-/* ===== HUD ===== */
+
+/* =========================
+   HUD
+========================= */
 
 #hud {
 
     position: fixed;
+
     top: 10px;
     left: 10px;
 
     z-index: 100;
 
+    font-size: 18px;
+
 }
 
-#coins {
+#coinBox {
 
     display: flex;
     align-items: center;
+
+    gap: 5px;
+
+}
+
+#coinBox img {
+
+    width: 20px;
+
+}
+
+#levelText {
+
+    margin-top: 5px;
+
+}
+
+#pauseBtn {
+
+    margin-top: 5px;
+
 }
 
 
-/* ===== CANVAS ===== */
 
-canvas {
+/* =========================
+   CANVAS
+========================= */
+
+#gameCanvas {
 
     position: absolute;
+
     top: 0;
     left: 0;
 
+    width: 100%;
+    height: 100%;
+
+    z-index: 1;
+
 }
 
 
-/* ===== SHOP ===== */
+
+/* =========================
+   SHOP
+========================= */
 
 #shop {
 
     position: fixed;
+
+    top: 0;
+    left: 0;
+
     width: 100%;
     height: 100%;
+
+    display: none;
+
     z-index: 5000;
 
 }
@@ -128,8 +193,10 @@ canvas {
 #shopBg {
 
     position: absolute;
+
     width: 100%;
     height: 100%;
+
     object-fit: cover;
 
 }
@@ -142,27 +209,58 @@ canvas {
     left: 50%;
 
     transform: translate(-50%, -50%);
+
     text-align: center;
 
-}
+    background: rgba(0,0,0,0.7);
 
-#shopScreen {
+    padding: 20px;
 
-    width: 320px;
-
-}
-
-#premiumBadge {
-
-    width: 80px;
-    margin-top: -40px;
+    border-radius: 10px;
 
 }
 
-#shop button {
+#shopPanel button {
 
     display: block;
+
     margin: 10px auto;
-    padding: 10px;
+
+    padding: 10px 15px;
+
+}
+
+
+
+/* =========================
+   SETTINGS
+========================= */
+
+#settings {
+
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    display: none;
+
+    background: black;
+
+    z-index: 4000;
+
+    text-align: center;
+
+    padding-top: 100px;
+
+}
+
+#settings button {
+
+    margin: 10px;
+    padding: 10px 20px;
 
 }
