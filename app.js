@@ -623,6 +623,8 @@ function closeShop() {
 }
 
 
+/* ---------- SAVE GAME ---------- */
+
 function saveGame() {
 
     const data = {
@@ -643,6 +645,9 @@ function saveGame() {
 
 }
 
+
+/* ---------- LOAD GAME ---------- */
+
 function loadGame() {
 
     const save = localStorage.getItem("nebulaSave");
@@ -660,6 +665,9 @@ function loadGame() {
 
 }
 
+
+/* ---------- PURCHASE WEAPON ---------- */
+
 function buyWeapon() {
 
     if (coins < 20) return;
@@ -673,6 +681,9 @@ function buyWeapon() {
 
 }
 
+
+/* ---------- PURCHASE SKIN ---------- */
+
 function buySkin() {
 
     if (coins < 15) return;
@@ -685,6 +696,9 @@ function buySkin() {
     updateUI();
 
 }
+
+
+/* ---------- PURCHASE PREMIUM ---------- */
 
 function buyPremium() {
 
