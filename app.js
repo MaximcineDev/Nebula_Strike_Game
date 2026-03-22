@@ -262,12 +262,45 @@ canvas.addEventListener("mousemove", (e) => {
 
 function shoot() {
 
-    bullets.push({
-        x: player.x + player.width / 2 - 2,
-        y: player.y,
-        width: 4,
-        height: 12
-    });
+    if (weaponLevel === 1) {
+
+        bullets.push({
+            x: player.x + 20,
+            y: player.y,
+            width: 4,
+            height: 12
+        });
+
+    }
+
+    if (weaponLevel >= 2) {
+
+        bullets.push({
+            x: player.x + 10,
+            y: player.y,
+            width: 4,
+            height: 12
+        });
+
+        bullets.push({
+            x: player.x + 30,
+            y: player.y,
+            width: 4,
+            height: 12
+        });
+
+    }
+
+    if (weaponLevel >= 3) {
+
+        bullets.push({
+            x: player.x + 20,
+            y: player.y - 10,
+            width: 4,
+            height: 12
+        });
+
+    }
 
 }
 
@@ -356,13 +389,33 @@ function gameLoop() {
 
 function drawPlayer() {
 
-    ctx.drawImage(
-        playerImg,
-        player.x,
-        player.y,
-        player.width,
-        player.height
-    );
+    if (skin === 0) {
+
+        ctx.drawImage(
+            playerImg,
+            player.x,
+            player.y,
+            player.width,
+            player.height
+        );
+
+    }
+
+    if (skin === 1) {
+
+        ctx.filter = "hue-rotate(120deg)";
+
+        ctx.drawImage(
+            playerImg,
+            player.x,
+            player.y,
+            player.width,
+            player.height
+        );
+
+        ctx.filter = "none";
+
+    }
 
 }
 
@@ -566,5 +619,82 @@ function closeShop() {
 
     document.getElementById("shop").style.display = "none";
     document.getElementById("main-menu").style.display = "flex";
+
+}
+
+
+function saveGame() {
+
+    const data = {
+
+        coins,
+        damage,
+        fireRate,
+        weaponLevel,
+        skin,
+        premium
+
+    };
+
+    localStorage.setItem(
+        "nebulaSave",
+        JSON.stringify(data)
+    );
+
+}
+
+function loadGame() {
+
+    const save = localStorage.getItem("nebulaSave");
+
+    if (!save) return;
+
+    const data = JSON.parse(save);
+
+    coins = data.coins || 0;
+    damage = data.damage || 1;
+    fireRate = data.fireRate || 300;
+    weaponLevel = data.weaponLevel || 1;
+    skin = data.skin || 0;
+    premium = data.premium || false;
+
+}
+
+function buyWeapon() {
+
+    if (coins < 20) return;
+
+    coins -= 20;
+
+    weaponLevel++;
+
+    saveGame();
+    updateUI();
+
+}
+
+function buySkin() {
+
+    if (coins < 15) return;
+
+    coins -= 15;
+
+    skin++;
+
+    saveGame();
+    updateUI();
+
+}
+
+function buyPremium() {
+
+    if (coins < 50) return;
+
+    coins -= 50;
+
+    premium = true;
+
+    saveGame();
+    updateUI();
 
 }
