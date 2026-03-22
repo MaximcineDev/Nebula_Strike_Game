@@ -7,10 +7,10 @@ body {
     margin: 0;
     overflow: hidden;
 
-    font-family: Arial, sans-serif;
-
     background: black;
     color: white;
+
+    font-family: Arial, sans-serif;
 
 }
 
@@ -23,6 +23,7 @@ body {
 #splashScreen {
 
     position: fixed;
+   
     top: 0;
     left: 0;
 
@@ -44,8 +45,8 @@ body {
 
 #splashLogo {
 
-    width: 80%;
-    max-width: 400px;
+    width: 300px;
+    max-width: 80%;
 
 }
 
@@ -89,7 +90,7 @@ body {
     justify-content: center;
     align-items: center;
 
-    z-index: 2000;
+    z-index: 1000;
 
 }
 
@@ -176,6 +177,8 @@ body {
 
 #shop {
 
+    display: none;
+
     position: fixed;
 
     top: 0;
@@ -184,9 +187,7 @@ body {
     width: 100%;
     height: 100%;
 
-    display: none;
-
-    z-index: 5000;
+    z-index: 3000;
 
 }
 
@@ -210,13 +211,13 @@ body {
 
     transform: translate(-50%, -50%);
 
-    text-align: center;
-
-    background: rgba(0,0,0,0.7);
+    background: rgba(0, 0, 0, 0.8);
 
     padding: 20px;
 
     border-radius: 10px;
+
+    text-align: center;
 
 }
 
@@ -238,6 +239,8 @@ body {
 
 #settings {
 
+    display: none;
+
     position: fixed;
 
     top: 0;
@@ -246,11 +249,9 @@ body {
     width: 100%;
     height: 100%;
 
-    display: none;
-
     background: black;
 
-    z-index: 4000;
+    z-index: 2000;
 
     text-align: center;
 
