@@ -135,6 +135,28 @@ document.getElementById("pauseBtn").addEventListener("click", () => {
 
 });
 
+let soundOn = true;
+
+function openSettings() {
+
+    document.getElementById("main-menu").style.display = "none";
+    document.getElementById("settings").style.display = "block";
+
+}
+
+function closeSettings() {
+
+    document.getElementById("settings").style.display = "none";
+    document.getElementById("main-menu").style.display = "flex";
+
+}
+
+function toggleSound() {
+
+    soundOn = !soundOn;
+
+}
+
 
 /* ---------- PLAYER ---------- */
 
