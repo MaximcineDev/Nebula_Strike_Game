@@ -121,6 +121,20 @@ let shieldTime = 0;
 
 let powerups = [];
 
+let paused = false;
+
+document.getElementById("pauseBtn").addEventListener("click", () => {
+
+    paused = !paused;
+
+    if (!paused) {
+
+        gameLoop();
+
+    }
+
+});
+
 
 /* ---------- PLAYER ---------- */
 
@@ -445,7 +459,7 @@ function createExplosion(x, y) {
 
 function gameLoop() {
 
-    if (!gameRunning) return;
+    if (!gameRunning || paused) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
