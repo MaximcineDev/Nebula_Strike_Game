@@ -1,43 +1,6 @@
 /* =========================
-   NEBULA STRIKE FINAL CLEAN
+   NEBULA STRIKE
 ========================= */
-
-
-/* ---------- SAFE DEFAULTS ---------- */
-
-let damage = 1;
-let fireRate = 300;
-let skin = 0;
-let premium = false;
-
-
-/* ---------- SPLASH ---------- */
-
-window.addEventListener("load", () => {
-
-    const splash = document.getElementById("splashScreen");
-    const menu = document.getElementById("main-menu");
-
-    if (menu) menu.style.display = "none";
-
-    setTimeout(() => {
-
-        if (splash) splash.style.display = "none";
-
-        if (menu) menu.style.display = "flex";
-
-    }, 2000);
-
-});
-
-
-/* ---------- CANVAS ---------- */
-
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
 
 
 /* ---------- IMAGES ---------- */
@@ -61,6 +24,15 @@ const shootSound = new Audio("sounds/shoot.wav");
 const explosionSound = new Audio("sounds/explosion.wav");
 
 
+/* ---------- CANVAS ---------- */
+
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+
 /* ---------- GAME STATE ---------- */
 
 let gameRunning = false;
@@ -73,17 +45,47 @@ let level = 1;
 let bullets = [];
 let enemies = [];
 let enemyBullets = [];
-let explosions = [];
-let stars = [];
-let powerups = [];
 
 let boss = null;
 let bossHealth = 100;
 
-let weaponLevel = 1;
-let shieldActive = false;
-
 let enemiesKilled = 0;
+
+
+/* ---------- UPGRADES ---------- */
+
+let damage = 1;
+let fireRate = 300;
+let skin = 0;
+let premium = false;
+
+let lastShot = 0;
+
+
+/* ---------- SAVE / LOAD ---------- */
+
+function saveGame() {
+
+    localStorage.setItem("coins", coins);
+    localStorage.setItem("damage", damage);
+    localStorage.setItem("fireRate", fireRate);
+    localStorage.setItem("skin", skin);
+    localStorage.setItem("premium", premium);
+
+}
+
+function loadGame() {
+
+    coins = parseInt(localStorage.getItem("coins")) || 0;
+    damage = parseInt(localStorage.getItem("damage")) || 1;
+    fireRate = parseInt(localStorage.getItem("fireRate")) || 300;
+    skin = parseInt(localStorage.getItem("skin")) || 0;
+
+    premium = localStorage.getItem("premium") === "true";
+
+}
+
+loadGame();
 
 
 /* ---------- PLAYER ---------- */
@@ -92,48 +94,55 @@ const player = {
 
     x: canvas.width / 2,
     y: canvas.height - 120,
+
     width: 60,
     height: 60,
+
     speed: 6
 
 };
 
 
-/* ---------- UI ---------- */
+/* ---------- MOVEMENT ---------- */
 
-function updateUI() {
-
-    const scoreText = document.getElementById("scoreText");
-    const coinText = document.getElementById("coinText");
-    const levelText = document.getElementById("levelText");
-
-    if (scoreText) scoreText.textContent = "Score: " + score;
-    if (coinText) coinText.textContent = coins;
-    if (levelText) levelText.textContent = "Lv " + level;
-
-}
+let moveLeft = false;
+let moveRight = false;
+let moveUp = false;
+let moveDown = false;
 
 
-/* ---------- SAVE ---------- */
+window.addEventListener("keydown", e => {
 
-function saveGame() {
+    if (e.key === "ArrowLeft") moveLeft = true;
+    if (e.key === "ArrowRight") moveRight = true;
+    if (e.key === "ArrowUp") moveUp = true;
+    if (e.key === "ArrowDown") moveDown = true;
 
-    localStorage.setItem("coins", coins);
-    localStorage.setItem("weaponLevel", weaponLevel);
-    localStorage.setItem("level", level);
+});
 
-}
+window.addEventListener("keyup", e => {
+
+    if (e.key === "ArrowLeft") moveLeft = false;
+    if (e.key === "ArrowRight") moveRight = false;
+    if (e.key === "ArrowUp") moveUp = false;
+    if (e.key === "ArrowDown") moveDown = false;
+
+});
 
 
-/* ---------- LOAD ---------- */
+/* ---------- SPLASH ---------- */
 
-function loadGame() {
+window.addEventListener("load", () => {
 
-    coins = parseInt(localStorage.getItem("coins")) || 0;
-    weaponLevel = parseInt(localStorage.getItem("weaponLevel")) || 1;
-    level = parseInt(localStorage.getItem("level")) || 1;
+    const splash = document.getElementById("splashScreen");
 
-}
+    setTimeout(() => {
+
+        splash.style.display = "none";
+
+    }, 2000);
+
+});
 
 
 /* ---------- START ---------- */
@@ -142,17 +151,9 @@ document.getElementById("startBtn").addEventListener("click", startGame);
 
 function startGame() {
 
-    loadGame();
-
     document.getElementById("main-menu").style.display = "none";
 
-    canvas.style.display = "block";
-
-    createStars();
-
     gameRunning = true;
-
-    updateUI();
 
     gameLoop();
 
@@ -170,69 +171,71 @@ document.getElementById("pauseBtn").addEventListener("click", () => {
 });
 
 
-/* ---------- STARS ---------- */
+/* ---------- SHOP / SETTINGS ---------- */
 
-function createStars() {
+function openShop() {
 
-    stars = [];
-
-    for (let i = 0; i < 80; i++) {
-
-        stars.push({
-
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            size: Math.random() * 2,
-            speed: Math.random() * 2 + 1
-
-        });
-
-    }
+    document.getElementById("main-menu").style.display = "none";
+    document.getElementById("shop").style.display = "block";
 
 }
 
+function closeShop() {
 
-function drawStars() {
+    document.getElementById("shop").style.display = "none";
+    document.getElementById("main-menu").style.display = "flex";
 
-    ctx.fillStyle = "white";
+}
 
-    stars.forEach(s => {
+function openSettings() {
 
-        ctx.fillRect(s.x, s.y, s.size, s.size);
+    document.getElementById("main-menu").style.display = "none";
+    document.getElementById("settings").style.display = "block";
 
-        s.y += s.speed;
+}
 
-        if (s.y > canvas.height) s.y = 0;
+function closeSettings() {
 
-    });
+    document.getElementById("settings").style.display = "none";
+    document.getElementById("main-menu").style.display = "flex";
 
 }
 
 
 /* ---------- SHOOT ---------- */
 
+canvas.addEventListener("click", () => {
+
+    if (!gameRunning) return;
+
+    shoot();
+
+});
+
 function shoot() {
+
+    let now = Date.now();
+
+    if (now - lastShot < fireRate) return;
+
+    lastShot = now;
 
     shootSound.currentTime = 0;
     shootSound.play();
 
     bullets.push({
 
-        x: player.x + player.width / 2,
+        x: player.x + 25,
         y: player.y,
+
         w: 4,
-        h: 10
+        h: 10,
+
+        dmg: damage
 
     });
 
 }
-
-
-canvas.addEventListener("click", () => {
-
-    if (gameRunning) shoot();
-
-});
 
 
 /* ---------- ENEMY SPAWN ---------- */
@@ -245,6 +248,7 @@ setInterval(() => {
 
         x: Math.random() * canvas.width,
         y: -40,
+
         w: 40,
         h: 40
 
@@ -253,18 +257,19 @@ setInterval(() => {
 }, 1500);
 
 
-/* ---------- BOSS ---------- */
+/* ---------- BOSS SPAWN ---------- */
 
 setInterval(() => {
 
     if (!gameRunning) return;
 
-    if (score > 200 && !boss) {
+    if (level >= 5 && !boss) {
 
         boss = {
 
             x: canvas.width / 2 - 80,
-            y: 50,
+            y: 40,
+
             w: 160,
             h: 160
 
@@ -274,7 +279,7 @@ setInterval(() => {
 
     }
 
-}, 3000);
+}, 2000);
 
 
 /* ---------- GAME LOOP ---------- */
@@ -285,19 +290,21 @@ function gameLoop() {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+    if (bgImg.complete) {
 
-    drawStars();
+        ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
 
+    }
+
+    updatePlayer();
     drawPlayer();
 
     updateBullets();
-
     updateEnemies();
-
+    updateEnemyBullets();
     updateBoss();
 
-    drawExplosions();
+    updateUI();
 
     requestAnimationFrame(gameLoop);
 
@@ -306,16 +313,23 @@ function gameLoop() {
 
 /* ---------- PLAYER ---------- */
 
+function updatePlayer() {
+
+    if (moveLeft) player.x -= player.speed;
+    if (moveRight) player.x += player.speed;
+    if (moveUp) player.y -= player.speed;
+    if (moveDown) player.y += player.speed;
+
+}
+
 function drawPlayer() {
 
     ctx.drawImage(
-
         playerImg,
         player.x,
         player.y,
         player.width,
         player.height
-
     );
 
 }
@@ -330,18 +344,15 @@ function updateBullets() {
         b.y -= 8;
 
         ctx.fillStyle = "cyan";
-
         ctx.fillRect(b.x, b.y, b.w, b.h);
 
         enemies.forEach((e, ei) => {
 
             if (
-
                 b.x < e.x + e.w &&
                 b.x + b.w > e.x &&
                 b.y < e.y + e.h &&
                 b.y + b.h > e.y
-
             ) {
 
                 explosionSound.play();
@@ -349,19 +360,18 @@ function updateBullets() {
                 enemies.splice(ei, 1);
                 bullets.splice(i, 1);
 
-                score += 10;
+                score += 10 * damage;
                 coins += 5;
 
                 enemiesKilled++;
 
-                if (enemiesKilled > 10) {
+                if (enemiesKilled >= 10) {
 
                     level++;
                     enemiesKilled = 0;
 
                 }
 
-                updateUI();
                 saveGame();
 
             }
@@ -383,6 +393,36 @@ function updateEnemies() {
 
         ctx.drawImage(enemyImg, e.x, e.y, e.w, e.h);
 
+        if (Math.random() < 0.01) {
+
+            enemyBullets.push({
+
+                x: e.x + 10,
+                y: e.y,
+
+                w: 4,
+                h: 10
+
+            });
+
+        }
+
+    });
+
+}
+
+
+/* ---------- ENEMY BULLETS ---------- */
+
+function updateEnemyBullets() {
+
+    enemyBullets.forEach(b => {
+
+        b.y += 5;
+
+        ctx.fillStyle = "red";
+        ctx.fillRect(b.x, b.y, b.w, b.h);
+
     });
 
 }
@@ -394,14 +434,56 @@ function updateBoss() {
 
     if (!boss) return;
 
-    ctx.drawImage(bossImg, boss.x, boss.y, boss.w, boss.h);
+    ctx.drawImage(
+        bossImg,
+        boss.x,
+        boss.y,
+        boss.w,
+        boss.h
+    );
 
 }
 
 
-/* ---------- EXPLOSIONS ---------- */
+/* ---------- UI ---------- */
 
-function drawExplosions() {
+function updateUI() {
 
+    document.getElementById("scoreText").textContent =
+        "Score: " + score;
+
+    document.getElementById("coinText").textContent =
+        coins;
+
+    document.getElementById("levelText").textContent =
+        "Lv " + level;
+
+}
+
+
+/* ---------- SHOP ---------- */
+
+function buyWeapon() {
+
+    if (coins >= 50) {
+
+        coins -= 50;
+        damage++;
+
+        saveGame();
+
+    }
+
+}
+
+function buyShield() {
+
+    if (coins >= 30) {
+
+        coins -= 30;
+
+        saveGame();
+
+    }
 
 }
