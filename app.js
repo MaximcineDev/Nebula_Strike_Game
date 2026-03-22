@@ -694,14 +694,19 @@ function loadGame() {
 
 function buyWeapon() {
 
-    if (coins < 20) return;
+    if (coins >= 50) {
 
-    coins -= 20;
+        coins -= 50;
+        weaponLevel++;
 
-    weaponLevel++;
+        updateUI();
 
-    saveGame();
-    updateUI();
+        alert("Weapon upgraded!");
+
+    } else {
+
+        alert("Not enough coins");
+    }
 
 }
 
@@ -726,9 +731,9 @@ function buySkin() {
 
 function buyPremium() {
 
-    if (coins < 50) return;
+    if (coins < 100) return;
 
-    coins -= 50;
+    coins -= 100;
 
     premium = true;
 
