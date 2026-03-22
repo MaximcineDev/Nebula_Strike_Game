@@ -2,100 +2,148 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1">
+
     <title>Nebula Strike</title>
-    <link rel="stylesheet" href="./styles.css">
+
+    <link rel="stylesheet" href="styles.css">
+
 </head>
 
 <body>
 
-    <!-- SPLASH -->
-    <div id="splashScreen">
-        <img src="ui/splash-screen.png" id="splashLogo">
-        <div id="loadingText">Loading...</div>
+
+<!-- ================= SPLASH ================= -->
+
+<div id="splashScreen">
+
+    <img src="ui/splash-screen.png" id="splashLogo">
+
+    <div id="loadingText">
+        Loading...
     </div>
 
-    <!-- MENU -->
-    <div id="main-menu">
-        <h1>Nebula Strike</h1>
-        <button id="startBtn">Start</button>
-        <button onclick="openShop()">Shop</button>
-        <button onclick="openSettings()">Settings</button>
+</div>
+
+
+
+<!-- ================= MENU ================= -->
+
+<div id="main-menu">
+
+    <h1>Nebula Strike</h1>
+
+    <button id="startBtn">Start</button>
+
+    <button onclick="openShop()">
+        Shop
+    </button>
+
+    <button onclick="openSettings()">
+        Settings
+    </button>
+
+</div>
+
+
+
+<!-- ================= HUD ================= -->
+
+<div id="hud">
+
+    <div id="scoreText">
+        Score: 0
     </div>
 
-    <!-- HUD -->
-    <div id="hud">
-        <div id="scoreText">Score: 0</div>
-        <div id="coins">
-            <img src="assets/ui/coin-icon.png" width="24">
-            <span id="coinText">0</span>
-        </div>
-    </div>
+    <div id="coinBox">
 
-    <!-- LEVEL TEXT -->
-    <div id="levelText">Lv 1</div>
-        <button id="pauseBtn">Pause</button>
-    
-    <!-- SHOP -->
-    <div id="shop" style="display:none">
+        <img src="ui/coin-icon.png">
 
-        <img src="ui/shop-premium.png" id="shopBg">
-
-        <div id="shopPanel">
-
-            <img src="ui/premium-screen.png" id="shopScreen">
-
-            <img src="ui/premium-badge.png" id="premiumBadge">
-
-            <h2>UPGRADES</h2>
-
-            <button onclick="buyDamage()">
-                Damage Upgrade (10 coins)
-            </button>
-
-            <button onclick="buyFireRate()">
-                Fire Rate Upgrade (10 coins)
-            </button>
-
-            <button onclick="buyWeapon()">
-                Weapon Upgrade (50 coins)
-            </button>
-
-            <button onclick="buySkin()">
-                Buy Skin (15 coins)
-            </button>
-
-            <button onclick="buyShield()">
-                Shield (30 coins)
-            </button>
-
-            <button onclick="buyPremium()">
-                Premium (100 coins)
-            </button>
-
-            <button onclick="closeShop()">
-                Back
-            </button>
-
-        </div>
+        <span id="coinText">0</span>
 
     </div>
 
-    <!-- SETTINGS -->
-    <div id="settings" style="display:none">
+    <div id="levelText">
+        Lv 1
+    </div>
+
+    <button id="pauseBtn">
+        Pause
+    </button>
+
+</div>
+
+
+
+<!-- ================= SHOP ================= -->
+
+<div id="shop">
+
+    <img src="ui/shop-premium.png" id="shopBg">
+
+    <div id="shopPanel">
+
+        <img src="ui/premium-screen.png">
+
+        <img src="ui/premium-badge.png" id="premiumBadge">
+
+        <h2>UPGRADES</h2>
+
+        <button onclick="buyWeapon()">
+            Weapon (50)
+        </button>
+
+        <button onclick="buySkin()">
+            Skin (15)
+        </button>
+
+        <button onclick="buyShield()">
+            Shield (30)
+        </button>
+
+        <button onclick="buyPremium()">
+            Premium (100)
+        </button>
+
+        <button onclick="closeShop()">
+            Back
+        </button>
+
+    </div>
+
+</div>
+
+
+
+<!-- ================= SETTINGS ================= -->
+
+<div id="settings">
 
     <h2>Settings</h2>
 
-    <button onclick="toggleSound()">Sound</button>
+    <button onclick="toggleSound()">
+        Toggle Sound
+    </button>
 
-    <button onclick="closeSettings()">Back</button>
+    <button onclick="closeSettings()">
+        Back
+    </button>
 
-    </div>
+</div>
 
-    <canvas id="gameCanvas"></canvas>
 
-    <script src="app.js"></script>
+
+<!-- ================= CANVAS ================= -->
+
+<canvas id="gameCanvas"></canvas>
+
+
+
+<script src="app.js"></script>
+
 </body>
-
 </html>
