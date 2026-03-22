@@ -141,14 +141,19 @@ document.getElementById("startBtn").addEventListener("click", startGame);
 
 function startGame() {
 
-    document.getElementById("main-menu").style.display = "none";
+    const menu = document.getElementById("main-menu");
+    const shop = document.getElementById("shop");
 
-    score = 0;
-    updateUI();
+    if (menu) menu.style.display = "none";
+    if (shop) shop.style.display = "none";
+
+    canvas.style.display = "block";
 
     createStars();
 
     gameRunning = true;
+
+    updateUI();
 
     gameLoop();
 
