@@ -18,6 +18,18 @@ const bgImg = new Image();
 bgImg.src = "assets/background.png";
 
 
+/* ---------- POWERUP IMAGES ---------- */
+
+const healthImg = new Image();
+healthImg.src = "assets/ui/health.png";
+
+const rapidImg = new Image();
+rapidImg.src = "assets/ui/rapid.png";
+
+const shieldImg = new Image();
+shieldImg.src = "assets/ui/shield.png";
+
+
 /* ---------- SOUNDS ---------- */
 
 const shootSound = new Audio("sounds/shoot.wav");
@@ -63,6 +75,17 @@ let bossMaxHealth = 100;
 let bossWarning = false;
 
 let enemiesKilled = 0;
+
+
+/* ---------- POWERUPS ---------- */
+
+let powerups = [];
+
+let rapidFire = false;
+let rapidTimer = 0;
+
+let shieldActive = false;
+let shieldTimer = 0;
 
 
 /* ---------- UPGRADES ---------- */
@@ -351,6 +374,8 @@ function gameLoop() {
     updateEnemyBullets();
     updateBoss();
     updateBossBar();
+    updatePowerups();
+    updateTimers();
     updateUI();
 
     requestAnimationFrame(gameLoop);
@@ -431,6 +456,22 @@ function updateBullets() {
                     score += 10;
                     coins += 5;
 
+                    /* powerup drop */
+
+                    if (Math.random() < 0.3) {
+
+                        let type = Math.floor(Math.random() * 3);
+
+                        powerups.push({
+
+                            x: e.x,
+                            y: e.y,
+                            type: type
+
+                        });
+
+                    }
+
                     updateHUD();
                     saveGame();
 
@@ -483,6 +524,61 @@ function updateEnemies() {
 }
 
 
+/* ---------- POWERUPS ---------- */
+
+function updatePowerups(){
+
+    powerups.forEach((p,i)=>{
+
+        p.y += 2;
+
+        let img = healthImg;
+
+        if(p.type===1) img = rapidImg;
+        if(p.type===2) img = shieldImg;
+
+        ctx.drawImage(img,p.x,p.y,32,32);
+
+
+        if(
+
+            p.x < player.x+player.width &&
+            p.x+32 > player.x &&
+            p.y < player.y+player.height &&
+            p.y+32 > player.y
+
+        ){
+
+            if(p.type===0){
+
+                if(health<5) health++;
+                updateHearts();
+
+            }
+
+            if(p.type===1){
+
+                rapidFire=true;
+                rapidTimer=300;
+
+            }
+
+            if(p.type===2){
+
+                shieldActive=true;
+                shieldTimer=300;
+
+            }
+
+            powerups.splice(i,1);
+
+        }
+
+    });
+
+}
+
+
 /* ---------- ENEMY BULLETS ---------- */
 
 function updateEnemyBullets() {
@@ -505,7 +601,11 @@ function updateEnemyBullets() {
 
             enemyBullets.splice(i, 1);
 
-            health -= b.boss ? 2 : 1;
+            if(!shieldActive){
+
+                health -= b.boss ? 2 : 1;
+
+            }
 
             hitFlash = 10;
 
@@ -606,6 +706,40 @@ function gameOver() {
     alert("Game Over");
 
     location.reload();
+
+}
+
+
+/* ---------- TIMERS ---------- */
+
+function updateTimers(){
+
+    if(rapidFire){
+
+        rapidTimer--;
+
+        fireRate = 100;
+
+        if(rapidTimer <= 0){
+
+            rapidFire = false;
+            fireRate = 300;
+
+        }
+
+    }
+
+    if(shieldActive){
+
+        shieldTimer--;
+
+        if(shieldTimer <= 0){
+
+            shieldActive = false;
+
+        }
+
+    }
 
 }
 
