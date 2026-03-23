@@ -40,6 +40,16 @@ body {
 
     z-index: 9999;
 
+    opacity: 1;
+    transition: opacity 1s ease;
+
+}
+
+#splashScreen.hide {
+
+    opacity: 0;
+    pointer-events: none;
+
 }
 
 #loadingText {
@@ -76,9 +86,8 @@ body {
     width: 100%;
     height: 100%;
 
-    background: url("assets/background.png");
+    background: url("assets/background.png") no-repeat center center;
     background-size: cover;
-    background-position: center;
 
     display: flex;
     flex-direction: column;
@@ -87,6 +96,15 @@ body {
     align-items: center;
 
     z-index: 1000;
+
+    opacity: 0;
+    transition: opacity 1s ease;
+
+}
+
+#main-menu.show {
+
+    opacity: 1;
 
 }
 
