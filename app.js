@@ -48,7 +48,6 @@ let gameRunning = false;
 let paused = false;
 
 let score = 0;
-let coins = 0;
 let level = 1;
 
 let health = 5;
@@ -68,7 +67,6 @@ let enemiesKilled = 0;
 
 /* ---------- UPGRADES ---------- */
 
-let damage = 1;
 let fireRate = 300;
 let skin = 0;
 let premium = false;
@@ -109,8 +107,6 @@ loadGame();
 function updateHUD() {
 
     document.getElementById("coinText").innerText = coins;
-
-    updateHUD();
 
 }
 
@@ -253,7 +249,9 @@ setInterval(() => {
         y: -40,
 
         w: 40,
-        h: 40
+        h: 40,
+
+        hp: 2 + level
 
     });
 
@@ -412,33 +410,40 @@ function updateBullets() {
         enemies.forEach((e, ei) => {
 
             if (
+
                 b.x < e.x + e.w &&
                 b.x + b.w > e.x &&
                 b.y < e.y + e.h &&
                 b.y + b.h > e.y
+
             ) {
 
-                explosionSound.play();
+                e.hp -= damage;
 
-                enemies.splice(ei, 1);
                 bullets.splice(i, 1);
 
-                score += 10;
-                coins += 5;
+                if (e.hp <= 0) {
 
-                updateHUD();
-                saveGame();
+                    explosionSound.play();
 
-                enemiesKilled++;
+                    enemies.splice(ei, 1);
 
-                if (enemiesKilled >= 10) {
+                    score += 10;
+                    coins += 5;
 
-                    level++;
-                    enemiesKilled = 0;
+                    updateHUD();
+                    saveGame();
+
+                    enemiesKilled++;
+
+                    if (enemiesKilled >= 10) {
+
+                        level++;
+                        enemiesKilled = 0;
+
+                    }
 
                 }
-
-                saveGame();
 
             }
 
