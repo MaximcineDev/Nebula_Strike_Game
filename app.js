@@ -495,11 +495,11 @@ function updateHearts() {
 
         if (i < health) {
 
-            h.src = "ui/heart-full.png";
+            h.src = "assets/ui/heart-full.png";
 
         } else {
 
-            h.src = "ui/heart-empty.png";
+            h.src = "assets/ui/heart-empty.png";
 
         }
 
