@@ -51,6 +51,9 @@ let enemyBullets = [];
 
 let boss = null;
 let bossHealth = 100;
+let bossMaxHealth = 100;
+
+document.getElementById("bossBar").style.display = "block";
 
 let enemiesKilled = 0;
 
@@ -284,6 +287,28 @@ setInterval(() => {
 
 }, 2000);
 
+if (bossHealth <= 0) {
+
+    boss = null;
+
+    document.getElementById("bossBar").style.display = "none";
+
+}
+
+
+function updateBossBar() {
+
+    if (!boss) return;
+
+    let bar = document.getElementById("bossHealth");
+
+    let percent =
+        (bossHealth / bossMaxHealth) * 100;
+
+    bar.style.width = percent + "%";
+
+}
+
 
 /* ---------- GAME LOOP ---------- */
 
@@ -306,6 +331,8 @@ function gameLoop() {
     updateEnemies();
     updateEnemyBullets();
     updateBoss();
+    updateBossBar();
+    updateUI();
 
     updateUI();
 
