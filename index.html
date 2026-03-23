@@ -14,6 +14,7 @@
 
 </head>
 
+
 <body>
 
 
@@ -21,7 +22,7 @@
 
     <div id="splashScreen">
 
-        <img src="assets/ui/splash-screen.png"
+        <img src="ui/splash-screen.png"
              id="splashLogo">
 
         <p>Loading...</p>
@@ -36,7 +37,7 @@
 
         <h1>Nebula Strike</h1>
 
-        <button id="startBtn">
+        <button onclick="startGame()">
             Start
         </button>
 
@@ -60,15 +61,13 @@
             Lv 1
         </div>
 
-        
         <div id="scoreText">
             Score: 0
         </div>
 
-
         <div id="coinBox">
 
-            <img src="assets/ui/coin-icon.png">
+            <img src="ui/coin-icon.png">
 
             <span id="coinText">
                 0
@@ -76,10 +75,12 @@
 
         </div>
 
-
         <button id="pauseBtn">
             Pause
         </button>
+
+
+        <!-- HEARTS -->
 
         <div id="hearts">
 
@@ -90,51 +91,63 @@
             <img class="heart" src="ui/heart-full.png">
 
         </div>
+
     </div>
 
-    <div id="bossBar">
+
+
+    <!-- BOSS BAR -->
+
+    <div id="bossBar" style="display:none">
 
         <div id="bossHealth"></div>
 
     </div>
 
-    <div id="bossWarning">
+
+
+    <!-- BOSS WARNING -->
+
+    <div id="bossWarning" style="display:none">
+
         WARNING! BOSS INCOMING
+
     </div>
 
-    <div id="levelComplete">
+
+
+    <!-- LEVEL COMPLETE -->
+
+    <div id="levelComplete" style="display:none">
 
         <h1>LEVEL COMPLETE</h1>
 
         <button onclick="nextLevel()">
-        Next Level
+            Next Level
         </button>
 
     </div>
 
 
+
     <!-- SHOP -->
 
-    <div id="shop">
+    <div id="shop" style="display:none">
 
         <img src="ui/shop-premium.png"
              id="shopBg">
-
 
         <div id="shopPanel">
 
             <h2>Shop</h2>
 
-
             <button onclick="buyWeapon()">
                 Weapon
             </button>
 
-
             <button onclick="buyShield()">
                 Shield
             </button>
-
 
             <button onclick="closeShop()">
                 Back
@@ -148,7 +161,7 @@
 
     <!-- SETTINGS -->
 
-    <div id="settings">
+    <div id="settings" style="display:none">
 
         <h2>Settings</h2>
 
