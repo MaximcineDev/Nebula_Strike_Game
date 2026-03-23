@@ -42,6 +42,8 @@ let score = 0;
 let coins = 0;
 let level = 1;
 
+let health = 5;
+
 let bullets = [];
 let enemies = [];
 let enemyBullets = [];
@@ -416,14 +418,72 @@ function updateEnemies() {
 
 function updateEnemyBullets() {
 
-    enemyBullets.forEach(b => {
+    enemyBullets.forEach((b, i) => {
 
         b.y += 5;
 
         ctx.fillStyle = "red";
         ctx.fillRect(b.x, b.y, b.w, b.h);
 
+        if (
+
+            b.x < player.x + player.width &&
+            b.x + b.w > player.x &&
+            b.y < player.y + player.height &&
+            b.y + b.h > player.y
+
+        ) {
+
+            enemyBullets.splice(i, 1);
+
+            health--;
+
+            updateHearts();
+
+            if (health <= 0) {
+
+                gameOver();
+
+            }
+
+        }
+
     });
+
+}
+
+
+/* ---------- HEARTS ---------- */
+function updateHearts() {
+
+    const hearts =
+        document.querySelectorAll(".heart");
+
+    hearts.forEach((h, i) => {
+
+        if (i < health) {
+
+            h.style.opacity = "1";
+
+        } else {
+
+            h.style.opacity = "0.2";
+
+        }
+
+    });
+
+}
+
+
+/* ---------- GAMEOVER ---------- */
+function gameOver() {
+
+    gameRunning = false;
+
+    alert("Game Over");
+
+    location.reload();
 
 }
 
