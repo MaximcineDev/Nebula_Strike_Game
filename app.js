@@ -1,5 +1,5 @@
 /* =========================
-   NEBULA STRIKE
+   NEBULA STRIKE FINAL
 ========================= */
 
 
@@ -53,9 +53,6 @@ let boss = null;
 let bossHealth = 100;
 let bossMaxHealth = 100;
 let bossWarning = false;
-let levelFinished = false;
-
-document.getElementById("bossBar").style.display = "block";
 
 let enemiesKilled = 0;
 
@@ -70,7 +67,7 @@ let premium = false;
 let lastShot = 0;
 
 
-/* ---------- SAVE / LOAD ---------- */
+/* ---------- SAVE ---------- */
 
 function saveGame() {
 
@@ -118,7 +115,6 @@ let moveRight = false;
 let moveUp = false;
 let moveDown = false;
 
-
 window.addEventListener("keydown", e => {
 
     if (e.key === "ArrowLeft") moveLeft = true;
@@ -142,11 +138,9 @@ window.addEventListener("keyup", e => {
 
 window.addEventListener("load", () => {
 
-    const splash = document.getElementById("splashScreen");
-
     setTimeout(() => {
 
-        splash.style.display = "none";
+        document.getElementById("splashScreen").style.display = "none";
 
     }, 2000);
 
@@ -170,44 +164,13 @@ function startGame() {
 
 /* ---------- PAUSE ---------- */
 
-document.getElementById("pauseBtn").addEventListener("click", () => {
+document.getElementById("pauseBtn").onclick = () => {
 
     paused = !paused;
 
     if (!paused) gameLoop();
 
-});
-
-
-/* ---------- SHOP / SETTINGS ---------- */
-
-function openShop() {
-
-    document.getElementById("main-menu").style.display = "none";
-    document.getElementById("shop").style.display = "block";
-
-}
-
-function closeShop() {
-
-    document.getElementById("shop").style.display = "none";
-    document.getElementById("main-menu").style.display = "flex";
-
-}
-
-function openSettings() {
-
-    document.getElementById("main-menu").style.display = "none";
-    document.getElementById("settings").style.display = "block";
-
-}
-
-function closeSettings() {
-
-    document.getElementById("settings").style.display = "none";
-    document.getElementById("main-menu").style.display = "flex";
-
-}
+};
 
 
 /* ---------- SHOOT ---------- */
@@ -250,7 +213,7 @@ function shoot() {
 
 setInterval(() => {
 
-    if (!gameRunning) return;
+    if (!gameRunning || boss) return;
 
     enemies.push({
 
@@ -266,6 +229,42 @@ setInterval(() => {
 
 
 /* ---------- BOSS SPAWN ---------- */
+
+setInterval(() => {
+
+    if (!gameRunning) return;
+
+    if (level >= 5 && !boss && !bossWarning) {
+
+        bossWarning = true;
+        showBossWarning();
+
+    }
+
+}, 2000);
+
+
+function showBossWarning() {
+
+    paused = true;
+
+    const w = document.getElementById("bossWarning");
+
+    w.style.display = "block";
+
+    setTimeout(() => {
+
+        w.style.display = "none";
+
+        spawnBoss();
+
+        paused = false;
+        bossWarning = false;
+
+    }, 2000);
+
+}
+
 
 function spawnBoss() {
 
@@ -286,54 +285,6 @@ function spawnBoss() {
 
 }
 
-setInterval(() => {
-
-    if (!gameRunning) return;
-
-    if (level >= 5 && !boss && !bossWarning) {
-
-        bossWarning = true;
-
-        showBossWarning();
-
-    }
-
-}, 2000);
-
-if (bossHealth <= 0) {
-
-    boss = null;
-
-    document.getElementById("bossBar").style.display = "none";
-
-    levelFinished = true;
-
-    showLevelComplete();
-
-}
-
-function showBossWarning() {
-
-    paused = true;
-
-    const w =
-        document.getElementById("bossWarning");
-
-    w.style.display = "block";
-
-    setTimeout(() => {
-
-        w.style.display = "none";
-
-        spawnBoss();
-
-        paused = false;
-
-        bossWarning = false;
-
-    }, 2000);
-
-}
 
 function updateBossBar() {
 
@@ -341,8 +292,7 @@ function updateBossBar() {
 
     let bar = document.getElementById("bossHealth");
 
-    let percent =
-        (bossHealth / bossMaxHealth) * 100;
+    let percent = (bossHealth / bossMaxHealth) * 100;
 
     bar.style.width = percent + "%";
 
@@ -373,8 +323,6 @@ function gameLoop() {
     updateBossBar();
     updateUI();
 
-    updateUI();
-
     requestAnimationFrame(gameLoop);
 
 }
@@ -390,6 +338,7 @@ function updatePlayer() {
     if (moveDown) player.y += player.speed;
 
 }
+
 
 function drawPlayer() {
 
@@ -442,7 +391,7 @@ function updateBullets() {
                 enemies.splice(ei, 1);
                 bullets.splice(i, 1);
 
-                score += 10 * damage;
+                score += 10;
                 coins += 5;
 
                 enemiesKilled++;
@@ -516,15 +465,7 @@ function updateEnemyBullets() {
 
             enemyBullets.splice(i, 1);
 
-            if (b.boss) {
-
-                health -= 2;
-
-            } else {
-
-                health -= 1;
-
-            }
+            health -= b.boss ? 2 : 1;
 
             hitFlash = 10;
 
@@ -544,6 +485,7 @@ function updateEnemyBullets() {
 
 
 /* ---------- HEARTS ---------- */
+
 function updateHearts() {
 
     const hearts =
@@ -565,41 +507,6 @@ function updateHearts() {
 
 }
 
-/* ---------- GAMEOVER ---------- */
-function gameOver() {
-
-    gameRunning = false;
-
-    alert("Game Over");
-
-    location.reload();
-
-}
-
-function showLevelComplete() {
-
-    paused = true;
-
-    document.getElementById(
-        "levelComplete"
-    ).style.display = "block";
-
-}
-
-function nextLevel() {
-
-    document.getElementById(
-        "levelComplete"
-    ).style.display = "none";
-
-    level++;
-
-    paused = false;
-
-    gameLoop();
-
-}
-
 
 /* ---------- BOSS ---------- */
 
@@ -614,8 +521,6 @@ function updateBoss() {
         boss.w,
         boss.h
     );
-
-    // boss shooting
 
     if (Math.random() < 0.02) {
 
@@ -652,29 +557,14 @@ function updateUI() {
 }
 
 
-/* ---------- SHOP ---------- */
+/* ---------- GAMEOVER ---------- */
 
-function buyWeapon() {
+function gameOver() {
 
-    if (coins >= 50) {
+    gameRunning = false;
 
-        coins -= 50;
-        damage++;
+    alert("Game Over");
 
-        saveGame();
-
-    }
-
-}
-
-function buyShield() {
-
-    if (coins >= 30) {
-
-        coins -= 30;
-
-        saveGame();
-
-    }
+    location.reload();
 
 }
