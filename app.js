@@ -138,9 +138,19 @@ window.addEventListener("keyup", e => {
 
 window.addEventListener("load", () => {
 
+    const splash = document.getElementById("splashScreen");
+    const menu = document.getElementById("main-menu");
+
     setTimeout(() => {
 
-        document.getElementById("splashScreen").style.display = "none";
+        splash.classList.add("hide");
+        menu.classList.add("show");
+
+        setTimeout(() => {
+
+            splash.style.display = "none";
+
+        }, 1000);
 
     }, 2000);
 
