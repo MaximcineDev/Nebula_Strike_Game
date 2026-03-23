@@ -74,6 +74,67 @@ body {
 
 
 /* =========================
+   SHOP
+========================= */
+
+#shop {
+
+    display: none;
+
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: 3000;
+
+}
+
+#shopBg {
+
+    position: absolute;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+}
+
+#shopPanel {
+
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+
+    background: rgba(0,0,0,0.8);
+
+    padding: 20px;
+
+    border-radius: 10px;
+
+    text-align: center;
+
+}
+
+#shopPanel button {
+
+    display: block;
+
+    margin: 10px auto;
+
+    padding: 10px 15px;
+
+}
+
+
+/* =========================
    MAIN MENU
 ========================= */
 
