@@ -41,8 +41,19 @@ const explosionSound = new Audio("sounds/explosion.wav");
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+function resizeGame() {
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+}
+
+window.addEventListener("resize", resizeGame);
+
+resizeGame();
+
+player.x = canvas.width/2;
+player.y = canvas.height - 120;
 
 
 /* ---------- SHOP DATA ---------- */
@@ -124,17 +135,6 @@ function loadGame() {
 
 loadGame();
 
-function resizeGame() {
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-}
-
-window.addEventListener("resize", resizeGame);
-
-resizeGame();
-
 
 /* ---------- UPDATE HUD ---------- */
 
@@ -193,23 +193,29 @@ let touchY = null;
 
 canvas.addEventListener("touchstart", e => {
 
+    e.preventDefault();
+
     let t = e.touches[0];
 
     touchX = t.clientX;
     touchY = t.clientY;
 
-});
+}, { passive:false });
+
 
 canvas.addEventListener("touchmove", e => {
 
+    e.preventDefault();
+
     let t = e.touches[0];
 
     touchX = t.clientX;
     touchY = t.clientY;
 
-});
+}, { passive:false });
 
-canvas.addEventListener("touchend", () => {
+
+canvas.addEventListener("touchend", e => {
 
     touchX = null;
     touchY = null;
@@ -250,7 +256,23 @@ function startGame() {
 
     updateHearts();
 
+    startAutoShoot();
+
     gameLoop();
+
+}
+
+function startAutoShoot(){
+
+    setInterval(()=>{
+
+        if(gameRunning && !paused){
+
+            shoot();
+
+        }
+
+    },250);
 
 }
 
@@ -298,12 +320,6 @@ function shoot() {
         dmg: damage
 
     });
-
-   setInterval(() => {
-
-        if (gameRunning) shoot();
-
-    }, 250);
 
 }
 
@@ -447,13 +463,13 @@ function updatePlayer() {
 
     if (touchX !== null) {
 
-        player.x = touchX - player.width / 2;
-        player.y = touchY - player.height / 2;
+        player.x += (touchX - player.x - player.width/2) * 0.2;
+        player.y += (touchY - player.y - player.height/2) * 0.2;
 
     }
 
 
-    // keep inside screen
+    // bounds
 
     if (player.x < 0) player.x = 0;
     if (player.y < 0) player.y = 0;
