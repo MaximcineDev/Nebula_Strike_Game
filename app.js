@@ -578,3 +578,33 @@ function gameOver() {
     location.reload();
 
 }
+
+
+/* ---------- SHOP ---------- */
+
+function openShop() {
+
+    document.getElementById("shop").style.display = "block";
+
+}
+
+function closeShop() {
+
+    document.getElementById("shop").style.display = "none";
+
+}
+
+
+/* ---------- SETTINGS ---------- */
+
+function openSettings() {
+
+    document.getElementById("settings").style.display = "block";
+
+}
+
+function closeSettings() {
+
+    document.getElementById("settings").style.display = "none";
+
+}
