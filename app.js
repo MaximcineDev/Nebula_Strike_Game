@@ -43,6 +43,7 @@ let coins = 0;
 let level = 1;
 
 let health = 5;
+let hitFlash = 0;
 
 let bullets = [];
 let enemies = [];
@@ -326,6 +327,17 @@ function updatePlayer() {
 
 function drawPlayer() {
 
+    if (hitFlash > 0) {
+
+        ctx.globalAlpha = 0.3;
+        hitFlash--;
+
+    } else {
+
+        ctx.globalAlpha = 1;
+
+    }
+
     ctx.drawImage(
         playerImg,
         player.x,
@@ -333,6 +345,8 @@ function drawPlayer() {
         player.width,
         player.height
     );
+
+    ctx.globalAlpha = 1;
 
 }
 
@@ -436,7 +450,17 @@ function updateEnemyBullets() {
 
             enemyBullets.splice(i, 1);
 
-            health--;
+            if (b.boss) {
+
+                health -= 2;
+
+            } else {
+
+                health -= 1;
+
+            }
+
+            hitFlash = 10;
 
             updateHearts();
 
@@ -500,6 +524,24 @@ function updateBoss() {
         boss.w,
         boss.h
     );
+
+    // boss shooting
+
+    if (Math.random() < 0.02) {
+
+        enemyBullets.push({
+
+            x: boss.x + boss.w / 2,
+            y: boss.y + boss.h,
+
+            w: 6,
+            h: 14,
+
+            boss: true
+
+        });
+
+    }
 
 }
 
