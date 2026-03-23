@@ -33,6 +33,15 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 
+/* ---------- SHOP DATA ---------- */
+
+let coins = parseInt(localStorage.getItem("coins")) || 0;
+let weaponLevel = parseInt(localStorage.getItem("weaponLevel")) || 1;
+let shieldOwned = localStorage.getItem("shieldOwned") === "yes";
+
+let damage = weaponLevel;
+
+
 /* ---------- GAME STATE ---------- */
 
 let gameRunning = false;
@@ -76,6 +85,8 @@ function saveGame() {
     localStorage.setItem("fireRate", fireRate);
     localStorage.setItem("skin", skin);
     localStorage.setItem("premium", premium);
+    localStorage.setItem("weaponLevel", weaponLevel);
+    localStorage.setItem("shieldOwned", shieldOwned ? "yes" : "no");
 
 }
 
@@ -91,6 +102,17 @@ function loadGame() {
 }
 
 loadGame();
+
+
+/* ---------- UPDATE HUD ---------- */
+
+function updateHUD() {
+
+    document.getElementById("coinText").innerText = coins;
+
+    updateHUD();
+
+}
 
 
 /* ---------- PLAYER ---------- */
@@ -404,6 +426,9 @@ function updateBullets() {
                 score += 10;
                 coins += 5;
 
+                updateHUD();
+                saveGame();
+
                 enemiesKilled++;
 
                 if (enemiesKilled >= 10) {
@@ -591,6 +616,66 @@ function openShop() {
 function closeShop() {
 
     document.getElementById("shop").style.display = "none";
+
+}
+
+
+/* ---------- PURCHASE WEAPON ---------- */
+
+function buyWeapon() {
+
+    let cost = weaponLevel * 20;
+
+    if (coins >= cost) {
+
+        coins -= cost;
+
+        weaponLevel++;
+        damage = weaponLevel;
+
+        saveGame();
+        updateHUD();
+
+        alert("Weapon upgraded to Lv " + weaponLevel);
+
+    } else {
+
+        alert("Not enough coins");
+
+    }
+
+}
+
+
+/* ---------- PURCHASE SHIELD ---------- */
+
+function buyShield() {
+
+    let cost = 50;
+
+    if (shieldOwned) {
+
+        alert("Shield already owned");
+        return;
+
+    }
+
+    if (coins >= cost) {
+
+        coins -= cost;
+
+        shieldOwned = true;
+
+        saveGame();
+        updateHUD();
+
+        alert("Shield unlocked!");
+
+    } else {
+
+        alert("Not enough coins");
+
+    }
 
 }
 
