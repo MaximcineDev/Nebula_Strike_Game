@@ -149,13 +149,13 @@ window.addEventListener("load", () => {
 
 /* ---------- START ---------- */
 
-document.getElementById("startBtn").addEventListener("click", startGame);
-
 function startGame() {
 
     document.getElementById("main-menu").style.display = "none";
 
     gameRunning = true;
+
+    updateHearts();
 
     gameLoop();
 
@@ -463,18 +463,17 @@ function updateHearts() {
 
         if (i < health) {
 
-            h.style.opacity = "1";
+            h.src = "ui/heart-full.png";
 
         } else {
 
-            h.style.opacity = "0.2";
+            h.src = "ui/heart-empty.png";
 
         }
 
     });
 
 }
-
 
 /* ---------- GAMEOVER ---------- */
 function gameOver() {
