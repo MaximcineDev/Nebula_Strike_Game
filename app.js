@@ -124,6 +124,17 @@ function loadGame() {
 
 loadGame();
 
+function resizeGame() {
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+}
+
+window.addEventListener("resize", resizeGame);
+
+resizeGame();
+
 
 /* ---------- UPDATE HUD ---------- */
 
@@ -171,6 +182,37 @@ window.addEventListener("keyup", e => {
     if (e.key === "ArrowRight") moveRight = false;
     if (e.key === "ArrowUp") moveUp = false;
     if (e.key === "ArrowDown") moveDown = false;
+
+});
+
+
+/* ---------- TOUCH CONTROL ---------- */
+
+let touchX = null;
+let touchY = null;
+
+canvas.addEventListener("touchstart", e => {
+
+    let t = e.touches[0];
+
+    touchX = t.clientX;
+    touchY = t.clientY;
+
+});
+
+canvas.addEventListener("touchmove", e => {
+
+    let t = e.touches[0];
+
+    touchX = t.clientX;
+    touchY = t.clientY;
+
+});
+
+canvas.addEventListener("touchend", () => {
+
+    touchX = null;
+    touchY = null;
 
 });
 
@@ -256,6 +298,12 @@ function shoot() {
         dmg: damage
 
     });
+
+   setInterval(() => {
+
+        if (gameRunning) shoot();
+
+    }, 250);
 
 }
 
@@ -387,36 +435,34 @@ function gameLoop() {
 
 function updatePlayer() {
 
+    // keyboard
+
     if (moveLeft) player.x -= player.speed;
     if (moveRight) player.x += player.speed;
     if (moveUp) player.y -= player.speed;
     if (moveDown) player.y += player.speed;
 
-}
 
+    // touch follow
 
-function drawPlayer() {
+    if (touchX !== null) {
 
-    if (hitFlash > 0) {
-
-        ctx.globalAlpha = 0.3;
-        hitFlash--;
-
-    } else {
-
-        ctx.globalAlpha = 1;
+        player.x = touchX - player.width / 2;
+        player.y = touchY - player.height / 2;
 
     }
 
-    ctx.drawImage(
-        playerImg,
-        player.x,
-        player.y,
-        player.width,
-        player.height
-    );
 
-    ctx.globalAlpha = 1;
+    // keep inside screen
+
+    if (player.x < 0) player.x = 0;
+    if (player.y < 0) player.y = 0;
+
+    if (player.x > canvas.width - player.width)
+        player.x = canvas.width - player.width;
+
+    if (player.y > canvas.height - player.height)
+        player.y = canvas.height - player.height;
 
 }
 
