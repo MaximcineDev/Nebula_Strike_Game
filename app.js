@@ -52,6 +52,8 @@ let enemyBullets = [];
 let boss = null;
 let bossHealth = 100;
 let bossMaxHealth = 100;
+let bossWarning = false;
+let levelFinished = false;
 
 document.getElementById("bossBar").style.display = "block";
 
@@ -265,23 +267,34 @@ setInterval(() => {
 
 /* ---------- BOSS SPAWN ---------- */
 
+function spawnBoss() {
+
+    boss = {
+
+        x: canvas.width / 2 - 80,
+        y: 40,
+
+        w: 160,
+        h: 160
+
+    };
+
+    bossHealth = 100;
+    bossMaxHealth = 100;
+
+    document.getElementById("bossBar").style.display = "block";
+
+}
+
 setInterval(() => {
 
     if (!gameRunning) return;
 
-    if (level >= 5 && !boss) {
+    if (level >= 5 && !boss && !bossWarning) {
 
-        boss = {
+        bossWarning = true;
 
-            x: canvas.width / 2 - 80,
-            y: 40,
-
-            w: 160,
-            h: 160
-
-        };
-
-        bossHealth = 100;
+        showBossWarning();
 
     }
 
@@ -293,8 +306,34 @@ if (bossHealth <= 0) {
 
     document.getElementById("bossBar").style.display = "none";
 
+    levelFinished = true;
+
+    showLevelComplete();
+
 }
 
+function showBossWarning() {
+
+    paused = true;
+
+    const w =
+        document.getElementById("bossWarning");
+
+    w.style.display = "block";
+
+    setTimeout(() => {
+
+        w.style.display = "none";
+
+        spawnBoss();
+
+        paused = false;
+
+        bossWarning = false;
+
+    }, 2000);
+
+}
 
 function updateBossBar() {
 
@@ -534,6 +573,30 @@ function gameOver() {
     alert("Game Over");
 
     location.reload();
+
+}
+
+function showLevelComplete() {
+
+    paused = true;
+
+    document.getElementById(
+        "levelComplete"
+    ).style.display = "block";
+
+}
+
+function nextLevel() {
+
+    document.getElementById(
+        "levelComplete"
+    ).style.display = "none";
+
+    level++;
+
+    paused = false;
+
+    gameLoop();
 
 }
 
