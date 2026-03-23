@@ -254,13 +254,16 @@ body {
     top: 10px;
     right: 10px;
 
-    font-size: 24px;
+    z-index: 500;
 
-    z-index: 200;
+    display: flex;
 
 }
 
 .heart {
+
+    width: 28px;
+    height: 28px;
 
     margin-left: 5px;
 
