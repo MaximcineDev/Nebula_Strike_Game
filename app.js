@@ -149,8 +149,8 @@ function updateHUD() {
 
 const player = {
 
-    x: canvas.width / 2,
-    y: canvas.height - 120,
+    x: 0,
+    y: 0,
 
     width: 60,
     height: 60,
@@ -158,6 +158,9 @@ const player = {
     speed: 6
 
 };
+
+player.x = canvas.width / 2;
+player.y = canvas.height - 120;
 
 
 /* ---------- MOVEMENT ---------- */
@@ -217,10 +220,12 @@ canvas.addEventListener("touchmove", e => {
 
 canvas.addEventListener("touchend", e => {
 
+    e.preventDefault();
+
     touchX = null;
     touchY = null;
 
-});
+}, { passive:false });
 
 
 /* ---------- SPLASH ---------- */
@@ -256,7 +261,13 @@ function startGame() {
 
 }
 
+let autoShootStarted = false;
+
 function startAutoShoot(){
+
+    if(autoShootStarted) return;
+
+    autoShootStarted = true;
 
     setInterval(()=>{
 
