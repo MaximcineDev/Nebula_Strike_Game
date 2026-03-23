@@ -225,25 +225,19 @@ canvas.addEventListener("touchend", e => {
 
 /* ---------- SPLASH ---------- */
 
-window.addEventListener("load", () => {
+window.onload = function () {
 
     const splash = document.getElementById("splashScreen");
     const menu = document.getElementById("main-menu");
 
     setTimeout(() => {
 
-        splash.classList.add("hide");
-        menu.classList.add("show");
+        splash.style.display = "none";
+        menu.style.display = "block";
 
-        setTimeout(() => {
+    }, 1500);
 
-            splash.style.display = "none";
-
-        }, 1000);
-
-    }, 2000);
-
-});
+};
 
 
 /* ---------- START ---------- */
