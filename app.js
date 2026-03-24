@@ -86,7 +86,7 @@ let paused = false;
 let score = 0;
 let level = 1;
 
-let health = 5;
+let health = maxHearts;
 
 let bullets = [];
 let enemies = [];
@@ -100,6 +100,11 @@ let lastShot = 0;
 
 let coins = 0;
 let weaponLevel = 1;
+let maxHearts = 5;
+let shieldLevel = 0;
+let highestLevel = 1;
+let premium = false;
+
 let damage = 1;
 
 let rapidFire = false;
@@ -134,6 +139,8 @@ canvas.addEventListener("touchmove", e=>{
     e.preventDefault();
 
     let t = e.touches[0];
+
+    const rect = canvas.getBoundingClientRect();
 
     touchX = t.clientX;
     touchY = t.clientY;
@@ -180,6 +187,8 @@ function startGame(){
 
     document.getElementById("main-menu").style.display="none";
 
+    health = maxHearts;
+
     gameRunning=true;
 
     startAutoShoot();
@@ -188,6 +197,13 @@ function startGame(){
 
 }
 
+window.onload = () => {
+
+    loadGame();
+
+    resizeGame();
+
+};
 
 let autoShootStarted=false;
 
@@ -369,6 +385,8 @@ function updateBullets(){
 
                     coins+=5;
 
+                    saveGame();
+
                     if(Math.random()<0.3){
 
                         powerups.push({
@@ -514,6 +532,106 @@ function updateTimers(){
 }
 
 
+function saveGame(){
+
+    const saveData = {
+
+        coins: coins,
+        weaponLevel: weaponLevel,
+        maxHearts: maxHearts,
+        shieldLevel: shieldLevel,
+        highestLevel: highestLevel,
+        premium: premium
+
+    };
+
+    localStorage.setItem(
+        "nebulaSave",
+        JSON.stringify(saveData)
+    );
+
+}
+
+function loadGame(){
+
+    const data =
+    localStorage.getItem("nebulaSave");
+
+    if(!data) return;
+
+    const save =
+    JSON.parse(data);
+
+    coins = save.coins || 0;
+    weaponLevel = save.weaponLevel || 1;
+    maxHearts = save.maxHearts || 5;
+    shieldLevel = save.shieldLevel || 0;
+    highestLevel = save.highestLevel || 1;
+    premium = save.premium || false;
+
+}
+
+function buyShield(){
+
+    if(coins >= 50){
+
+        coins -= 50;
+        weaponLevel++;
+
+        saveGame();
+
+    }
+
+}
+
+function buyWeapon(){
+
+    if(coins >= 50){
+
+        coins -= 50;
+        weaponLevel++;
+
+        saveGame();
+
+    }
+
+}
+
+function buyHearts(){
+
+    if(coins >= 50){
+
+        coins -= 50;
+        maxHearts++;
+
+        saveGame();
+
+    }
+
+}
+
+function nextLevel(){
+
+    level++;
+
+    if(level > highestLevel){
+
+        highestLevel = level;
+
+    }
+
+    saveGame();
+
+}
+
+function resetSave(){
+
+    localStorage.removeItem("nebulaSave");
+
+    location.reload();
+
+}
+
 /* ---------- GAME OVER ---------- */
 
 function gameOver(){
@@ -538,6 +656,8 @@ function resumeGame(){
 }
 
 function quitGame(){
+
+    saveGame();
 
     paused = false;
     gameRunning = false;
