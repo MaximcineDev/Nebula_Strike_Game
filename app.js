@@ -1,5 +1,5 @@
 /* =========================
-   NEBULA STRIKE FINAL
+   NEBULA STRIKE FINAL CLEAN
 ========================= */
 
 
@@ -18,7 +18,7 @@ const bgImg = new Image();
 bgImg.src = "assets/background.png";
 
 
-/* ---------- POWERUP IMAGES ---------- */
+/* ---------- POWERUPS ---------- */
 
 const healthImg = new Image();
 healthImg.src = "assets/ui/health.png";
@@ -41,109 +41,6 @@ const explosionSound = new Audio("sounds/explosion.wav");
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-function resizeGame() {
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-}
-
-window.addEventListener("resize", resizeGame);
-
-resizeGame();
-
-player.x = canvas.width/2;
-player.y = canvas.height - 120;
-
-
-/* ---------- SHOP DATA ---------- */
-
-let coins = parseInt(localStorage.getItem("coins")) || 0;
-let weaponLevel = parseInt(localStorage.getItem("weaponLevel")) || 1;
-let shieldOwned = localStorage.getItem("shieldOwned") === "yes";
-
-let damage = weaponLevel;
-
-
-/* ---------- GAME STATE ---------- */
-
-let gameRunning = false;
-let paused = false;
-
-let score = 0;
-let level = 1;
-
-let health = 5;
-let hitFlash = 0;
-
-let bullets = [];
-let enemies = [];
-let enemyBullets = [];
-
-let boss = null;
-let bossHealth = 100;
-let bossMaxHealth = 100;
-let bossWarning = false;
-
-let enemiesKilled = 0;
-
-
-/* ---------- POWERUPS ---------- */
-
-let powerups = [];
-
-let rapidFire = false;
-let rapidTimer = 0;
-
-let shieldActive = false;
-let shieldTimer = 0;
-
-
-/* ---------- UPGRADES ---------- */
-
-let fireRate = 300;
-let skin = 0;
-let premium = false;
-
-let lastShot = 0;
-
-
-/* ---------- SAVE ---------- */
-
-function saveGame() {
-
-    localStorage.setItem("coins", coins);
-    localStorage.setItem("damage", damage);
-    localStorage.setItem("fireRate", fireRate);
-    localStorage.setItem("skin", skin);
-    localStorage.setItem("premium", premium);
-    localStorage.setItem("weaponLevel", weaponLevel);
-    localStorage.setItem("shieldOwned", shieldOwned ? "yes" : "no");
-
-}
-
-function loadGame() {
-
-    coins = parseInt(localStorage.getItem("coins")) || 0;
-    damage = parseInt(localStorage.getItem("damage")) || 1;
-    fireRate = parseInt(localStorage.getItem("fireRate")) || 300;
-    skin = parseInt(localStorage.getItem("skin")) || 0;
-
-    premium = localStorage.getItem("premium") === "true";
-
-}
-
-loadGame();
-
-
-/* ---------- UPDATE HUD ---------- */
-
-function updateHUD() {
-
-    document.getElementById("coinText").innerText = coins;
-
-}
-
 
 /* ---------- PLAYER ---------- */
 
@@ -159,42 +56,59 @@ const player = {
 
 };
 
-player.x = canvas.width / 2;
-player.y = canvas.height - 120;
+
+function resizeGame(){
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    player.x = canvas.width/2;
+    player.y = canvas.height - 120;
+
+}
+
+window.addEventListener("resize", resizeGame);
+
+resizeGame();
 
 
-/* ---------- MOVEMENT ---------- */
+/* ---------- GAME STATE ---------- */
 
-let moveLeft = false;
-let moveRight = false;
-let moveUp = false;
-let moveDown = false;
+let gameRunning = false;
+let paused = false;
 
-window.addEventListener("keydown", e => {
+let score = 0;
+let level = 1;
 
-    if (e.key === "ArrowLeft") moveLeft = true;
-    if (e.key === "ArrowRight") moveRight = true;
-    if (e.key === "ArrowUp") moveUp = true;
-    if (e.key === "ArrowDown") moveDown = true;
+let health = 5;
 
-});
+let bullets = [];
+let enemies = [];
+let enemyBullets = [];
+let powerups = [];
 
-window.addEventListener("keyup", e => {
+let boss = null;
 
-    if (e.key === "ArrowLeft") moveLeft = false;
-    if (e.key === "ArrowRight") moveRight = false;
-    if (e.key === "ArrowUp") moveUp = false;
-    if (e.key === "ArrowDown") moveDown = false;
+let fireRate = 300;
+let lastShot = 0;
 
-});
+let coins = 0;
+let weaponLevel = 1;
+let damage = 1;
+
+let rapidFire = false;
+let rapidTimer = 0;
+
+let shieldActive = false;
+let shieldTimer = 0;
 
 
-/* ---------- TOUCH CONTROL ---------- */
+/* ---------- TOUCH ---------- */
 
 let touchX = null;
 let touchY = null;
 
-canvas.addEventListener("touchstart", e => {
+canvas.addEventListener("touchstart", e=>{
 
     e.preventDefault();
 
@@ -203,10 +117,11 @@ canvas.addEventListener("touchstart", e => {
     touchX = t.clientX;
     touchY = t.clientY;
 
-}, { passive:false });
+    shoot();
 
+},{passive:false});
 
-canvas.addEventListener("touchmove", e => {
+canvas.addEventListener("touchmove", e=>{
 
     e.preventDefault();
 
@@ -215,45 +130,49 @@ canvas.addEventListener("touchmove", e => {
     touchX = t.clientX;
     touchY = t.clientY;
 
-}, { passive:false });
+},{passive:false});
 
-
-canvas.addEventListener("touchend", e => {
-
-    e.preventDefault();
+canvas.addEventListener("touchend", e=>{
 
     touchX = null;
     touchY = null;
 
-}, { passive:false });
+},{passive:false});
 
 
-/* ---------- SPLASH ---------- */
+/* ---------- KEYBOARD ---------- */
 
-window.onload = function () {
+let moveLeft=false;
+let moveRight=false;
+let moveUp=false;
+let moveDown=false;
 
-    const splash = document.getElementById("splashScreen");
-    const menu = document.getElementById("main-menu");
+window.addEventListener("keydown",e=>{
 
-    setTimeout(() => {
+    if(e.key==="ArrowLeft") moveLeft=true;
+    if(e.key==="ArrowRight") moveRight=true;
+    if(e.key==="ArrowUp") moveUp=true;
+    if(e.key==="ArrowDown") moveDown=true;
 
-        splash.style.display = "none";
-        menu.style.display = "block";
+});
 
-    }, 1500);
+window.addEventListener("keyup",e=>{
 
-};
+    if(e.key==="ArrowLeft") moveLeft=false;
+    if(e.key==="ArrowRight") moveRight=false;
+    if(e.key==="ArrowUp") moveUp=false;
+    if(e.key==="ArrowDown") moveDown=false;
+
+});
 
 
 /* ---------- START ---------- */
 
-function startGame() {
+function startGame(){
 
-    document.getElementById("main-menu").style.display = "none";
+    document.getElementById("main-menu").style.display="none";
 
-    gameRunning = true;
-
-    updateHearts();
+    gameRunning=true;
 
     startAutoShoot();
 
@@ -261,13 +180,14 @@ function startGame() {
 
 }
 
-let autoShootStarted = false;
+
+let autoShootStarted=false;
 
 function startAutoShoot(){
 
     if(autoShootStarted) return;
 
-    autoShootStarted = true;
+    autoShootStarted=true;
 
     setInterval(()=>{
 
@@ -282,47 +202,36 @@ function startAutoShoot(){
 }
 
 
-/* ---------- PAUSE ---------- */
-
-document.getElementById("pauseBtn").onclick = () => {
-
-    paused = !paused;
-
-    if (!paused) gameLoop();
-
-};
-
-
 /* ---------- SHOOT ---------- */
 
-canvas.addEventListener("click", () => {
+canvas.addEventListener("click",()=>{
 
-    if (!gameRunning) return;
+    if(gameRunning){
 
-    shoot();
+        shoot();
+
+    }
 
 });
 
-function shoot() {
+function shoot(){
 
     let now = Date.now();
 
-    if (now - lastShot < fireRate) return;
+    if(now-lastShot<fireRate) return;
 
-    lastShot = now;
+    lastShot=now;
 
-    shootSound.currentTime = 0;
+    shootSound.currentTime=0;
     shootSound.play();
 
     bullets.push({
 
-        x: player.x + 25,
-        y: player.y,
+        x:player.x+25,
+        y:player.y,
 
-        w: 4,
-        h: 10,
-
-        dmg: damage
+        w:4,
+        h:10
 
     });
 
@@ -331,107 +240,42 @@ function shoot() {
 
 /* ---------- ENEMY SPAWN ---------- */
 
-setInterval(() => {
+setInterval(()=>{
 
-    if (!gameRunning || boss) return;
+    if(!gameRunning) return;
+    if(boss) return;
 
     enemies.push({
 
-        x: Math.random() * canvas.width,
-        y: -40,
+        x:Math.random()*canvas.width,
+        y:-40,
 
-        w: 40,
-        h: 40,
-
-        hp: 2 + level
+        w:40,
+        h:40,
+        hp:2+level
 
     });
 
-}, 1500);
+},1500);
 
 
-/* ---------- BOSS SPAWN ---------- */
+/* ---------- LOOP ---------- */
 
-setInterval(() => {
+function gameLoop(){
 
-    if (!gameRunning) return;
+    if(!gameRunning||paused) return;
 
-    if (level >= 5 && !boss && !bossWarning) {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
 
-        bossWarning = true;
-        showBossWarning();
+    if(bgImg.complete){
 
-    }
-
-}, 2000);
-
-
-function showBossWarning() {
-
-    paused = true;
-
-    const w = document.getElementById("bossWarning");
-
-    w.style.display = "block";
-
-    setTimeout(() => {
-
-        w.style.display = "none";
-
-        spawnBoss();
-
-        paused = false;
-        bossWarning = false;
-
-    }, 2000);
-
-}
-
-
-function spawnBoss() {
-
-    boss = {
-
-        x: canvas.width / 2 - 80,
-        y: 40,
-
-        w: 160,
-        h: 160
-
-    };
-
-    bossHealth = 100;
-    bossMaxHealth = 100;
-
-    document.getElementById("bossBar").style.display = "block";
-
-}
-
-
-function updateBossBar() {
-
-    if (!boss) return;
-
-    let bar = document.getElementById("bossHealth");
-
-    let percent = (bossHealth / bossMaxHealth) * 100;
-
-    bar.style.width = percent + "%";
-
-}
-
-
-/* ---------- GAME LOOP ---------- */
-
-function gameLoop() {
-
-    if (!gameRunning || paused) return;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    if (bgImg.complete) {
-
-        ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(
+            bgImg,
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
 
     }
 
@@ -441,11 +285,8 @@ function gameLoop() {
     updateBullets();
     updateEnemies();
     updateEnemyBullets();
-    updateBoss();
-    updateBossBar();
     updatePowerups();
     updateTimers();
-    updateUI();
 
     requestAnimationFrame(gameLoop);
 
@@ -454,133 +295,120 @@ function gameLoop() {
 
 /* ---------- PLAYER ---------- */
 
-function updatePlayer() {
+function updatePlayer(){
 
-    // keyboard
+    if(moveLeft) player.x-=player.speed;
+    if(moveRight) player.x+=player.speed;
+    if(moveUp) player.y-=player.speed;
+    if(moveDown) player.y+=player.speed;
 
-    if (moveLeft) player.x -= player.speed;
-    if (moveRight) player.x += player.speed;
-    if (moveUp) player.y -= player.speed;
-    if (moveDown) player.y += player.speed;
+    if(touchX!==null){
 
-
-    // touch follow
-
-    if (touchX !== null) {
-
-        player.x += (touchX - player.x - player.width/2) * 0.2;
-        player.y += (touchY - player.y - player.height/2) * 0.2;
+        player.x += (touchX-player.x-player.width/2)*0.2;
+        player.y += (touchY-player.y-player.height/2)*0.2;
 
     }
 
+}
 
-    // bounds
 
-    if (player.x < 0) player.x = 0;
-    if (player.y < 0) player.y = 0;
+function drawPlayer(){
 
-    if (player.x > canvas.width - player.width)
-        player.x = canvas.width - player.width;
-
-    if (player.y > canvas.height - player.height)
-        player.y = canvas.height - player.height;
+    ctx.drawImage(
+        playerImg,
+        player.x,
+        player.y,
+        player.width,
+        player.height
+    );
 
 }
 
 
 /* ---------- BULLETS ---------- */
 
-function updateBullets() {
+function updateBullets(){
 
-    bullets.forEach((b, i) => {
+    for(let i=bullets.length-1;i>=0;i--){
 
-        b.y -= 8;
+        let b=bullets[i];
 
-        ctx.fillStyle = "cyan";
-        ctx.fillRect(b.x, b.y, b.w, b.h);
+        b.y-=8;
 
-        enemies.forEach((e, ei) => {
+        ctx.fillStyle="cyan";
+        ctx.fillRect(b.x,b.y,b.w,b.h);
 
-            if (
+        for(let j=enemies.length-1;j>=0;j--){
 
-                b.x < e.x + e.w &&
-                b.x + b.w > e.x &&
-                b.y < e.y + e.h &&
-                b.y + b.h > e.y
+            let e=enemies[j];
 
-            ) {
+            if(
 
-                e.hp -= damage;
+                b.x<e.x+e.w &&
+                b.x+b.w>e.x &&
+                b.y<e.y+e.h &&
+                b.y+b.h>e.y
 
-                bullets.splice(i, 1);
+            ){
 
-                if (e.hp <= 0) {
+                bullets.splice(i,1);
 
-                    explosionSound.play();
+                e.hp--;
 
-                    enemies.splice(ei, 1);
+                if(e.hp<=0){
 
-                    score += 10;
-                    coins += 5;
+                    enemies.splice(j,1);
 
-                    /* powerup drop */
+                    coins+=5;
 
-                    if (Math.random() < 0.3) {
-
-                        let type = Math.floor(Math.random() * 3);
+                    if(Math.random()<0.3){
 
                         powerups.push({
-
-                            x: e.x,
-                            y: e.y,
-                            type: type
-
+                            x:e.x,
+                            y:e.y,
+                            type:Math.floor(Math.random()*3)
                         });
-
-                    }
-
-                    updateHUD();
-                    saveGame();
-
-                    enemiesKilled++;
-
-                    if (enemiesKilled >= 10) {
-
-                        level++;
-                        enemiesKilled = 0;
 
                     }
 
                 }
 
+                break;
+
             }
 
-        });
+        }
 
-    });
+    }
 
 }
 
 
 /* ---------- ENEMIES ---------- */
 
-function updateEnemies() {
+function updateEnemies(){
 
-    enemies.forEach(e => {
+    enemies.forEach(e=>{
 
-        e.y += 2;
+        e.y+=2;
 
-        ctx.drawImage(enemyImg, e.x, e.y, e.w, e.h);
+        ctx.drawImage(
+            enemyImg,
+            e.x,
+            e.y,
+            e.w,
+            e.h
+        );
 
-        if (Math.random() < 0.01) {
+        if(Math.random()<0.01){
 
             enemyBullets.push({
 
-                x: e.x + 10,
-                y: e.y,
+                x:e.x+10,
+                y:e.y,
 
-                w: 4,
-                h: 10
+                w:4,
+                h:10
 
             });
 
@@ -591,94 +419,37 @@ function updateEnemies() {
 }
 
 
-/* ---------- POWERUPS ---------- */
+/* ---------- ENEMY BULLETS ---------- */
 
-function updatePowerups(){
+function updateEnemyBullets(){
 
-    powerups.forEach((p,i)=>{
+    for(let i=enemyBullets.length-1;i>=0;i--){
 
-        p.y += 2;
+        let b=enemyBullets[i];
 
-        let img = healthImg;
+        b.y+=5;
 
-        if(p.type===1) img = rapidImg;
-        if(p.type===2) img = shieldImg;
-
-        ctx.drawImage(img,p.x,p.y,32,32);
-
+        ctx.fillStyle="red";
+        ctx.fillRect(b.x,b.y,b.w,b.h);
 
         if(
 
-            p.x < player.x+player.width &&
-            p.x+32 > player.x &&
-            p.y < player.y+player.height &&
-            p.y+32 > player.y
+            b.x<player.x+player.width &&
+            b.x+b.w>player.x &&
+            b.y<player.y+player.height &&
+            b.y+b.h>player.y
 
         ){
 
-            if(p.type===0){
-
-                if(health<5) health++;
-                updateHearts();
-
-            }
-
-            if(p.type===1){
-
-                rapidFire=true;
-                rapidTimer=300;
-
-            }
-
-            if(p.type===2){
-
-                shieldActive=true;
-                shieldTimer=300;
-
-            }
-
-            powerups.splice(i,1);
-
-        }
-
-    });
-
-}
-
-
-/* ---------- ENEMY BULLETS ---------- */
-
-function updateEnemyBullets() {
-
-    enemyBullets.forEach((b, i) => {
-
-        b.y += 5;
-
-        ctx.fillStyle = "red";
-        ctx.fillRect(b.x, b.y, b.w, b.h);
-
-        if (
-
-            b.x < player.x + player.width &&
-            b.x + b.w > player.x &&
-            b.y < player.y + player.height &&
-            b.y + b.h > player.y
-
-        ) {
-
-            enemyBullets.splice(i, 1);
+            enemyBullets.splice(i,1);
 
             if(!shieldActive){
 
-                health -= b.boss ? 2 : 1;
+                health--;
 
             }
 
-            hitFlash = 10;
-
-            updateHearts();
-
-            if (health <= 0) {
+            if(health<=0){
 
                 gameOver();
 
@@ -686,93 +457,29 @@ function updateEnemyBullets() {
 
         }
 
-    });
-
-}
-
-
-/* ---------- HEARTS ---------- */
-
-function updateHearts() {
-
-    const hearts =
-        document.querySelectorAll(".heart");
-
-    hearts.forEach((h, i) => {
-
-        if (i < health) {
-
-            h.src = "assets/ui/heart-full.png";
-
-        } else {
-
-            h.src = "assets/ui/heart-empty.png";
-
-        }
-
-    });
-
-}
-
-
-/* ---------- BOSS ---------- */
-
-function updateBoss() {
-
-    if (!boss) return;
-
-    ctx.drawImage(
-        bossImg,
-        boss.x,
-        boss.y,
-        boss.w,
-        boss.h
-    );
-
-    if (Math.random() < 0.02) {
-
-        enemyBullets.push({
-
-            x: boss.x + boss.w / 2,
-            y: boss.y + boss.h,
-
-            w: 6,
-            h: 14,
-
-            boss: true
-
-        });
-
     }
 
 }
 
 
-/* ---------- UI ---------- */
+/* ---------- POWERUPS ---------- */
 
-function updateUI() {
+function updatePowerups(){
 
-    document.getElementById("scoreText").textContent =
-        "Score: " + score;
+    for(let i=powerups.length-1;i>=0;i--){
 
-    document.getElementById("coinText").textContent =
-        coins;
+        let p=powerups[i];
 
-    document.getElementById("levelText").textContent =
-        "Lv " + level;
+        p.y+=2;
 
-}
+        let img=healthImg;
 
+        if(p.type===1) img=rapidImg;
+        if(p.type===2) img=shieldImg;
 
-/* ---------- GAMEOVER ---------- */
+        ctx.drawImage(img,p.x,p.y,32,32);
 
-function gameOver() {
-
-    gameRunning = false;
-
-    alert("Game Over");
-
-    location.reload();
+    }
 
 }
 
@@ -785,24 +492,12 @@ function updateTimers(){
 
         rapidTimer--;
 
-        fireRate = 100;
+        fireRate=100;
 
-        if(rapidTimer <= 0){
+        if(rapidTimer<=0){
 
-            rapidFire = false;
-            fireRate = 300;
-
-        }
-
-    }
-
-    if(shieldActive){
-
-        shieldTimer--;
-
-        if(shieldTimer <= 0){
-
-            shieldActive = false;
+            rapidFire=false;
+            fireRate=300;
 
         }
 
@@ -811,91 +506,14 @@ function updateTimers(){
 }
 
 
-/* ---------- SHOP ---------- */
+/* ---------- GAME OVER ---------- */
 
-function openShop() {
+function gameOver(){
 
-    document.getElementById("shop").style.display = "block";
+    gameRunning=false;
 
-}
+    alert("Game Over");
 
-function closeShop() {
-
-    document.getElementById("shop").style.display = "none";
-
-}
-
-
-/* ---------- PURCHASE WEAPON ---------- */
-
-function buyWeapon() {
-
-    let cost = weaponLevel * 20;
-
-    if (coins >= cost) {
-
-        coins -= cost;
-
-        weaponLevel++;
-        damage = weaponLevel;
-
-        saveGame();
-        updateHUD();
-
-        alert("Weapon upgraded to Lv " + weaponLevel);
-
-    } else {
-
-        alert("Not enough coins");
-
-    }
-
-}
-
-
-/* ---------- PURCHASE SHIELD ---------- */
-
-function buyShield() {
-
-    let cost = 50;
-
-    if (shieldOwned) {
-
-        alert("Shield already owned");
-        return;
-
-    }
-
-    if (coins >= cost) {
-
-        coins -= cost;
-
-        shieldOwned = true;
-
-        saveGame();
-        updateHUD();
-
-        alert("Shield unlocked!");
-
-    } else {
-
-        alert("Not enough coins");
-
-    }
-
-}
-
-
-/* ---------- SETTINGS ---------- */
-
-function openSettings() {
-
-    document.getElementById("settings").style.display = "block";
-
-}
-
-function closeSettings() {
-
-    document.getElementById("settings").style.display = "none";
+    location.reload();
 
 }
