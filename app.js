@@ -207,13 +207,7 @@ function startGame(){
     gameLoop();
 
 }
-window.onload = () => {
 
-    loadGame();
-
-    resizeGame();
-
-};
 
 let autoShootStarted=false;
 
@@ -727,3 +721,32 @@ setTimeout(()=>{
     }
 
 },1000);
+
+
+window.addEventListener("load", () => {
+
+    loadGame();
+
+    resizeGame();
+
+    const splash =
+        document.getElementById("splashScreen");
+
+    const menu =
+        document.getElementById("main-menu");
+
+    if(menu){
+        menu.style.display = "block";
+    }
+
+    if(splash){
+
+        setTimeout(()=>{
+
+            splash.style.display = "none";
+
+        }, 800);
+
+    }
+
+});
