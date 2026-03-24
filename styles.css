@@ -461,6 +461,48 @@ html, body {
 }
 
 
+#pauseMenu{
+
+    position: fixed;
+
+    left: 0;
+    top: 0;
+
+    width: 100vw;
+    height: 100vh;
+
+    background: rgba(0,0,0,0.8);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+#pauseBox{
+
+    background: #111;
+
+    padding: 20px;
+
+    border-radius: 10px;
+
+    text-align: center;
+
+}
+
+#pauseBox button{
+
+    display: block;
+
+    margin: 10px auto;
+
+    padding: 10px 20px;
+
+    font-size: 18px;
+
+}
+
 
 /* =========================
    SETTINGS
