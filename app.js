@@ -35,6 +35,11 @@ shieldImg.src = "assets/ui/shield.png";
 const shootSound = new Audio("sounds/shoot.wav");
 const explosionSound = new Audio("sounds/explosion.wav");
 
+const music = new Audio("sounds/music.mp3");
+
+music.loop = true;
+music.volume = 0.5;
+
 
 /* ---------- CANVAS ---------- */
 
@@ -113,6 +118,8 @@ let rapidTimer = 0;
 let shieldActive = false;
 let shieldTimer = 0;
 
+let soundOn = true;
+
 
 /* ---------- TOUCH ---------- */
 
@@ -189,14 +196,20 @@ function startGame(){
 
     health = maxHearts;
 
-    gameRunning=true;
+    gameRunning = true;
+
+    if(soundOn){
+
+        music.currentTime = 0;
+        music.play();
+
+    }
 
     startAutoShoot();
 
     gameLoop();
 
 }
-
 window.onload = () => {
 
     loadGame();
@@ -381,6 +394,9 @@ function updateBullets(){
 
                 if(e.hp<=0){
 
+                    explosionSound.currentTime = 0;
+                    explosionSound.play();
+
                     enemies.splice(j,1);
 
                     coins+=5;
@@ -541,7 +557,8 @@ function saveGame(){
         maxHearts: maxHearts,
         shieldLevel: shieldLevel,
         highestLevel: highestLevel,
-        premium: premium
+        premium: premium,
+        soundOn: soundOn
 
     };
 
@@ -568,6 +585,8 @@ function loadGame(){
     shieldLevel = save.shieldLevel || 0;
     highestLevel = save.highestLevel || 1;
     premium = save.premium || false;
+
+    soundOn = save.soundOn ?? true;
 
 }
 
@@ -659,11 +678,31 @@ function quitGame(){
 
     saveGame();
 
+    music.pause();
+
     paused = false;
     gameRunning = false;
 
     document.getElementById("pauseMenu").style.display = "none";
 
     document.getElementById("main-menu").style.display = "block";
+
+}
+
+function toggleSound(){
+
+    soundOn = !soundOn;
+
+    if(!soundOn){
+
+        music.pause();
+
+    }else{
+
+        music.play();
+
+    }
+
+    saveGame();
 
 }
