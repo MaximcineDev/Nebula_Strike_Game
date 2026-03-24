@@ -46,6 +46,12 @@ const shieldImg = new Image();
 shieldImg.src = "assets/ui/shield.png";
 
 
+const ENEMY_NORMAL = 0;
+const ENEMY_FAST = 1;
+const ENEMY_TANK = 2;
+const ENEMY_SHOOTER = 3;
+
+
 /* ---------- SOUNDS ---------- */
 
 const shootSound = new Audio("sounds/shoot.wav");
@@ -214,6 +220,9 @@ function updateHUD(){
 
     updateHeartsUI();
 
+   document.getElementById("levelText").innerText =
+   "Lv " + level + " | W " + weaponLevel;
+
 }
 
 function updateHeartsUI(){
@@ -325,25 +334,99 @@ function shoot(){
 
     let now = Date.now();
 
-    if(now-lastShot<fireRate) return;
+    if(now - lastShot < fireRate) return;
 
-    lastShot=now;
+    lastShot = now;
 
-    shootSound.currentTime=0;
-    shootSound.play();
+    if(soundOn){
+        shootSound.currentTime = 0;
+        shootSound.play();
+    }
 
-    bullets.push({
 
-        x:player.x+25,
-        y:player.y,
+    // LEVEL 1
+    if(weaponLevel === 1){
 
-        w:4,
-        h:10
+        bullets.push({
+            x: player.x + 28,
+            y: player.y,
+            w: 4,
+            h: 10,
+            dx: 0
+        });
 
-    });
+    }
 
-   let speed = 8 + level * 0.2;
-   b.y -= speed;
+
+    // LEVEL 2 (double shot)
+    else if(weaponLevel === 2){
+
+        bullets.push({
+            x: player.x + 15,
+            y: player.y,
+            w: 4,
+            h: 10,
+            dx: -1
+        });
+
+        bullets.push({
+            x: player.x + 40,
+            y: player.y,
+            w: 4,
+            h: 10,
+            dx: 1
+        });
+
+    }
+
+
+    // LEVEL 3 (triple shot)
+    else if(weaponLevel === 3){
+
+        bullets.push({
+            x: player.x + 10,
+            y: player.y,
+            w: 5,
+            h: 12,
+            dx: -1.5
+        });
+
+        bullets.push({
+            x: player.x + 28,
+            y: player.y,
+            w: 5,
+            h: 12,
+            dx: 0
+        });
+
+        bullets.push({
+            x: player.x + 46,
+            y: player.y,
+            w: 5,
+            h: 12,
+            dx: 1.5
+        });
+
+    }
+
+
+    // LEVEL 4+ (spread)
+    else{
+
+        for(let i=-2;i<=2;i++){
+
+            bullets.push({
+                x: player.x + 28,
+                y: player.y,
+                w: 6,
+                h: 14,
+                dx: i * 1.2
+            });
+
+        }
+
+    }
+
 }
 
 
@@ -356,7 +439,21 @@ function spawnEnemy(){
 
     if(enemies.length >= maxEnemies) return;
 
-    enemies.push({
+    let type = ENEMY_NORMAL;
+
+    let r = Math.random() + level * 0.02;
+
+    if(level > 2 && r < 0.25)
+        type = ENEMY_FAST;
+
+    if(level > 4 && r < 0.15)
+        type = ENEMY_TANK;
+
+    if(level > 6 && r < 0.15)
+        type = ENEMY_SHOOTER;
+
+
+    let enemy = {
 
         x: Math.random() * (canvas.width - 40),
         y: -40,
@@ -364,9 +461,41 @@ function spawnEnemy(){
         w: 40,
         h: 40,
 
-        hp: enemyHPBase + level
+        type: type,
 
-    });
+        hp: 2 + level,
+        speed: enemySpeed,
+        shootChance: 0.01
+
+    };
+
+
+    // FAST
+    if(type === ENEMY_FAST){
+
+        enemy.speed = enemySpeed + 2;
+        enemy.hp = 1 + level;
+
+    }
+
+    // TANK
+    if(type === ENEMY_TANK){
+
+        enemy.speed = enemySpeed - 1;
+        enemy.hp = 6 + level * 2;
+
+    }
+
+    // SHOOTER
+    if(type === ENEMY_SHOOTER){
+
+        enemy.speed = enemySpeed;
+        enemy.hp = 3 + level;
+        enemy.shootChance = 0.03;
+
+    }
+
+    enemies.push(enemy);
 
 }
 
@@ -520,9 +649,24 @@ function updateBullets(){
 
         let b=bullets[i];
 
-        b.y-=8;
+        b.y -= 8;
+        
+        if(b.dx){  
+           b.x += b.dx;
+        }
 
-        ctx.fillStyle="cyan";
+        if(weaponLevel === 1)
+            ctx.fillStyle = "cyan";
+
+        else if(weaponLevel === 2)
+            ctx.fillStyle = "lime";
+
+        else if(weaponLevel === 3)
+            ctx.fillStyle = "yellow";
+
+        else
+            ctx.fillStyle = "orange";
+       
         ctx.fillRect(b.x,b.y,b.w,b.h);
 
         for(let j=enemies.length-1;j>=0;j--){
@@ -549,8 +693,21 @@ function updateBullets(){
 
                     enemies.splice(j,1);
 
-                    coins += 5 + level;
-                    score += 10 * level;
+                    // ===== REWARD BY TYPE =====
+
+                    let reward = 5;
+
+                    if(e.type === ENEMY_FAST)
+                        reward = 8;
+
+                    if(e.type === ENEMY_TANK)
+                        reward = 15;
+
+                    if(e.type === ENEMY_SHOOTER)
+                        reward = 12;
+
+                    coins += reward;
+                    score += reward * 2;
 
                     updateHUD();
 
@@ -633,7 +790,21 @@ function updateEnemies(){
 
     enemies.forEach(e=>{
 
-        e.y += enemySpeed;
+        e.y += e.speed;
+
+        if(e.type === ENEMY_FAST)
+            ctx.filter = "hue-rotate(90deg)";
+
+        else if(e.type === ENEMY_TANK)
+            ctx.filter = "brightness(0.6)";
+
+        else if(e.type === ENEMY_SHOOTER)
+            ctx.filter = "hue-rotate(200deg)";
+
+        else
+            ctx.filter = "none";
+
+        // draw enemy
 
         ctx.drawImage(
             enemyImg,
@@ -643,15 +814,19 @@ function updateEnemies(){
             e.h
         );
 
-        if(Math.random()<0.01){
+        ctx.filter = "none";
+
+        // shooting
+
+        if(Math.random() < e.shootChance){
 
             enemyBullets.push({
 
-                x:e.x+10,
-                y:e.y,
+                x: e.x + e.w/2,
+                y: e.y,
 
-                w:4,
-                h:10
+                w: 4,
+                h: 10
 
             });
 
@@ -845,15 +1020,17 @@ function buyShield(){
 
 function buyWeapon(){
 
-    if(coins >= 150){
+    if(coins < 50) return;
 
-        coins -= 150;
-        weaponLevel++;
+    coins -= 50;
 
-       updateHUD(); 
-       saveGame();
+    weaponLevel++;
 
-    }
+    if(weaponLevel > 5)
+        weaponLevel = 5;
+
+    saveGame();
+    updateHUD();
 
 }
 
