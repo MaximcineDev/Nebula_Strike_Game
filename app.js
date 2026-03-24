@@ -6,7 +6,12 @@
 /* ---------- IMAGES ---------- */
 
 const playerImg = new Image();
-playerImg.src = "assets/player.png";
+
+function updateSkin(){
+
+    playerImg.src = skins[currentSkin];
+
+}
 
 const enemyImg = new Image();
 enemyImg.src = "assets/enemy.png";
@@ -16,6 +21,17 @@ bossImg.src = "assets/boss.png";
 
 const bgImg = new Image();
 bgImg.src = "assets/background.png";
+
+const skins = [
+
+    "assets/player.png",
+    "assets/player2.png",
+    "assets/player3.png",
+    "assets/player4.png"
+
+];
+
+let currentSkin = 0;
 
 
 /* ---------- POWERUPS ---------- */
@@ -745,6 +761,11 @@ function saveGame(){
         premium: premium,
         soundOn: soundOn
 
+        skin: currentSkin,
+        lastReward: lastReward,
+        achievements: achievements,
+        totalKills: totalKills,
+
     };
 
     localStorage.setItem(
@@ -778,11 +799,29 @@ function loadGame(){
         achievements = save.achievements || achievements;
         totalKills = save.totalKills || 0;
 
+        currentSkin = save.skin || 0;
+        updateSkin();
+
     }catch(e){
 
         console.log("Save load error", e);
 
     }
+
+}
+
+
+function buySkin(id){
+
+    if(coins < 100) return;
+
+    coins -= 100;
+
+    currentSkin = id;
+
+    updateSkin();
+
+    saveGame();
 
 }
 
