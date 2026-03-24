@@ -199,10 +199,7 @@ function startGame(){
     gameRunning = true;
 
     if(soundOn){
-
-        music.currentTime = 0;
         music.play();
-
     }
 
     startAutoShoot();
