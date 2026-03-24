@@ -941,14 +941,33 @@ function resetSave(){
 
 function gameOver(){
 
-    gameRunning=false;
+    gameRunning = false;
 
-    alert("Game Over");
-
-    location.reload();
+    document.getElementById(
+        "gameOverScreen"
+    ).style.display = "flex";
 
 }
 
+function restartGame(){
+
+    document.getElementById(
+        "gameOverScreen"
+    ).style.display = "none";
+
+    health = maxHearts;
+    level = 1;
+    score = 0;
+
+    enemies = [];
+    enemyBullets = [];
+    bullets = [];
+
+    gameRunning = true;
+
+    gameLoop();
+
+}
 
 function resumeGame(){
 
