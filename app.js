@@ -714,3 +714,16 @@ function toggleSound(){
     saveGame();
 
 }
+
+setTimeout(()=>{
+
+    const loading =
+    document.getElementById("loading");
+
+    if(loading){
+
+        loading.style.display = "none";
+
+    }
+
+},1000);
