@@ -1,5 +1,5 @@
 /* =========================
-   NEBULA STRIKE FINAL CLEAN
+   NEBULA STRIKE
 ========================= */
 
 
@@ -62,14 +62,10 @@ function resizeGame(){
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    player.x = canvas.width/2;
-    player.y = canvas.height - 120;
+    player.x = canvas.width / 2;
+    player.y = canvas.height - 140;
 
 }
-
-window.addEventListener("resize", resizeGame);
-
-resizeGame();
 
 
 /* ---------- GAME STATE ---------- */
@@ -114,8 +110,10 @@ canvas.addEventListener("touchstart", e=>{
 
     let t = e.touches[0];
 
-    touchX = t.clientX;
-    touchY = t.clientY;
+    const rect = canvas.getBoundingClientRect();
+
+    touchX = t.clientX - rect.left;
+    touchY = t.clientY - rect.top;
 
     shoot();
 
