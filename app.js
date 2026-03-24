@@ -645,40 +645,48 @@ function drawPlayer(){
 
 function updateBullets(){
 
-    for(let i=bullets.length-1;i>=0;i--){
+    for(let i = bullets.length - 1; i >= 0; i--){
 
-        let b=bullets[i];
+        let b = bullets[i];
 
         b.y -= 8;
-        
-        if(b.dx){  
-           b.x += b.dx;
+
+        if(b.dx){
+            b.x += b.dx;
         }
+
+
+        // bullet color
 
         if(weaponLevel === 1)
             ctx.fillStyle = "cyan";
-
         else if(weaponLevel === 2)
             ctx.fillStyle = "lime";
-
         else if(weaponLevel === 3)
             ctx.fillStyle = "yellow";
-
         else
             ctx.fillStyle = "orange";
-       
+
+
         ctx.fillRect(b.x,b.y,b.w,b.h);
 
-        for(let j=enemies.length-1;j>=0;j--){
 
-            let e=enemies[j];
+        // =========================
+        // HIT ENEMIES
+        // =========================
+
+        let hitSomething = false;
+
+        for(let j = enemies.length - 1; j >= 0; j--){
+
+            let e = enemies[j];
 
             if(
 
-                b.x<e.x+e.w &&
-                b.x+b.w>e.x &&
-                b.y<e.y+e.h &&
-                b.y+b.h>e.y
+                b.x < e.x + e.w &&
+                b.x + b.w > e.x &&
+                b.y < e.y + e.h &&
+                b.y + b.h > e.y
 
             ){
 
@@ -686,12 +694,13 @@ function updateBullets(){
 
                 e.hp--;
 
-                if(e.hp<=0){
+                if(e.hp <= 0){
 
                     explosionSound.currentTime = 0;
                     explosionSound.play();
 
                     enemies.splice(j,1);
+
 
                     // ===== REWARD BY TYPE =====
 
@@ -710,64 +719,87 @@ function updateBullets(){
                     score += reward * 2;
 
                     updateHUD();
-
                     saveGame();
 
-                    if(Math.random()<0.3){
+
+                    // ===== POWERUP =====
+
+                    if(Math.random() < 0.3){
 
                         powerups.push({
-                            x:e.x,
-                            y:e.y,
-                            type:Math.floor(Math.random()*3)
+                            x: e.x,
+                            y: e.y,
+                            type: Math.floor(Math.random()*3)
                         });
 
                     }
 
                 }
 
+                hitSomething = true;
                 break;
 
             }
-           if(boss){
 
-               if(
+        }
 
-                   b.x < boss.x + boss.w &&
-                   b.x + b.w > boss.x &&
-                   b.y < boss.y + boss.h &&
-                   b.y + b.h > boss.y
 
-               ){
+        if(hitSomething) continue;
 
-                   bullets.splice(i,1);
 
-                   bossHP -= damage;
+        // =========================
+        // HIT BOSS (OUTSIDE LOOP)
+        // =========================
 
-                   updateBossBar();
+        if(boss){
 
-                   if(bossHP <= 0){
+            if(
 
-                       boss = null;
+                b.x < boss.x + boss.w &&
+                b.x + b.w > boss.x &&
+                b.y < boss.y + boss.h &&
+                b.y + b.h > boss.y
 
-                       document.getElementById("bossBar").style.display = "none";
+            ){
 
-                       coins += 50;
+                bullets.splice(i,1);
 
-                       levelComplete();
+                bossHP -= damage;
 
-                   }
+                updateBossBar();
 
-                   break;
+                if(bossHP <= 0){
 
-               }
+                    boss = null;
 
-           }
+                    document.getElementById("bossBar").style.display = "none";
+
+                    coins += 50;
+                    score += 200;
+
+                    levelComplete();
+
+                }
+
+                continue;
+
+            }
+
+        }
+
+
+        // remove offscreen
+
+        if(b.y < -20){
+
+            bullets.splice(i,1);
 
         }
 
     }
 
 }
+
 
 function updateBossBar(){
 
