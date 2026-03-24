@@ -1032,7 +1032,7 @@ function toggleSound(){
 setTimeout(()=>{
 
     const loading =
-    document.getElementById("loading");
+    document.getElementById("loadingText");
 
     if(loading){
 
