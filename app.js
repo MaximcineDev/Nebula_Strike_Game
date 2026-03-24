@@ -99,6 +99,8 @@ let enemyBullets = [];
 let powerups = [];
 
 let boss = null;
+let bossHP = 0;
+let bossMaxHP = 0;
 
 let fireRate = 300;
 let lastShot = 0;
@@ -119,6 +121,13 @@ let shieldActive = false;
 let shieldTimer = 0;
 
 let soundOn = true;
+
+let enemySpawnRate = 1500;
+let enemySpeed = 2;
+let enemyHPBase = 2;
+let maxEnemies = 5;
+
+let spawnTimer = 0;
 
 
 /* ---------- TOUCH ---------- */
@@ -315,29 +324,96 @@ function shoot(){
 
     });
 
+   let speed = 8 + level * 0.2;
+   b.y -= speed;
 }
 
 
 /* ---------- ENEMY SPAWN ---------- */
 
-setInterval(()=>{
+function spawnEnemy(){
 
     if(!gameRunning) return;
     if(boss) return;
 
+    if(enemies.length >= maxEnemies) return;
+
     enemies.push({
 
-        x:Math.random()*canvas.width,
-        y:-40,
+        x: Math.random() * (canvas.width - 40),
+        y: -40,
 
-        w:40,
-        h:40,
-        hp:2+level
+        w: 40,
+        h: 40,
+
+        hp: enemyHPBase + level
 
     });
 
-},1500);
+}
 
+
+/* ---------- BOSS SPAWN ---------- */
+function spawnBoss(){
+
+    boss = {
+
+        x: canvas.width / 2 - 80,
+        y: -120,
+
+        w: 160,
+        h: 160,
+
+        speed: 1.5
+
+    };
+
+    bossMaxHP = 100 + level * 25;
+    bossHP = bossMaxHP;
+
+    document.getElementById("bossBar").style.display = "block";
+    document.getElementById("bossWarning").style.display = "block";
+
+    setTimeout(()=>{
+
+        document.getElementById("bossWarning").style.display = "none";
+
+    },2000);
+
+}
+
+
+function updateBoss(){
+
+    if(!boss) return;
+
+    if(boss.y < 40){
+        boss.y += boss.speed;
+    }
+
+    ctx.drawImage(
+        bossImg,
+        boss.x,
+        boss.y,
+        boss.w,
+        boss.h
+    );
+
+    if(Math.random() < 0.03){
+
+        enemyBullets.push({
+
+            x: boss.x + boss.w/2,
+            y: boss.y + boss.h,
+
+            w: 6,
+            h: 12
+
+        });
+
+    }
+
+}
 
 /* ---------- LOOP ---------- */
 
@@ -357,7 +433,7 @@ function gameLoop(){
             canvas.height
         );
 
-    }
+    } 
 
     updatePlayer();
     drawPlayer();
@@ -366,13 +442,25 @@ function gameLoop(){
     updateEnemies();
     updateEnemyBullets();
     updatePowerups();
+    updateBoss();
     updateTimers();
 
-    updateHUD();
+    spawnTimer++;
 
+    if(spawnTimer > enemySpawnRate/16){
+
+        spawnEnemy();
+
+        spawnTimer = 0;
+
+    }
+
+    updateHUD();
+   
     requestAnimationFrame(gameLoop);
 
 }
+
 
 /* ---------- PLAYER ---------- */
 
@@ -443,7 +531,8 @@ function updateBullets(){
 
                     enemies.splice(j,1);
 
-                    coins+=5;
+                    coins += 5 + level;
+                    score += 10 * level;
 
                     updateHUD();
 
@@ -464,6 +553,40 @@ function updateBullets(){
                 break;
 
             }
+           if(boss){
+
+               if(
+
+                   b.x < boss.x + boss.w &&
+                   b.x + b.w > boss.x &&
+                   b.y < boss.y + boss.h &&
+                   b.y + b.h > boss.y
+
+               ){
+
+                   bullets.splice(i,1);
+
+                   bossHP -= damage;
+
+                   updateBossBar();
+
+                   if(bossHP <= 0){
+
+                       boss = null;
+
+                       document.getElementById("bossBar").style.display = "none";
+
+                       coins += 50;
+
+                       levelComplete();
+
+                   }
+
+                   break;
+
+               }
+
+           }
 
         }
 
@@ -471,6 +594,20 @@ function updateBullets(){
 
 }
 
+function updateBossBar(){
+
+    const bar =
+        document.getElementById("bossHealth");
+
+    if(!bar) return;
+
+    const percent =
+        (bossHP / bossMaxHP) * 100;
+
+    bar.style.width =
+        percent + "%";
+
+}
 
 /* ---------- ENEMIES ---------- */
 
@@ -478,7 +615,7 @@ function updateEnemies(){
 
     enemies.forEach(e=>{
 
-        e.y+=2;
+        e.y += enemySpeed;
 
         ctx.drawImage(
             enemyImg,
@@ -691,16 +828,60 @@ function buyHearts(){
 
 }
 
+function levelComplete(){
+
+    gameRunning = false;
+
+    document.getElementById(
+        "levelComplete"
+    ).style.display = "block";
+
+}
+
 function nextLevel(){
+
+    document.getElementById(
+        "levelComplete"
+    ).style.display = "none";
+
+    gameRunning = true;
 
     level++;
 
     if(level > highestLevel){
-
         highestLevel = level;
-
     }
 
+    /* difficulty scaling */
+
+    enemySpeed = 2 + level * 0.3;
+
+    enemyHPBase = 2 + Math.floor(level / 2);
+
+    maxEnemies = 5 + level;
+
+    enemySpawnRate = Math.max(
+        400,
+        1500 - level * 100
+    );
+
+    fireRate = Math.max(
+        80,
+        300 - level * 10
+    );
+
+    /* reset */
+
+    enemies = [];
+    enemyBullets = [];
+
+    if(level % 5 === 0){
+        spawnBoss();
+    }
+    
+    gameLoop();
+
+    checkAchievements();
     saveGame();
 
 }
