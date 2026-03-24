@@ -15,6 +15,12 @@ html, body {
 
 }
 
+body{
+
+    padding-top: env(safe-area-inset-top);
+
+}
+
 #gameCanvas {
 
     position: fixed;
@@ -88,13 +94,6 @@ html, body {
 
 @media (max-width: 768px) {
 
-    #hud {
-
-        transform: scale(0.8);
-        transform-origin: top left;
-
-    }
-
     #main-menu button {
 
         font-size: 18px;
@@ -107,73 +106,6 @@ html, body {
         transform: scale(0.9);
 
     }
-
-}
-
-
-/* =========================
-   SHOP
-========================= */
-
-#shop{
-
-    position: fixed;
-    left: 0;
-    top: 0;
-
-    width: 100vw;
-    height: 100vh;
-
-    display: none;
-
-    justify-content: center;
-    align-items: center;
-
-    background: rgba(0,0,0,0.8);
-
-}
-
-#shopBg{
-
-    position: absolute;
-
-    width: 100%;
-    height: 100%;
-
-    object-fit: cover;
-
-}
-
-#shopPanel{
-
-    position: relative;
-
-    width: 90%;
-    max-width: 400px;
-
-    padding: 20px;
-
-    text-align: center;
-
-}
-
-@media (max-width: 600px){
-
-    #shopPanel{
-
-        transform: scale(0.9);
-
-    }
-
-}
-
-#shopPanel button {
-
-    display: block;
-
-    margin: 10px auto;
-
-    padding: 10px 15px;
 
 }
 
@@ -229,65 +161,99 @@ html, body {
    HUD
 ========================= */
 
-#hud {
+#hud{
 
     position: fixed;
 
+    top: 0;
+    left: 0;
+
+    width: 100%;
+
+    pointer-events: none;
+
+    font-family: Arial, sans-serif;
+    color: white;
+
+}
+
+#coinBox{
+
+    position: absolute;
+
+    top: 10px;
+    right: 80px;
+
+    display: flex;
+    align-items: center;
+
+}
+
+#coinBox img{
+
+    width: 20px;
+    height: 20px;
+
+    margin-right: 5px;
+
+}
+
+#pauseBtn{
+
+    position: absolute;
+
+    top: 70px;
+    right: 10px;
+
+    pointer-events: auto;
+
+    padding: 5px 10px;
+
+}
+
+#levelText{
+
+    position: absolute;
+
     top: 10px;
     left: 10px;
-
-    z-index: 200;
 
     font-size: 18px;
 
 }
 
-#coinBox {
+#scoreText{
 
-    display: flex;
-    align-items: center;
+    position: absolute;
 
-    gap: 5px;
+    top: 35px;
+    left: 10px;
 
-}
-
-#coinBox img {
-
-    width: 20px;
+    font-size: 18px;
 
 }
-
-#pauseBtn {
-
-    margin-top: 5px;
-
-}
-
-
 
 /* =========================
    HEARTS
 ========================= */
 
-#hearts {
+#hearts{
 
-    position: fixed;
+    position: absolute;
 
-    top: 10px;
+    top: 40px;
     right: 10px;
 
     display: flex;
 
-    z-index: 300;
-
 }
 
-.heart {
+.heart{
 
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
 
-    margin-left: 5px;
+    margin-left: 3px;
 
 }
 
@@ -306,7 +272,9 @@ html, body {
 
     transform: translateX(-50%);
 
-    width: 300px;
+    width: 60%;
+    max-width: 400px;
+
     height: 20px;
 
     background: #333;
@@ -404,23 +372,25 @@ html, body {
    SHOP
 ========================= */
 
-#shop {
+#shop{
+
+    position: fixed;
+    left: 0;
+    top: 0;
+
+    width: 100vw;
+    height: 100vh;
 
     display: none;
 
-    position: fixed;
+    justify-content: center;
+    align-items: center;
 
-    top: 0;
-    left: 0;
-
-    width: 100%;
-    height: 100%;
-
-    z-index: 3000;
+    background: rgba(0,0,0,0.8);
 
 }
 
-#shopBg {
+#shopBg{
 
     position: absolute;
 
@@ -431,22 +401,26 @@ html, body {
 
 }
 
-#shopPanel {
+#shopPanel{
 
-    position: absolute;
+    position: relative;
 
-    top: 50%;
-    left: 50%;
-
-    transform: translate(-50%, -50%);
-
-    background: rgba(0,0,0,0.8);
+    width: 90%;
+    max-width: 400px;
 
     padding: 20px;
 
-    border-radius: 10px;
-
     text-align: center;
+
+}
+
+@media (max-width: 600px){
+
+    #shopPanel{
+
+        transform: scale(0.9);
+
+    }
 
 }
 
@@ -461,6 +435,10 @@ html, body {
 }
 
 
+/* =========================
+   PAUSE
+========================= */
+
 #pauseMenu{
 
     position: fixed;
@@ -473,7 +451,8 @@ html, body {
 
     background: rgba(0,0,0,0.8);
 
-    display: flex;
+    display: none;
+
     justify-content: center;
     align-items: center;
 
@@ -488,18 +467,6 @@ html, body {
     border-radius: 10px;
 
     text-align: center;
-
-}
-
-#pauseBox button{
-
-    display: block;
-
-    margin: 10px auto;
-
-    padding: 10px 20px;
-
-    font-size: 18px;
 
 }
 
@@ -538,21 +505,15 @@ html, body {
 }
 
 
-
-/* =========================
-   CANVAS
-========================= */
-
-#gameCanvas {
+#pauseBtn{
 
     position: absolute;
 
-    top: 0;
-    left: 0;
+    top: 70px;
+    right: 10px;
 
-    width: 100%;
-    height: 100%;
+    pointer-events: auto;
 
-    z-index: 1;
+    padding: 5px 10px;
 
 }
