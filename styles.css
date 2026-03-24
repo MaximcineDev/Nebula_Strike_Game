@@ -46,12 +46,14 @@ body{
     top: 0;
     left: 0;
 
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
 
-    background: url("assets/ui/splash-screen.png") no-repeat center center;
+    background:
+    url("assets/ui/splash-screen.png")
+    no-repeat center center;
+
     background-size: cover;
-    background-position: center;
 
     display: flex;
     justify-content: center;
@@ -74,12 +76,9 @@ body{
 
 #loadingText {
 
-    color: white;
-    font-size: 20px;
+    font-size: clamp(14px, 4vw, 22px);
 
-    margin-top: 200px;
-
-    animation: blink 1s infinite;
+    margin-top: 40vh;
 
 }
 
@@ -121,10 +120,12 @@ body{
     top: 0;
     left: 0;
 
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
 
-    background: url("assets/background.png") no-repeat center center;
+    background: url("assets/background.png")
+                no-repeat center center;
+
     background-size: cover;
 
     display: flex;
@@ -138,20 +139,22 @@ body{
     opacity: 0;
     transition: opacity 1s ease;
 
+    text-align: center;
+
+    padding: 20px;
+
 }
 
-#main-menu.show {
+#main-menu h1 {
 
-    opacity: 1;
+    font-size: clamp(24px, 6vw, 48px);
 
 }
 
 #main-menu button {
 
-    margin: 10px;
-    padding: 12px 20px;
-
-    font-size: 18px;
+    width: 200px;
+    max-width: 80%;
 
 }
 
@@ -174,6 +177,12 @@ body{
 
     font-family: Arial, sans-serif;
     color: white;
+
+}
+
+#hud{
+
+    padding-top: env(safe-area-inset-top);
 
 }
 
@@ -311,7 +320,7 @@ body{
 
     transform: translate(-50%, -50%);
 
-    font-size: 40px;
+    font-size: clamp(18px, 6vw, 40px);
 
     color: red;
 
@@ -320,6 +329,8 @@ body{
     z-index: 800;
 
     animation: blink 0.5s infinite;
+
+    text-align: center;
 
 }
 
@@ -344,8 +355,8 @@ body{
     top: 0;
     left: 0;
 
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
 
     background: black;
 
@@ -355,7 +366,17 @@ body{
 
     text-align: center;
 
-    padding-top: 200px;
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+
+}
+
+#levelComplete h1 {
+
+    font-size: clamp(20px, 6vw, 40px);
 
 }
 
@@ -424,16 +445,16 @@ body{
 
 }
 
-#shopPanel button {
+#shopPanel{
 
-    display: block;
+    position: relative;
 
-    margin: 10px auto;
+    width: 80%;
+    max-width: 350px;
 
-    padding: 10px 15px;
+    text-align: center;
 
 }
-
 
 /* =========================
    PAUSE
@@ -467,6 +488,9 @@ body{
     border-radius: 10px;
 
     text-align: center;
+
+    width: 80%;
+    max-width: 300px;
 
 }
 
@@ -515,5 +539,26 @@ body{
     pointer-events: auto;
 
     padding: 5px 10px;
+
+}
+
+* {
+
+    box-sizing: border-box;
+
+}
+
+h1, h2, h3, p, button {
+
+    font-family: Arial, sans-serif;
+
+}
+
+button {
+
+    font-size: clamp(12px, 2.5vw, 20px);
+
+    padding: clamp(6px, 2vw, 12px)
+             clamp(10px, 3vw, 20px);
 
 }
