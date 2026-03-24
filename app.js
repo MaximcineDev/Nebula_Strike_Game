@@ -41,6 +41,16 @@ const explosionSound = new Audio("sounds/explosion.wav");
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
+document.getElementById("pauseBtn").onclick = () => {
+
+    if(!gameRunning) return;
+
+    paused = true;
+
+    document.getElementById("pauseMenu").style.display = "flex";
+
+};
+
 
 /* ---------- PLAYER ---------- */
 
@@ -513,5 +523,27 @@ function gameOver(){
     alert("Game Over");
 
     location.reload();
+
+}
+
+
+function resumeGame(){
+
+    paused = false;
+
+    document.getElementById("pauseMenu").style.display = "none";
+
+    gameLoop();
+
+}
+
+function quitGame(){
+
+    paused = false;
+    gameRunning = false;
+
+    document.getElementById("pauseMenu").style.display = "none";
+
+    document.getElementById("main-menu").style.display = "block";
 
 }
