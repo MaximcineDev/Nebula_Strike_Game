@@ -761,7 +761,7 @@ function saveGame(){
         shieldLevel: shieldLevel,
         highestLevel: highestLevel,
         premium: premium,
-        soundOn: soundOn
+        soundOn: soundOn,
 
         skin: currentSkin,
         lastReward: lastReward,
