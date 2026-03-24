@@ -1001,13 +1001,9 @@ function toggleSound(){
     soundOn = !soundOn;
 
     if(!soundOn){
-
         music.pause();
-
     }else{
-
         music.play();
-
     }
 
     saveGame();
