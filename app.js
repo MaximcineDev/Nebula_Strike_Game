@@ -162,6 +162,56 @@ canvas.addEventListener("touchend", e=>{
 },{passive:false});
 
 
+function updateHUD(){
+
+    const coinText =
+        document.getElementById("coinText");
+
+    const levelText =
+        document.getElementById("levelText");
+
+    const scoreText =
+        document.getElementById("scoreText");
+
+
+    if(coinText)
+        coinText.innerText = coins;
+
+    if(levelText)
+        levelText.innerText = "Lv " + level;
+
+    if(scoreText)
+        scoreText.innerText =
+            "Score: " + score;
+
+
+    updateHeartsUI();
+
+}
+
+function updateHeartsUI(){
+
+    const hearts =
+        document.querySelectorAll("#hearts img");
+
+    for(let i=0;i<hearts.length;i++){
+
+        if(i < health){
+
+            hearts[i].src =
+            "ui/heart-full.png";
+
+        }else{
+
+            hearts[i].src =
+            "ui/heart-empty.png";
+
+        }
+
+    }
+
+}
+
 /* ---------- KEYBOARD ---------- */
 
 let moveLeft=false;
@@ -195,6 +245,8 @@ function startGame(){
     document.getElementById("main-menu").style.display="none";
 
     health = maxHearts;
+
+    updateHUD();
 
     gameRunning = true;
 
@@ -291,7 +343,7 @@ setInterval(()=>{
 
 function gameLoop(){
 
-    if(!gameRunning||paused) return;
+    if(!gameRunning || paused) return;
 
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
@@ -316,10 +368,11 @@ function gameLoop(){
     updatePowerups();
     updateTimers();
 
+    updateHUD();
+
     requestAnimationFrame(gameLoop);
 
 }
-
 
 /* ---------- PLAYER ---------- */
 
@@ -391,6 +444,8 @@ function updateBullets(){
                     enemies.splice(j,1);
 
                     coins+=5;
+
+                    updateHUD();
 
                     saveGame();
 
@@ -479,6 +534,8 @@ function updateEnemyBullets(){
             if(!shieldActive){
 
                 health--;
+
+                updateHUD();
 
             }
 
@@ -599,7 +656,8 @@ function buyShield(){
         coins -= 50;
         weaponLevel++;
 
-        saveGame();
+       updateHUD(); 
+       saveGame();
 
     }
 
@@ -612,7 +670,8 @@ function buyWeapon(){
         coins -= 50;
         weaponLevel++;
 
-        saveGame();
+       updateHUD(); 
+       saveGame();
 
     }
 
@@ -625,7 +684,8 @@ function buyHearts(){
         coins -= 50;
         maxHearts++;
 
-        saveGame();
+       updateHUD(); 
+       saveGame();
 
     }
 
