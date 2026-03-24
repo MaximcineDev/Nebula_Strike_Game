@@ -841,9 +841,9 @@ function buyShield(){
 
 function buyWeapon(){
 
-    if(coins >= 50){
+    if(coins >= 150){
 
-        coins -= 50;
+        coins -= 150;
         weaponLevel++;
 
        updateHUD(); 
