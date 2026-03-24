@@ -571,22 +571,33 @@ function saveGame(){
 
 function loadGame(){
 
-    const data =
-    localStorage.getItem("nebulaSave");
+    try{
 
-    if(!data) return;
+        const data =
+        localStorage.getItem("nebulaSave");
 
-    const save =
-    JSON.parse(data);
+        if(!data) return;
 
-    coins = save.coins || 0;
-    weaponLevel = save.weaponLevel || 1;
-    maxHearts = save.maxHearts || 5;
-    shieldLevel = save.shieldLevel || 0;
-    highestLevel = save.highestLevel || 1;
-    premium = save.premium || false;
+        const save =
+        JSON.parse(data);
 
-    soundOn = save.soundOn ?? true;
+        coins = save.coins || 0;
+        weaponLevel = save.weaponLevel || 1;
+        maxHearts = save.maxHearts || 5;
+        shieldLevel = save.shieldLevel || 0;
+        highestLevel = save.highestLevel || 1;
+        premium = save.premium || false;
+
+        soundOn = save.soundOn ?? true;
+
+        achievements = save.achievements || achievements;
+        totalKills = save.totalKills || 0;
+
+    }catch(e){
+
+        console.log("Save load error", e);
+
+    }
 
 }
 
