@@ -145,6 +145,8 @@ let maxEnemies = 5;
 
 let spawnTimer = 0;
 
+let lastReward = 0;
+
 
 /* ---------- TOUCH ---------- */
 
@@ -802,6 +804,8 @@ function loadGame(){
         currentSkin = save.skin || 0;
         updateSkin();
 
+        lastReward = save.lastReward || 0;
+
     }catch(e){
 
         console.log("Save load error", e);
@@ -971,6 +975,27 @@ function quitGame(){
 
 }
 
+
+function checkDailyReward(){
+
+    const now = Date.now();
+
+    const day = 24 * 60 * 60 * 1000;
+
+    if(now - lastReward > day){
+
+        coins += 100;
+
+        lastReward = now;
+
+        alert("Daily Reward +100 coins");
+
+        saveGame();
+
+    }
+
+}
+
 function toggleSound(){
 
     soundOn = !soundOn;
@@ -1008,6 +1033,8 @@ window.addEventListener("load", () => {
     loadGame();
 
     resizeGame();
+
+    checkDailyReward();
 
     const splash =
         document.getElementById("splashScreen");
