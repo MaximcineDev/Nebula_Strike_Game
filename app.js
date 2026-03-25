@@ -54,10 +54,10 @@ const ENEMY_SHOOTER = 3;
 
 /* ---------- SOUNDS ---------- */
 
-const shootSound = new Audio("sounds/shoot.wav");
-const explosionSound = new Audio("sounds/explosion.wav");
+const shootSound = new Audio("assets/sounds/shoot.wav");
+const explosionSound = new Audio("assets/sounds/explosion.wav");
 
-const music = new Audio("sounds/music.mp3");
+const music = new Audio("assets/sounds/music.mp3");
 
 music.loop = true;
 music.volume = 0.5;
@@ -235,12 +235,12 @@ function updateHeartsUI(){
         if(i < health){
 
             hearts[i].src =
-            "ui/heart-full.png";
+            "assets/ui/heart-full.png";
 
         }else{
 
             hearts[i].src =
-            "ui/heart-empty.png";
+            "assets/ui/heart-empty.png";
 
         }
 
@@ -1052,9 +1052,9 @@ function buyShield(){
 
 function buyWeapon(){
 
-    if(coins < 50) return;
+    if(coins < 150) return;
 
-    coins -= 50;
+    coins -= 150;
 
     weaponLevel++;
 
