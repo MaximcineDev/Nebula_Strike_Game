@@ -1,83 +1,76 @@
-/* GLOBAL */
 html, body {
-    margin: 0; padding: 0;
-    width: 100%; height: 100%;
-    overflow: hidden;
-    background: black;
+    margin:0; padding:0; width:100%; height:100%; overflow:hidden; background:black;
     font-family: Arial, sans-serif;
 }
 
 body { padding-top: env(safe-area-inset-top); }
 
 #gameCanvas {
-    position: fixed;
-    left: 0; top: 0;
-    width: 100vw; height: 100vh;
-    touch-action: none;
+    position: fixed; left:0; top:0; width:100vw; height:100vh; touch-action:none;
 }
 
 /* SPLASH */
 #splashScreen {
-    position: fixed; top:0; left:0;
-    width:100vw; height:100vh;
-    background: url("assets/ui/splash-screen.png") no-repeat center center;
-    background-size: cover;
+    position: fixed; top:0; left:0; width:100vw; height:100vh;
+    background:url("assets/ui/splash-screen.png") no-repeat center center;
+    background-size:cover;
     display:flex; justify-content:center; align-items:center; flex-direction:column;
-    z-index:9999;
-    opacity:1; transition:opacity 1s ease;
+    z-index:9999; opacity:1; transition:opacity 0.8s ease;
 }
 #splashScreen.hide { opacity:0; pointer-events:none; }
+
 #loadingText { font-size: clamp(14px,4vw,22px); margin-top:40vh; }
-@keyframes blink { 0%{opacity:1} 50%{opacity:0} 100%{opacity:1} }
 
 /* MAIN MENU */
 #main-menu {
-    position: fixed; top:0; left:0;
-    width:100vw; height:100vh;
+    position:fixed; top:0; left:0; width:100vw; height:100vh;
     background: url("assets/background.png") no-repeat center center;
     background-size: cover;
-    display:flex; flex-direction:column;
-    justify-content:center; align-items:center;
-    z-index:1000;
-    text-align:center;
-    padding:20px;
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+    z-index:1000; text-align:center; padding:20px;
 }
-#main-menu h1 { font-size: clamp(24px,6vw,48px); animation: glow 2s infinite alternate, float 3s infinite ease-in-out; }
-#main-menu button { width:200px; max-width:80%; padding:10px; font-size:clamp(14px,3vw,20px); }
-@keyframes float{0%{transform:translateY(0);}50%{transform:translateY(-10px);}100%{transform:translateY(0);}}
+#main-menu h1 {
+    font-size: clamp(24px,6vw,48px);
+    animation: glow 2s infinite alternate, float 3s infinite ease-in-out;
+}
+#main-menu button {
+    width:200px; max-width:80%; margin:10px;
+}
+@keyframes float {0%{transform:translateY(0);}50%{transform:translateY(-10px);}100%{transform:translateY(0);}}
 
 /* HUD */
-#hud { position: fixed; top:0; left:0; width:100%; pointer-events:none; color:white; }
-#hearts { position:absolute; top:10px; right:10px; display:flex; }
-#coinBox { position:absolute; top:50px; right:10px; display:flex; align-items:center; }
-#coinBox img{ width:20px; height:20px; margin-right:5px; }
-#levelText{ position:absolute; top:10px; left:10px; font-size:18px; }
-#scoreText{ position:absolute; top:35px; left:10px; font-size:18px; }
-.heart{ width:24px; height:24px; margin-left:3px; }
-#pauseBtn{ position:absolute; top:70px; right:10px; pointer-events:auto; padding:5px 10px; }
-
-/* BOSS BAR */
-#bossBar { position: fixed; top:10px; left:50%; transform:translateX(-50%); width:60%; max-width:400px; height:20px; background:#333; border:2px solid white; display:none; z-index:400; }
-#bossHealth { width:100%; height:100%; background:red; }
-
-/* BOSS WARNING */
-#bossWarning { position:fixed; top:40%; left:50%; transform:translate(-50%,-50%); font-size:clamp(18px,6vw,40px); color:red; display:none; z-index:800; animation: blink 0.5s infinite; text-align:center; }
-
-/* LEVEL COMPLETE */
-#levelComplete { position:fixed; top:0; left:0; width:100vw; height:100vh; background:black; display:none; z-index:900; flex-direction:column; justify-content:center; align-items:center; text-align:center; display:flex; }
-#levelComplete h1{ font-size:clamp(20px,6vw,40px); }
-#levelComplete button{ padding:12px 20px; font-size:18px; }
+#hud {position:fixed; top:0; left:0; width:100%; pointer-events:none; color:white; padding-top:env(safe-area-inset-top);}
+#hearts {position:absolute; top:10px; left:10px; display:flex; flex-direction:column; pointer-events:auto;}
+.heart {width:24px; height:24px; margin-bottom:3px;}
+#coinBox {position:absolute; top:140px; left:10px; display:flex; align-items:center; pointer-events:auto;}
+#coinBox img{width:20px;height:20px;margin-right:5px;}
+#levelText {position:absolute; top:10px; right:10px; font-size:18px;}
+#scoreText {position:absolute; top:35px; right:10px; font-size:18px;}
+#pauseBtn {position:absolute; top:70px; right:10px; pointer-events:auto; padding:5px 10px;}
 
 /* SHOP */
-#shop{ position:fixed; left:0; top:0; width:100vw; height:100vh; display:none; justify-content:center; align-items:center; background: rgba(0,0,0,0.8); }
-#shopBg{ position:absolute; width:100%; height:100%; object-fit:cover; }
-#shopPanel{ position:relative; width:80%; max-width:350px; text-align:center; padding:20px; }
+#shop {position:fixed; left:0; top:0; width:100vw; height:100vh; display:none; justify-content:center; align-items:center; background:rgba(0,0,0,0.8);}
+#shopBg {position:absolute; width:100%; height:100%; object-fit:cover;}
+#shopPanel {position:relative; width:80%; max-width:350px; text-align:center; background:#111; padding:20px; border-radius:10px;}
+#shopPanel button {margin:5px; padding:10px 15px;}
 
 /* PAUSE */
-#pauseMenu{ position:fixed; left:0; top:0; width:100vw; height:100vh; background: rgba(0,0,0,0.8); display:none; justify-content:center; align-items:center; }
-#pauseBox{ background:#111; padding:20px; border-radius:10px; text-align:center; width:80%; max-width:300px; }
+#pauseMenu {position:fixed; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.8); display:none; justify-content:center; align-items:center;}
+#pauseBox {background:#111; padding:20px; border-radius:10px; text-align:center; width:80%; max-width:300px;}
 
 /* SETTINGS */
-#settings{ display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:black; z-index:2500; text-align:center; padding-top:100px; }
-#settings button{ margin:10px; padding:10px 20px; }
+#settings {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:black; z-index:2500; text-align:center; padding-top:100px;}
+#settings button {margin:10px; padding:10px 20px;}
 
+/* LEVEL COMPLETE */
+#levelComplete {position:fixed; top:0; left:0; width:100vw; height:100vh; background:black; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:900;}
+#levelComplete h1 {font-size:clamp(20px,6vw,40px);}
+#levelComplete button {padding:12px 20px; font-size:18px;}
+
+/* BOSS BAR */
+#bossBar {position:fixed; top:10px; left:50%; transform:translateX(-50%); width:60%; max-width:400px; height:20px; background:#333; border:2px solid white; display:none; z-index:400;}
+#bossHealth {width:100%; height:100%; background:red;}
+
+/* BOSS WARNING */
+#bossWarning {position:fixed; top:40%; left:50%; transform:translate(-50%,-50%); font-size:clamp(18px,6vw,40px); color:red; display:none; z-index:800; animation: blink 0.5s infinite; text-align:center;}
+@keyframes blink {0%{opacity:1}50%{opacity:0}100%{opacity:1}}
