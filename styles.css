@@ -2,6 +2,10 @@
    GLOBAL
 ========================= */
 
+* {
+    box-sizing: border-box;
+}
+
 html, body {
 
     margin: 0;
@@ -12,14 +16,12 @@ html, body {
 
     overflow: hidden;
     background: black;
-
 }
 
-body{
-
+body {
     padding-top: env(safe-area-inset-top);
-
 }
+
 
 #gameCanvas {
 
@@ -31,12 +33,14 @@ body{
     width: 100vw;
     height: 100vh;
 
-    display:none;
+    display: none;
+
     touch-action: none;
 
     z-index: 1;
-
 }
+
+
 
 /* =========================
    SPLASH
@@ -52,11 +56,8 @@ body{
     width: 100vw;
     height: 100vh;
 
-    background-image: url("assets/ui/splash-screen.png");
-
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
+    background: url("assets/ui/splash-screen.png")
+        center / cover no-repeat;
 
     display: flex;
     justify-content: center;
@@ -64,14 +65,6 @@ body{
     flex-direction: column;
 
     z-index: 9999;
-
-}
-
-#splashScreen.hide {
-
-    opacity: 0;
-    pointer-events: none;
-
 }
 
 #loadingText {
@@ -80,6 +73,7 @@ body{
 
     margin-top: 40vh;
 
+    animation: blink 1s infinite;
 }
 
 @keyframes blink {
@@ -87,26 +81,8 @@ body{
     0% {opacity:1}
     50% {opacity:0.3}
     100% {opacity:1}
-
 }
 
-
-@media (max-width: 768px) {
-
-    #main-menu button {
-
-        font-size: 18px;
-        padding: 10px 20px;
-
-    }
-
-    #shopPanel {
-
-        transform: scale(0.9);
-
-    }
-
-}
 
 
 /* =========================
@@ -117,16 +93,11 @@ body{
 
     position: fixed;
 
-    top: 0;
-    left: 0;
-
     width: 100vw;
     height: 100vh;
 
     background: url("assets/background.png")
-                no-repeat center center;
-
-    background-size: cover;
+        center / cover no-repeat;
 
     display: flex;
     flex-direction: column;
@@ -137,21 +108,16 @@ body{
     z-index: 2000;
 
     opacity: 0;
-    transition: opacity 1s ease;
-
-    text-align: center;
-
-    padding: 20px;
+    transition: 1s;
 
 }
 
 #main-menu.show {
-
     opacity: 1;
-
 }
 
-#main-menu h1{
+
+#gameTitle {
 
     color: white;
 
@@ -163,31 +129,22 @@ body{
         0 0 40px purple;
 
     animation: titleGlow 2s infinite alternate;
-
-    letter-spacing: 3px;
-
 }
 
-@keyframes titleGlow{
+@keyframes titleGlow {
 
-    0%{
+    0% {
         transform: scale(1);
-        text-shadow:
-            0 0 10px cyan,
-            0 0 20px blue;
     }
 
-    100%{
+    100% {
         transform: scale(1.05);
-        text-shadow:
-            0 0 20px cyan,
-            0 0 40px blue,
-            0 0 60px purple;
     }
 
 }
 
-#main-menu button{
+
+#main-menu button {
 
     background: black;
     color: white;
@@ -200,20 +157,23 @@ body{
 
     box-shadow: 0 0 10px cyan;
 
+    cursor: pointer;
 }
 
-#main-menu button:active{
+#main-menu button:hover {
 
-    transform: scale(0.95);
+    box-shadow: 0 0 20px cyan;
 
+    transform: scale(1.05);
 }
+
 
 
 /* =========================
    HUD
 ========================= */
 
-#hud{
+#hud {
 
     position: fixed;
 
@@ -224,19 +184,36 @@ body{
 
     pointer-events: none;
 
-    font-family: Arial, sans-serif;
     color: white;
 
-    padding-top: env(safe-area-inset-top);
+    font-family: Arial;
 
     text-shadow:
         0 0 5px cyan,
-        0 0 10px blue,
-        0 0 20px purple;
+        0 0 10px blue;
 
 }
 
-#coinBox{
+
+#levelText {
+
+    position: absolute;
+
+    top: 10px;
+    left: 10px;
+}
+
+#scoreText {
+
+    position: absolute;
+
+    top: 35px;
+    left: 10px;
+}
+
+
+
+#coinBox {
 
     position: absolute;
 
@@ -245,19 +222,30 @@ body{
 
     display: flex;
     align-items: center;
-
 }
 
-#coinBox img{
+#coinBox img {
 
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
 
     margin-right: 5px;
 
+    filter: drop-shadow(0 0 6px gold);
+
+    animation: coinGlow 1s infinite alternate;
 }
 
-#pauseBtn{
+@keyframes coinGlow {
+
+    0% { filter: drop-shadow(0 0 3px gold); }
+
+    100% { filter: drop-shadow(0 0 10px yellow); }
+
+}
+
+
+#pauseBtn {
 
     position: absolute;
 
@@ -265,47 +253,23 @@ body{
     right: 10px;
 
     pointer-events: auto;
-
-    padding: 5px 10px;
-
 }
 
-#levelText{
 
-    position: absolute;
-
-    top: 10px;
-    left: 10px;
-
-    font-size: 18px;
-
-}
-
-#scoreText{
-
-    position: absolute;
-
-    top: 35px;
-    left: 10px;
-
-    font-size: 18px;
-
-}
 
 /* =========================
    HEARTS
 ========================= */
 
-#hearts{
+#hearts {
 
     position: absolute;
 
     top: 40px;
     right: 10px;
-
 }
 
-.heart{
+.heart {
 
     width: 24px;
     height: 24px;
@@ -313,9 +277,6 @@ body{
     margin-left: 3px;
 
     filter: drop-shadow(0 0 5px red);
-
-}
-
 }
 
 
@@ -334,7 +295,6 @@ body{
     transform: translateX(-50%);
 
     width: 60%;
-    max-width: 400px;
 
     height: 20px;
 
@@ -345,7 +305,6 @@ body{
     display: none;
 
     z-index: 400;
-
 }
 
 #bossHealth {
@@ -358,13 +317,12 @@ body{
     box-shadow:
         0 0 10px red,
         0 0 20px orange;
-
 }
 
 
 
 /* =========================
-   BOSS WARNING
+   WARNING
 ========================= */
 
 #bossWarning {
@@ -376,26 +334,13 @@ body{
 
     transform: translate(-50%, -50%);
 
-    font-size: clamp(18px, 6vw, 40px);
-
     color: red;
+
+    font-size: 40px;
 
     display: none;
 
-    z-index: 800;
-
     animation: blink 0.5s infinite;
-
-    text-align: center;
-
-}
-
-@keyframes blink {
-
-    0% {opacity:1}
-    50% {opacity:0}
-    100% {opacity:1}
-
 }
 
 
@@ -408,9 +353,6 @@ body{
 
     position: fixed;
 
-    top: 0;
-    left: 0;
-
     width: 100vw;
     height: 100vh;
 
@@ -420,27 +362,10 @@ body{
 
     z-index: 900;
 
-    text-align: center;
-
-    display: flex;
-    flex-direction: column;
-
     justify-content: center;
     align-items: center;
 
-}
-
-#levelComplete h1 {
-
-    font-size: clamp(20px, 6vw, 40px);
-
-}
-
-#levelComplete button {
-
-    padding: 12px 20px;
-    font-size: 18px;
-
+    flex-direction: column;
 }
 
 
@@ -449,11 +374,9 @@ body{
    SHOP
 ========================= */
 
-#shop{
+#shop {
 
     position: fixed;
-    left: 0;
-    top: 0;
 
     width: 100vw;
     height: 100vh;
@@ -463,13 +386,13 @@ body{
     justify-content: center;
     align-items: center;
 
-    z-index: 3000;
-    
     background: rgba(0,0,0,0.8);
 
+    z-index: 3000;
 }
 
-#shopBg{
+
+#shopBg {
 
     position: absolute;
 
@@ -477,10 +400,10 @@ body{
     height: 100%;
 
     object-fit: cover;
-
 }
 
-#shopPanel{
+
+#shopPanel {
 
     position: relative;
 
@@ -488,136 +411,86 @@ body{
     max-width: 350px;
 
     text-align: center;
+}
+
+
+/* FLOAT ANIMATION */
+
+@keyframes shopFloat {
+
+    0% { transform: translateY(0px); }
+
+    50% { transform: translateY(-5px); }
+
+    100% { transform: translateY(0px); }
 
 }
 
-@media (max-width: 600px){
 
-    #shopPanel{
-
-        transform: scale(0.9);
-
-    }
-
-}
-
-#shopPanel button {
-
-    display: block;
-
-    margin: 10px auto;
-
-    padding: 10px 15px;
-
-    box-shadow: 0 0 10px cyan;
-
-    transition: 0.2s;
-
-}
-#shopPanel button:hover{
-
-    box-shadow: 0 0 20px cyan;
-
-    transform: scale(1.05);
-
-}
-
-#shopPanel img{
-
-    animation: shopFloat 2s infinite ease-in-out;
-
-}
-
-@keyframes shopFloat{
-
-    0%{ transform: translateY(0px); }
-
-    50%{ transform: translateY(-5px); }
-
-    100%{ transform: translateY(0px); }
-
-}
-
-.shopBtn{
-
-    position: relative;
+.shopBtn {
 
     width: 200px;
     height: 60px;
 
     margin: 10px auto;
 
-    cursor: pointer;
-   
-    transition: 0.2s;
+    position: relative;
 
+    cursor: pointer;
+
+    animation: shopFloat 2s infinite;
 }
 
-.shopBtn:hover{
+.shopBtn:hover {
 
     transform: scale(1.05);
 
     filter: drop-shadow(0 0 10px cyan);
-
 }
 
-}
-
-.shopBtn img{
+.shopBtn img {
 
     width: 100%;
     height: 100%;
-
 }
 
-.shopBtn span{
+.shopBtn span {
 
     position: absolute;
 
     top: 50%;
     left: 50%;
 
-    transform: translate(-50%,-50%);
+    transform: translate(-50%, -50%);
 
     color: white;
-
-    font-weight: bold;
-
-    text-shadow: 0 0 5px black;
-
 }
 
 
-.skinBtn{
-
-    position: relative;
+.skinBtn {
 
     width: 80px;
     height: 80px;
 
+    position: relative;
 }
 
-.skinBtn img{
+.skinBtn img {
 
     width: 100%;
     height: 100%;
-
 }
 
-.lockIcon{
+.lockIcon {
 
     position: absolute;
 
-    top: 0;
-    left: 0;
-
     width: 100%;
     height: 100%;
-
 }
 
 
-.premiumIcon{
+.premiumIcon {
 
     position: absolute;
 
@@ -625,20 +498,17 @@ body{
     right: -5px;
 
     width: 30px;
-    height: 30px;
-
 }
+
+
 
 /* =========================
    PAUSE
 ========================= */
 
-#pauseMenu{
+#pauseMenu {
 
     position: fixed;
-
-    left: 0;
-    top: 0;
 
     width: 100vw;
     height: 100vh;
@@ -649,10 +519,10 @@ body{
 
     justify-content: center;
     align-items: center;
-
 }
 
-#pauseBox{
+
+#pauseBox {
 
     background: #111;
 
@@ -661,23 +531,8 @@ body{
     border-radius: 10px;
 
     text-align: center;
-
-    width: 80%;
-    max-width: 300px;
-
 }
 
-#pauseBox button{
-
-    display: block;
-
-    margin: 10px auto;
-
-    padding: 10px 20px;
-
-    font-size: 18px;
-
-}
 
 
 /* =========================
@@ -690,11 +545,8 @@ body{
 
     position: fixed;
 
-    top: 0;
-    left: 0;
-
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
 
     background: black;
 
@@ -703,34 +555,4 @@ body{
     text-align: center;
 
     padding-top: 100px;
-
-}
-
-#settings button {
-
-    margin: 10px;
-    padding: 10px 20px;
-
-}
-
-
-* {
-
-    box-sizing: border-box;
-
-}
-
-h1, h2, h3, p, button {
-
-    font-family: Arial, sans-serif;
-
-}
-
-button {
-
-    font-size: clamp(12px, 2.5vw, 20px);
-
-    padding: clamp(6px, 2vw, 12px)
-             clamp(10px, 3vw, 20px);
-
 }
