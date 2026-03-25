@@ -14,6 +14,11 @@ function updateSkin(){
 
 }
 
+let currentSkin = 0;
+
+updateSkin();
+
+
 const enemyImg = new Image();
 enemyImg.src = "assets/enemy.png";
 
@@ -155,6 +160,9 @@ let spawnTimer = 0;
 
 let lastReward = 0;
 
+let achievements = [];
+let totalKills = 0;
+
 
 /* ---------- TOUCH ---------- */
 
@@ -288,9 +296,9 @@ function startGame(){
 
     health = maxHearts;
 
-    updateHUD();
-
     gameRunning = true;
+
+    updateHUD();
 
     startAutoShoot();
 
@@ -1049,10 +1057,10 @@ function buyShield(){
     if(coins >= 50){
 
         coins -= 50;
-        weaponLevel++;
+        shieldLevel++;
 
-       updateHUD(); 
-       saveGame();
+        updateHUD();
+        saveGame();
 
     }
 
@@ -1164,6 +1172,9 @@ function gameOver(){
         "gameOverScreen"
     ).style.display = "flex";
 
+    gameMusic.pause();
+    menuMusic.play();
+
 }
 
 function restartGame(){
@@ -1200,7 +1211,7 @@ function quitGame(){
 
     saveGame();
 
-    music.pause();
+    gameMusic.pause();
 
     paused = false;
     gameRunning = false;
@@ -1241,9 +1252,18 @@ function toggleSound(){
     soundOn = !soundOn;
 
     if(!soundOn){
-        music.pause();
+
+        menuMusic.pause();
+        gameMusic.pause();
+
     }else{
-        music.play();
+
+        if(gameRunning){
+            gameMusic.play();
+        }else{
+            menuMusic.play();
+        }
+
     }
 
     saveGame();
