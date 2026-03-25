@@ -348,11 +348,11 @@ function startGame(){
     const hud =
         document.getElementById("hud");
 
-    menu.style.display = "none";
+    if(menu) menu.style.display = "none";
 
-    canvasEl.style.display = "block";
+    if(canvasEl) canvasEl.style.display = "block";
 
-    hud.style.display = "block";
+    if(hud) hud.style.display = "flex";
 
     health = maxHearts;
 
@@ -910,7 +910,11 @@ function updateBullets(){
                     }
 
                     updateHUD();
-                    saveGame();
+                    try{
+                       saveGame();
+                    }catch(e){
+                       console.log(e);
+                    }
 
 
                     // ===== POWERUP =====
@@ -1567,10 +1571,6 @@ window.addEventListener("load", () => {
         setTimeout(()=>{
 
             splash.style.display = "none";
-
-            if(menu){
-                menu.classList.add("show");
-            }
 
         }, 800);
 
