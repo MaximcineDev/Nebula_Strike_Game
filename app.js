@@ -7,6 +7,7 @@ console.log("APP STARTED");
 /* ---------- IMAGES ---------- */
 
 const playerImg = new Image();
+playerImg.src = "assets/player.png";
 
 const enemyImg = new Image();
 enemyImg.src = "assets/enemy.png";
