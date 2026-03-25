@@ -8,17 +8,6 @@ console.log("APP STARTED");
 
 const playerImg = new Image();
 
-function updateSkin(){
-
-    playerImg.src = skins[currentSkin];
-
-}
-
-let currentSkin = 0;
-
-updateSkin();
-
-
 const enemyImg = new Image();
 enemyImg.src = "assets/enemy.png";
 
@@ -37,6 +26,8 @@ bossImg.src = "assets/boss.png";
 const bgImg = new Image();
 bgImg.src = "assets/background.png";
 
+let currentSkin = 0;
+
 const skins = [
 
     "assets/player.png",
@@ -46,7 +37,12 @@ const skins = [
 
 ];
 
-let currentSkin = 0;
+function updateSkin(){
+    playerImg.src = skins[currentSkin];
+
+}
+
+updateSkin();
 
 
 /* ---------- POWERUPS ---------- */
