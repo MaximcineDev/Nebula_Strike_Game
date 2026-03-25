@@ -1272,7 +1272,9 @@ window.addEventListener("load", () => {
         document.getElementById("main-menu");
 
     if(menu){
-        menu.style.display = "block";
+
+        menu.style.display = "flex";
+
     }
 
     if(splash){
@@ -1280,6 +1282,10 @@ window.addEventListener("load", () => {
         setTimeout(()=>{
 
             splash.style.display = "none";
+
+            if(menu){
+                menu.classList.add("show");
+            }
 
         }, 800);
 
