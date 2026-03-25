@@ -588,3 +588,70 @@ html, body {
         env(safe-area-inset-top);
 
 }
+
+#gameOverScreen{
+
+    position: fixed;
+
+    left:0;
+    top:0;
+
+    width:100vw;
+    height:100vh;
+
+    background: black;
+
+    display:none;
+
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+
+    z-index:5000;
+
+    animation: fadeIn 0.5s;
+
+}
+
+#gameOverScreen h1{
+
+    color:white;
+
+    font-size:50px;
+
+    text-shadow:
+        0 0 10px red,
+        0 0 20px orange,
+        0 0 40px red;
+
+    animation: pop 0.4s;
+
+}
+
+#gameOverScreen button{
+
+    margin:10px;
+    padding:10px 20px;
+
+    font-size:20px;
+
+}
+
+@keyframes fadeIn{
+
+    from{opacity:0}
+    to{opacity:1}
+
+}
+
+@keyframes pop{
+
+    from{
+        transform:scale(0.5);
+    }
+
+    to{
+        transform:scale(1);
+    }
+
+}
