@@ -131,7 +131,6 @@ let lastShot = 0;
 
 let coins = 0;
 let weaponLevel = 1;
-let maxHearts = 5;
 let shieldLevel = 0;
 let highestLevel = 1;
 let premium = false;
