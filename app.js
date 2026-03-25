@@ -279,7 +279,9 @@ window.addEventListener("keyup",e=>{
 
 function startGame(){
 
-    document.getElementById("main-menu").style.display="none";
+    document.getElementById("main-menu").style.display = "none";
+
+    document.getElementById("gameCanvas").style.display = "block";
 
     health = maxHearts;
 
@@ -296,7 +298,6 @@ function startGame(){
     gameLoop();
 
 }
-
 
 let autoShootStarted=false;
 
