@@ -291,6 +291,17 @@ function updateHeartsUI(){
     }
 
 }
+const coinBox = document.getElementById("coinBox");
+
+if(coinBox){
+
+    coinBox.style.transform = "scale(1.2)";
+
+    setTimeout(()=>{
+        coinBox.style.transform = "scale(1)";
+    },100);
+
+}
 
 /* ---------- KEYBOARD ---------- */
 
