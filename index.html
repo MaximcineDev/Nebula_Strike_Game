@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
@@ -8,7 +7,6 @@
     <title>Nebula Strike</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
 
     <!-- SPLASH -->
@@ -41,7 +39,8 @@
 
         <div id="levelText">Lv 1</div>
         <div id="scoreText">Score: 0</div>
-        <button id="pauseBtn">Pause</button>
+
+        <button id="pauseBtn" onclick="pauseGame()">Pause</button>
     </div>
 
     <!-- BOSS BAR -->
@@ -74,7 +73,7 @@
         </div>
     </div>
 
-    <!-- PAUSE -->
+    <!-- PAUSE MENU -->
     <div id="pauseMenu" style="display:none">
         <div id="pauseBox">
             <h2>Paused</h2>
