@@ -133,15 +133,32 @@ const player = {
 
 function resizeGame(){
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.width =
+        window.innerWidth;
 
-    player.x = canvas.width / 2;
-    player.y = canvas.height - 140;
+    canvas.height =
+        window.innerHeight;
+
+    canvas.style.width =
+        window.innerWidth + "px";
+
+    canvas.style.height =
+        window.innerHeight + "px";
+
+    player.x =
+        canvas.width / 2;
+
+    player.y =
+        canvas.height - 120;
 
 }
 window.addEventListener(
     "resize",
+    resizeGame
+);
+
+window.addEventListener(
+    "orientationchange",
     resizeGame
 );
 
