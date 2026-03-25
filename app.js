@@ -960,6 +960,11 @@ function updateBullets(){
 
                     boss = null;
 
+                    const bar =
+                    document.getElementById("bossBar");
+
+                    if(bar) bar.style.display = "none";
+
                     document.getElementById("bossBar").style.display = "none";
 
                     coins += 50;
@@ -1019,17 +1024,20 @@ function updateExplosions(){
 function updateBossBar(){
 
     const bar =
+        document.getElementById("bossBar");
+
+    const hp =
         document.getElementById("bossHealth");
 
-    if(!bar) return;
+    if(!bar || !hp || !boss) return;
 
-    const percent =
-        (bossHP / bossMaxHP) * 100;
+    bar.style.display = "block";
 
-    bar.style.width =
-        percent + "%";
+    hp.style.width =
+        (boss.hp / boss.maxHp * 100) + "%";
 
 }
+
 
 /* ---------- ENEMIES ---------- */
 
