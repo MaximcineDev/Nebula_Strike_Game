@@ -83,6 +83,12 @@ explosionImg.src = "assets/explosion.png";
 
 let explosions = [];
 
+let coinFX = [];
+
+const coinImg = new Image();
+coinImg.src = "assets/ui/coin-icon.png";
+
+
 let stars = [];
 
 for(let i=0;i<80;i++){
@@ -626,6 +632,35 @@ function drawStars(){
 
 }
 
+function updateCoinFX(){
+
+    for(let i=coinFX.length-1;i>=0;i--){
+
+        let c = coinFX[i];
+
+        c.x += c.vx;
+        c.y += c.vy;
+
+        c.life--;
+
+        ctx.drawImage(
+            coinImg,
+            c.x,
+            c.y,
+            16,
+            16
+        );
+
+        if(c.life <= 0){
+
+            coinFX.splice(i,1);
+
+        }
+
+    }
+
+}
+
 
 /* ---------- LOOP ---------- */
 
@@ -653,6 +688,7 @@ function gameLoop(){
     updateBullets();
     updateEnemies();
     updateExplosions();
+    updateCoinFX();
     updateEnemyBullets();
     updatePowerups();
     updateBoss();
@@ -809,6 +845,20 @@ function updateBullets(){
 
                     coins += reward;
                     score += reward * 2;
+
+                    for(let k=0;k<reward;k++){
+
+                        coinFX.push({
+
+                            x:e.x,
+                            y:e.y,
+                            vx:(Math.random()-0.5)*4,
+                            vy:-Math.random()*3,
+                            life:40
+
+                        });
+
+                    }
 
                     updateHUD();
                     saveGame();
