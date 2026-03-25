@@ -222,33 +222,38 @@ let screenShake = 0;
 let touchX = null;
 let touchY = null;
 
-canvas.addEventListener("touchstart", e=>{
+canvas.addEventListener(
+    "touchstart",
+    e => {
 
-    e.preventDefault();
+        e.preventDefault();
 
-    let t = e.touches[0];
+        const t = e.touches[0];
 
-    const rect = canvas.getBoundingClientRect();
+        player.x = t.clientX;
+        player.y = t.clientY;
 
-    touchX = t.clientX - rect.left;
-    touchY = t.clientY - rect.top;
+    },
+    { passive:false }
+);
 
-    shoot();
+canvas.addEventListener(
+    "touchmove",
+    e => {
 
-},{passive:false});
+        e.preventDefault();
 
-canvas.addEventListener("touchmove", e=>{
+        const t = e.touches[0];
 
-    e.preventDefault();
+        player.x +=
+            (t.clientX - player.x) * 0.4;
 
-    let t = e.touches[0];
+        player.y +=
+            (t.clientY - player.y) * 0.4;
 
-    const rect = canvas.getBoundingClientRect();
-
-    touchX = t.clientX;
-    touchY = t.clientY;
-
-},{passive:false});
+    },
+    { passive:false }
+);
 
 canvas.addEventListener("touchend", e=>{
 
@@ -525,7 +530,7 @@ function spawnEnemy(){
     if(!gameRunning) return;
     if(boss) return;
 
-    if(enemies.length >= maxEnemies) return;
+    if(enemies.length >= 30) return;
 
     let type = ENEMY_NORMAL;
 
@@ -706,7 +711,11 @@ function updateCoinFX(){
 
 function gameLoop(){
 
-    if(!gameRunning || paused) return;
+   if(boss && boss.hp <= 0){
+       boss = null;
+   }
+   
+   if(!gameRunning || paused) return;
 
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
@@ -973,21 +982,19 @@ function updateBullets(){
 
                 updateBossBar();
 
-                if(bossHP <= 0){
+                if(boss && boss.hp <= 0){
 
                     boss = null;
 
                     const bar =
                     document.getElementById("bossBar");
 
-                    if(bar) bar.style.display = "none";
-
-                    document.getElementById("bossBar").style.display = "none";
+                    if(bar)
+                        bar.style.display = "none";
 
                     coins += 50;
-                    score += 200;
 
-                    levelComplete();
+                    saveGame();
 
                 }
 
@@ -1040,13 +1047,17 @@ function updateExplosions(){
 
 function updateBossBar(){
 
+    if(!boss) return;
+
     const bar =
         document.getElementById("bossBar");
 
     const hp =
         document.getElementById("bossHealth");
 
-    if(!bar || !hp || !boss) return;
+    if(!bar || !hp) return;
+
+    if(boss.maxHp <= 0) return;
 
     bar.style.display = "block";
 
