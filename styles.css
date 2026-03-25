@@ -229,6 +229,11 @@ body{
 
     padding-top: env(safe-area-inset-top);
 
+    text-shadow:
+        0 0 5px cyan,
+        0 0 10px blue,
+        0 0 20px purple;
+
 }
 
 #coinBox{
@@ -307,6 +312,10 @@ body{
 
     margin-left: 3px;
 
+    filter: drop-shadow(0 0 5px red);
+
+}
+
 }
 
 
@@ -345,6 +354,10 @@ body{
     height: 100%;
 
     background: red;
+
+    box-shadow:
+        0 0 10px red,
+        0 0 20px orange;
 
 }
 
@@ -496,8 +509,34 @@ body{
 
     padding: 10px 15px;
 
+    box-shadow: 0 0 10px cyan;
+
+    transition: 0.2s;
+
+}
+#shopPanel button:hover{
+
+    box-shadow: 0 0 20px cyan;
+
+    transform: scale(1.05);
+
 }
 
+#shopPanel img{
+
+    animation: shopFloat 2s infinite ease-in-out;
+
+}
+
+@keyframes shopFloat{
+
+    0%{ transform: translateY(0px); }
+
+    50%{ transform: translateY(-5px); }
+
+    100%{ transform: translateY(0px); }
+
+}
 
 /* =========================
    PAUSE
