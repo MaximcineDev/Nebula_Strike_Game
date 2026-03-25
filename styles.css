@@ -588,6 +588,35 @@ body{
 }
 
 
+.skinBtn{
+
+    position: relative;
+
+    width: 80px;
+    height: 80px;
+
+}
+
+.skinBtn img{
+
+    width: 100%;
+    height: 100%;
+
+}
+
+.lockIcon{
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+}
+
+
 /* =========================
    PAUSE
 ========================= */
