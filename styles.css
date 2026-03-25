@@ -151,16 +151,60 @@ body{
 
 }
 
-#main-menu h1 {
+#main-menu h1{
 
-    font-size: clamp(24px, 6vw, 48px);
+    color: white;
+
+    font-size: clamp(32px, 8vw, 64px);
+
+    text-shadow:
+        0 0 10px cyan,
+        0 0 20px blue,
+        0 0 40px purple;
+
+    animation: titleGlow 2s infinite alternate;
+
+    letter-spacing: 3px;
 
 }
 
-#main-menu button {
+@keyframes titleGlow{
 
-    width: 200px;
-    max-width: 80%;
+    0%{
+        transform: scale(1);
+        text-shadow:
+            0 0 10px cyan,
+            0 0 20px blue;
+    }
+
+    100%{
+        transform: scale(1.05);
+        text-shadow:
+            0 0 20px cyan,
+            0 0 40px blue,
+            0 0 60px purple;
+    }
+
+}
+
+#main-menu button{
+
+    background: black;
+    color: white;
+
+    border: 2px solid cyan;
+
+    border-radius: 8px;
+
+    margin: 10px;
+
+    box-shadow: 0 0 10px cyan;
+
+}
+
+#main-menu button:active{
+
+    transform: scale(0.95);
 
 }
 
