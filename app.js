@@ -283,15 +283,13 @@ function startGame(){
 
     document.getElementById("gameCanvas").style.display = "block";
 
+    document.getElementById("hud").style.display = "block";
+
     health = maxHearts;
 
     updateHUD();
 
     gameRunning = true;
-
-    if(soundOn){
-        music.play();
-    }
 
     startAutoShoot();
 
