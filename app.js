@@ -143,6 +143,10 @@ function resizeGame(){
     player.y = canvas.height - 140;
 
 }
+window.addEventListener(
+    "resize",
+    resizeGame
+);
 
 
 /* ---------- GAME STATE ---------- */
@@ -197,6 +201,7 @@ let achievements = [];
 let totalKills = 0;
 
 let hitFlash = 0;
+let screenShake = 0;
 
 /* ---------- TOUCH ---------- */
 
@@ -291,15 +296,19 @@ function updateHeartsUI(){
     }
 
 }
-const coinBox = document.getElementById("coinBox");
 
-if(coinBox){
+function coinPulse(){
+
+    const coinBox =
+        document.getElementById("coinBox");
+
+    if(!coinBox) return;
 
     coinBox.style.transform = "scale(1.2)";
 
     setTimeout(()=>{
         coinBox.style.transform = "scale(1)";
-    },100);
+    },120);
 
 }
 
@@ -333,11 +342,20 @@ window.addEventListener("keyup",e=>{
 
 function startGame(){
 
-    document.getElementById("main-menu").style.display = "none";
+    const menu =
+        document.getElementById("main-menu");
 
-    document.getElementById("gameCanvas").style.display = "block";
+    const canvasEl =
+        document.getElementById("gameCanvas");
 
-    document.getElementById("hud").style.display = "block";
+    const hud =
+        document.getElementById("hud");
+
+    menu.style.display = "none";
+
+    canvasEl.style.display = "block";
+
+    hud.style.display = "block";
 
     health = maxHearts;
 
@@ -371,8 +389,12 @@ function startAutoShoot(){
 
     menuMusic.pause();
 
-    gameMusic.currentTime = 0;
-    gameMusic.play();
+    if(soundOn){
+
+        gameMusic.currentTime = 0;
+        gameMusic.play();
+
+    }
 
 }
 
@@ -681,6 +703,19 @@ function gameLoop(){
 
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
+    if(screenShake > 0){
+
+        ctx.save();
+
+        ctx.translate(
+            Math.random()*10-5,
+            Math.random()*10-5
+        );
+
+        screenShake--;
+
+    }
+
     if(bgImg.complete){
 
         ctx.drawImage(
@@ -690,6 +725,8 @@ function gameLoop(){
             canvas.width,
             canvas.height
         );
+        
+       drawStars();
 
     } 
 
@@ -716,7 +753,10 @@ function gameLoop(){
     }
 
     updateHUD();
-   
+
+    if(screenShake > 0){
+        ctx.restore();
+    }
     requestAnimationFrame(gameLoop);
 
     if(hitFlash > 0){
@@ -855,6 +895,7 @@ function updateBullets(){
                         reward = 12;
 
                     coins += reward;
+                    coinPulse();
                     score += reward * 2;
 
                     for(let k=0;k<reward;k++){
@@ -1085,6 +1126,7 @@ function updateEnemyBullets(){
             if(!shieldActive){
 
                 hitFlash = 5;
+                screenShake = 6;
                
                 health--;
 
@@ -1287,6 +1329,27 @@ function buyHearts(){
 
 }
 
+function animateShopButtons(){
+
+    const btns =
+        document.querySelectorAll(".shopBtn");
+
+    btns.forEach(b=>{
+
+        b.style.transform =
+            "scale(1.1)";
+
+        setTimeout(()=>{
+
+            b.style.transform =
+                "scale(1)";
+
+        },200);
+
+    });
+
+}
+
 function levelComplete(){
 
     gameRunning = false;
@@ -1363,6 +1426,10 @@ function gameOver(){
         "gameOverScreen"
     ).style.display = "flex";
 
+    document.getElementById(
+       "hud"
+    ).style.display = "none";
+
     gameMusic.pause();
     menuMusic.play();
 
@@ -1372,6 +1439,10 @@ function restartGame(){
 
     document.getElementById(
         "gameOverScreen"
+    ).style.display = "none";
+
+    document.getElementById(
+       "hud"
     ).style.display = "none";
 
     health = maxHearts;
