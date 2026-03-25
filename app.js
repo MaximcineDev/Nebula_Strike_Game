@@ -1541,13 +1541,27 @@ setTimeout(()=>{
 
 function openShop(){
 
-    document.getElementById("shopMenu").style.display = "flex";
+    const shop =
+        document.getElementById("shop");
+
+    if(!shop) return;
+
+    shop.style.display = "flex";
+
+    animateShopButtons();
 
 }
 
-function closeShop(){
+function openShop(){
 
-    document.getElementById("shopMenu").style.display = "none";
+    const shop =
+        document.getElementById("shop");
+
+    if(!shop) return;
+
+    shop.style.display = "flex";
+
+    animateShopButtons();
 
 }
 
