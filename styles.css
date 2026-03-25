@@ -49,10 +49,10 @@ body{
     width: 100vw;
     height: 100vh;
 
-    background:
-    url("assets/ui/splash-screen.png")
-    no-repeat center center;
+    background-image: url("assets/ui/splash-screen.png");
 
+    background-position: center;
+    background-repeat: no-repeat;
     background-size: cover;
 
     display: flex;
@@ -61,9 +61,6 @@ body{
     flex-direction: column;
 
     z-index: 9999;
-
-    opacity: 1;
-    transition: opacity 1s ease;
 
 }
 
