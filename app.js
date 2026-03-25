@@ -58,10 +58,11 @@ const ENEMY_SHOOTER = 3;
 const shootSound = new Audio("assets/sounds/shoot.wav");
 const explosionSound = new Audio("assets/sounds/explosion.wav");
 
-const music = new Audio("assets/sounds/music.mp3");
+let menuMusic = new Audio("assets/menu.mp3");
+menuMusic.loop = true;
 
-music.loop = true;
-music.volume = 0.5;
+let gameMusic = new Audio("assets/music.mp3");
+gameMusic.loop = true;
 
 
 /* ---------- CANVAS ---------- */
@@ -314,6 +315,11 @@ function startAutoShoot(){
         }
 
     },250);
+
+    menuMusic.pause();
+
+    gameMusic.currentTime = 0;
+    gameMusic.play();
 
 }
 
@@ -1018,6 +1024,8 @@ function loadGame(){
         console.log("Save load error", e);
 
     }
+
+   menuMusic.play();
 
 }
 
