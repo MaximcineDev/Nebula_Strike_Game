@@ -3,18 +3,18 @@
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width,
-          initial-scale=1,
-          maximum-scale=1,
-          user-scalable=no,
-          viewport-fit=cover">
+<meta name="viewport"
+content="width=device-width,
+initial-scale=1,
+maximum-scale=1,
+user-scalable=no,
+viewport-fit=cover">
 
-    <title>Nebula Strike</title>
+<title>Nebula Strike</title>
 
-    <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css">
 
 </head>
 
@@ -22,136 +22,120 @@
 <body>
 
 
-    <!-- SPLASH -->
+<!-- ================= SPLASH ================= -->
 
-    <div id="splashScreen">
+<div id="splashScreen">
 
-        <p id="loadingText">Loading...</p>
+    <p id="loadingText">Loading...</p>
 
-    </div>
+</div>
 
 
-    <!-- MAIN MENU -->
 
-    <div id="main-menu" style="display:none">
+<!-- ================= MAIN MENU ================= -->
 
-        <h1 id="gameTitle">
+<div id="main-menu">
+
+    <h1 id="gameTitle">
         Nebula Strike
-        </h1>
+    </h1>
 
-        <button onclick="startGame()">
-            Play
-        </button>
+    <button onclick="startGame()">Play</button>
 
-        <button onclick="openShop()">
-            Shop
-        </button>
+    <button onclick="openShop()">Shop</button>
 
-        <button onclick="openSettings()">
-            Settings
-        </button>
+    <button onclick="openSettings()">Settings</button>
 
-    </div>
+</div>
 
 
-    <!-- CANVAS -->
 
-    <canvas id="gameCanvas"></canvas>
+<!-- ================= CANVAS ================= -->
 
-    
-    <!-- HUD -->
-
-    <div id="hud">
-
-        <div id="levelText">
-            Lv 1
-        </div>
-
-        <div id="scoreText">
-            Score: 0
-        </div>
-
-        <div id="coinBox">
-
-            <img src="assets/ui/coin-icon.png">
-
-            <span id="coinText">
-                0
-            </span>
-
-        </div>
-
-        <button id="pauseBtn">
-            Pause
-        </button>
+<canvas id="gameCanvas"></canvas>
 
 
-        <!-- HEARTS -->
 
-        <div id="hearts">
+<!-- ================= HUD ================= -->
 
-            <img class="heart" src="assets/ui/heart-full.png">
-            <img class="heart" src="assets/ui/heart-full.png">
-            <img class="heart" src="assets/ui/heart-full.png">
-            <img class="heart" src="assets/ui/heart-full.png">
-            <img class="heart" src="assets/ui/heart-full.png">
+<div id="hud">
 
-        </div>
+    <div id="levelText">Lv 1</div>
+
+    <div id="scoreText">Score: 0</div>
+
+    <div id="coinBox">
+
+        <img src="assets/ui/coin-icon.png">
+
+        <span id="coinText">0</span>
 
     </div>
 
+    <button id="pauseBtn">Pause</button>
 
 
-    <!-- BOSS BAR -->
+    <!-- HEARTS -->
 
-    <div id="bossBar" style="display:none">
+    <div id="hearts">
 
-        <div id="bossHealth"></div>
-
-    </div>
-
-
-
-    <!-- BOSS WARNING -->
-
-    <div id="bossWarning" style="display:none">
-
-        WARNING! BOSS INCOMING
+        <img class="heart" src="assets/ui/heart-full.png">
+        <img class="heart" src="assets/ui/heart-full.png">
+        <img class="heart" src="assets/ui/heart-full.png">
+        <img class="heart" src="assets/ui/heart-full.png">
+        <img class="heart" src="assets/ui/heart-full.png">
 
     </div>
 
-
-
-    <!-- LEVEL COMPLETE -->
-
-    <div id="levelComplete" style="display:none">
-
-        <h1>LEVEL COMPLETE</h1>
-
-        <button onclick="nextLevel()">
-            Next Level
-        </button>
-
-    </div>
-
-    <div class="levelBtn">
-        <img src="assets/ui/locked-level.png">
-    </div>
+</div>
 
 
 
-    <!-- SHOP -->
+<!-- ================= BOSS ================= -->
 
-    <div id="shop" style="display:none">
+<div id="bossBar">
 
-        <img src="assets/ui/shop.png"
-             id="shopBg">
+    <div id="bossHealth"></div>
 
-        <div id="shopPanel">
+</div>
 
-            <h2>Shop</h2>
 
-            <div id="skins">
+<div id="bossWarning">
+
+    WARNING! BOSS INCOMING
+
+</div>
+
+
+
+<!-- ================= LEVEL COMPLETE ================= -->
+
+<div id="levelComplete">
+
+    <h1>LEVEL COMPLETE</h1>
+
+    <button onclick="nextLevel()">
+        Next Level
+    </button>
+
+</div>
+
+
+
+<!-- ================= SHOP ================= -->
+
+<div id="shop">
+
+    <img src="assets/ui/shop.png" id="shopBg">
+
+    <div id="shopPanel">
+
+        <h2>Shop</h2>
+
+
+        <!-- SKINS -->
+
+        <div id="skins">
 
             <div class="skinBtn" onclick="buySkin(0)">
                 <img src="assets/skin1.png">
@@ -175,92 +159,110 @@
                      src="assets/ui/locked-level.png">
             </div>
 
-            </div>
-           
-            <div class="shopBtn" onclick="buyWeapon()">
-                <img src="assets/ui/upgrade-button.png">
-                <span>Super Weapon</span>
+        </div>
 
-                <img class="premiumIcon"
-                     src="assets/ui/premium-badge.png">
-            </div>
 
-            <div class="shopBtn" onclick="buyHearts()">
-                <img src="assets/ui/upgrade-button.png">
-                <span>Buy Hearts</span>
-            </div>
+        <!-- SHOP BUTTONS -->
 
-            <div class="shopBtn" onclick="buyShield()">
-                <img src="assets/ui/upgrade-button.png">
-                <span>Buy Shield</span>
-            </div>
+        <div class="shopBtn" onclick="buyWeapon()">
 
-            <button onclick="closeShop()">
-                Back
-            </button>
+            <img src="assets/ui/upgrade-button.png">
+
+            <span>Super Weapon</span>
+
+            <img class="premiumIcon"
+                 src="assets/ui/premium-badge.png">
 
         </div>
 
-    </div>
 
+        <div class="shopBtn" onclick="buyHearts()">
 
-    <div id="pauseMenu" style="display:none">
+            <img src="assets/ui/upgrade-button.png">
 
-        <div id="pauseBox">
-
-            <h2>Paused</h2>
-
-            <button onclick="resumeGame()">
-                Resume
-            </button>
-
-            <button onclick="quitGame()">
-                Quit
-            </button>
+            <span>Buy Hearts</span>
 
         </div>
 
-    </div>
+
+        <div class="shopBtn" onclick="buyShield()">
+
+            <img src="assets/ui/upgrade-button.png">
+
+            <span>Buy Shield</span>
+
+        </div>
 
 
-    <!-- SETTINGS -->
-
-    <div id="settings" style="display:none">
-
-        <h2>Settings</h2>
-
-        <button onclick="toggleSound()">
-            Toggle Sound
-        </button>
-
-        <button onclick="closeSettings()">
+        <button onclick="closeShop()">
             Back
         </button>
 
     </div>
 
+</div>
 
 
-    <div id="gameOverScreen" style="display:none">
 
-        <div id="gameOverBox">
+<!-- ================= PAUSE ================= -->
 
-            <h1>GAME OVER</h1>
+<div id="pauseMenu">
 
-            <button onclick="restartGame()">
-                Restart
-            </button>
+    <div id="pauseBox">
 
-            <button onclick="quitGame()">
-                Menu
-            </button>
+        <h2>Paused</h2>
 
-        </div>
+        <button onclick="resumeGame()">Resume</button>
+
+        <button onclick="quitGame()">Quit</button>
 
     </div>
 
+</div>
 
-    <script src="app.js"></script>
+
+
+<!-- ================= SETTINGS ================= -->
+
+<div id="settings">
+
+    <h2>Settings</h2>
+
+    <button onclick="toggleSound()">
+        Toggle Sound
+    </button>
+
+    <button onclick="closeSettings()">
+        Back
+    </button>
+
+</div>
+
+
+
+<!-- ================= GAME OVER ================= -->
+
+<div id="gameOverScreen">
+
+    <div id="gameOverBox">
+
+        <h1>GAME OVER</h1>
+
+        <button onclick="restartGame()">
+            Restart
+        </button>
+
+        <button onclick="quitGame()">
+            Menu
+        </button>
+
+    </div>
+
+</div>
+
+
+
+<script src="app.js"></script>
 
 </body>
 
