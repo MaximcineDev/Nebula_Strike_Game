@@ -1259,6 +1259,20 @@ function buyWeapon(){
 
 }
 
+function buyPremiumWeapon(){
+
+    if(!premium){
+
+        alert("Premium required");
+        return;
+
+    }
+
+    weaponLevel = 5;
+
+}
+
+
 function buyHearts(){
 
     if(coins >= 50){
@@ -1421,7 +1435,6 @@ function checkDailyReward(){
 
     }
    
-
 }
 
 function toggleSound(){
