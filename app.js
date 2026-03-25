@@ -1156,6 +1156,12 @@ function updateEnemyBullets(){
             if(!shieldActive){
 
                 hitFlash = 5;
+
+                if(hearts <= 0){
+
+                    showGameOver();
+
+                }
                 screenShake = 6;
                
                 health--;
@@ -1465,11 +1471,27 @@ function gameOver(){
 
 }
 
+function showGameOver(){
+
+    gameRunning = false;
+
+    const go =
+    document.getElementById(
+        "gameOverScreen"
+    );
+
+    if(go)
+        go.style.display = "flex";
+
+}
+
 function restartGame(){
 
     document.getElementById(
         "gameOverScreen"
     ).style.display = "none";
+
+    startGame();
 
     document.getElementById(
        "hud"
@@ -1511,6 +1533,23 @@ function quitGame(){
     document.getElementById("pauseMenu").style.display = "none";
 
     document.getElementById("main-menu").style.display = "block";
+
+}
+
+
+function backToMenu(){
+
+    document.getElementById(
+        "gameOverScreen"
+    ).style.display = "none";
+
+    document.getElementById(
+        "gameCanvas"
+    ).style.display = "none";
+
+    document.getElementById(
+        "main-menu"
+    ).style.display = "flex";
 
 }
 
