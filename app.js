@@ -114,6 +114,7 @@ let paused = false;
 let score = 0;
 let level = 1;
 
+let maxHearts = 5;
 let health = maxHearts;
 
 let bullets = [];
