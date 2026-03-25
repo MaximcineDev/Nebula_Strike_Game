@@ -1,94 +1,249 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+
+    <meta name="viewport"
+          content="width=device-width,
+          initial-scale=1,
+          maximum-scale=1,
+          user-scalable=no,
+          viewport-fit=cover">
+
     <title>Nebula Strike</title>
+
     <link rel="stylesheet" href="styles.css">
+
 </head>
+
+
 <body>
 
+
     <!-- SPLASH -->
+
     <div id="splashScreen">
+
         <p id="loadingText">Loading...</p>
+
     </div>
+
 
     <!-- MAIN MENU -->
+
     <div id="main-menu" style="display:none">
-        <h1 id="gameTitle">Nebula Strike</h1>
-        <button onclick="startGame()">Play</button>
-        <button onclick="openShop()">Shop</button>
-        <button onclick="openSettings()">Settings</button>
+
+        <h1 id="gameTitle">
+        Nebula Strike
+        </h1>
+
+        <button onclick="startGame()">
+            Play
+        </button>
+
+        <button onclick="openShop()">
+            Shop
+        </button>
+
+        <button onclick="openSettings()">
+            Settings
+        </button>
+
     </div>
+
+
 
     <!-- HUD -->
+
     <div id="hud">
-        <div id="hearts"></div>
-        <div id="coinBox">
-            <img src="assets/ui/coin-icon.png">
-            <span id="coinText">0</span>
+
+        <div id="levelText">
+            Lv 1
         </div>
-        <div id="levelText">Lv 1</div>
-        <div id="scoreText">Score: 0</div>
-        <button id="pauseBtn">Pause</button>
+
+        <div id="scoreText">
+            Score: 0
+        </div>
+
+        <div id="coinBox">
+
+            <img src="assets/ui/coin-icon.png">
+
+            <span id="coinText">
+                0
+            </span>
+
+        </div>
+
+        <button id="pauseBtn">
+            Pause
+        </button>
+
+
+        <!-- HEARTS -->
+
+        <div id="hearts">
+
+            <img class="heart" src="assets/ui/heart-full.png">
+            <img class="heart" src="assets/ui/heart-full.png">
+            <img class="heart" src="assets/ui/heart-full.png">
+            <img class="heart" src="assets/ui/heart-full.png">
+            <img class="heart" src="assets/ui/heart-full.png">
+
+        </div>
+
     </div>
 
-    <!-- BOSS -->
+
+
+    <!-- BOSS BAR -->
+
     <div id="bossBar" style="display:none">
+
         <div id="bossHealth"></div>
+
     </div>
-    <div id="bossWarning" style="display:none">WARNING! BOSS INCOMING</div>
+
+
+
+    <!-- BOSS WARNING -->
+
+    <div id="bossWarning" style="display:none">
+
+        WARNING! BOSS INCOMING
+
+    </div>
+
+
 
     <!-- LEVEL COMPLETE -->
+
     <div id="levelComplete" style="display:none">
+
         <h1>LEVEL COMPLETE</h1>
-        <button onclick="nextLevel()">Next Level</button>
+
+        <button onclick="nextLevel()">
+            Next Level
+        </button>
+
     </div>
+
+
 
     <!-- SHOP -->
+
     <div id="shop" style="display:none">
-        <img src="assets/ui/shop.png" id="shopBg">
+
+        <img src="assets/ui/shop.png"
+             id="shopBg">
+
         <div id="shopPanel">
+
             <h2>Shop</h2>
-            <button onclick="buySkin(0)">Skin 1</button>
-            <button onclick="buySkin(1)">Skin 2</button>
-            <button onclick="buySkin(2)">Skin 3</button>
-            <button onclick="buySkin(3)">Skin 4</button>
-            <button onclick="buyWeapon()">Weapon</button>
-            <button onclick="buyShield()">Shield</button>
-            <button onclick="buyHearts()">Hearts</button>
-            <button onclick="closeShop()">Back</button>
+
+            <button onclick="buySkin(0)">
+                Skin 1
+            </button>
+            
+            <button onclick="buySkin(1)">
+                Skin 2
+            </button>
+            
+            <button onclick="buySkin(2)">
+                Skin 3
+            </button>
+            
+            <button onclick="buySkin(3)">
+                Skin 4
+            </button>
+            
+            <button onclick="buyWeapon()">
+                Weapon
+            </button>
+
+            <button onclick="buyShield()">
+                Shield
+            </button>
+
+            <button onclick="buyHearts()">
+                Hearts
+            </button>
+
+            <button onclick="closeShop()">
+                Back
+            </button>
+
         </div>
+
     </div>
 
-    <!-- PAUSE MENU -->
+
     <div id="pauseMenu" style="display:none">
+
         <div id="pauseBox">
+
             <h2>Paused</h2>
-            <button onclick="resumeGame()">Resume</button>
-            <button onclick="quitGame()">Quit</button>
+
+            <button onclick="resumeGame()">
+                Resume
+            </button>
+
+            <button onclick="quitGame()">
+                Quit
+            </button>
+
         </div>
+
     </div>
+
 
     <!-- SETTINGS -->
+
     <div id="settings" style="display:none">
+
         <h2>Settings</h2>
-        <button onclick="toggleSound()">Toggle Sound</button>
-        <button onclick="closeSettings()">Back</button>
+
+        <button onclick="toggleSound()">
+            Toggle Sound
+        </button>
+
+        <button onclick="closeSettings()">
+            Back
+        </button>
+
     </div>
 
-    <!-- GAME OVER -->
+
+
     <div id="gameOverScreen" style="display:none">
-        <div id="gameOverBox">
-            <h1>GAME OVER</h1>
-            <button onclick="restartGame()">Restart</button>
-            <button onclick="quitGame()">Menu</button>
-        </div>
-    </div>
 
+        <div id="gameOverBox">
+
+            <h1>GAME OVER</h1>
+
+            <button onclick="restartGame()">
+                Restart
+            </button>
+
+            <button onclick="quitGame()">
+                Menu
+            </button>
+
+        </div>
+
+    </div>
+    
+    
     <!-- CANVAS -->
+
     <canvas id="gameCanvas"></canvas>
 
+
+
     <script src="app.js"></script>
+
 </body>
+
 </html>
