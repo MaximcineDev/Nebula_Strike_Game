@@ -2,6 +2,7 @@
    NEBULA STRIKE
 ========================= */
 
+console.log("APP STARTED");
 
 /* ---------- IMAGES ---------- */
 
