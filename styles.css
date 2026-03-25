@@ -80,3 +80,4 @@ body { padding-top: env(safe-area-inset-top); }
 /* SETTINGS */
 #settings{ display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:black; z-index:2500; text-align:center; padding-top:100px; }
 #settings button{ margin:10px; padding:10px 20px; }
+
