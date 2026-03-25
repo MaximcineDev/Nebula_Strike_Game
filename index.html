@@ -11,7 +11,7 @@
 
 <body>
 
-    <!-- SPLASH SCREEN -->
+    <!-- SPLASH -->
     <div id="splashScreen">
         <p id="loadingText">Loading...</p>
     </div>
@@ -26,22 +26,22 @@
 
     <!-- HUD -->
     <div id="hud">
-        <div id="levelText">Lv 1</div>
-        <div id="scoreText">Score: 0</div>
+        <div id="hearts">
+            <img class="heart" src="assets/ui/heart-full.png">
+            <img class="heart" src="assets/ui/heart-full.png">
+            <img class="heart" src="assets/ui/heart-full.png">
+            <img class="heart" src="assets/ui/heart-full.png">
+            <img class="heart" src="assets/ui/heart-full.png">
+        </div>
+
         <div id="coinBox">
-            <img src="assets/ui/coin-icon.png" alt="Coins">
+            <img src="assets/ui/coin-icon.png">
             <span id="coinText">0</span>
         </div>
-        <button id="pauseBtn">Pause</button>
 
-        <!-- HEARTS -->
-        <div id="hearts">
-            <img class="heart" src="assets/ui/heart-full.png" alt="Heart">
-            <img class="heart" src="assets/ui/heart-full.png" alt="Heart">
-            <img class="heart" src="assets/ui/heart-full.png" alt="Heart">
-            <img class="heart" src="assets/ui/heart-full.png" alt="Heart">
-            <img class="heart" src="assets/ui/heart-full.png" alt="Heart">
-        </div>
+        <div id="levelText">Lv 1</div>
+        <div id="scoreText">Score: 0</div>
+        <button id="pauseBtn">Pause</button>
     </div>
 
     <!-- BOSS BAR -->
@@ -50,9 +50,7 @@
     </div>
 
     <!-- BOSS WARNING -->
-    <div id="bossWarning" style="display:none">
-        WARNING! BOSS INCOMING
-    </div>
+    <div id="bossWarning" style="display:none">WARNING! BOSS INCOMING</div>
 
     <!-- LEVEL COMPLETE -->
     <div id="levelComplete" style="display:none">
@@ -62,7 +60,7 @@
 
     <!-- SHOP -->
     <div id="shop" style="display:none">
-        <img src="assets/ui/shop.png" id="shopBg" alt="Shop Background">
+        <img src="assets/ui/shop.png" id="shopBg">
         <div id="shopPanel">
             <h2>Shop</h2>
             <button onclick="buySkin(0)">Skin 1</button>
@@ -76,7 +74,7 @@
         </div>
     </div>
 
-    <!-- PAUSE MENU -->
+    <!-- PAUSE -->
     <div id="pauseMenu" style="display:none">
         <div id="pauseBox">
             <h2>Paused</h2>
@@ -92,7 +90,7 @@
         <button onclick="closeSettings()">Back</button>
     </div>
 
-    <!-- GAME OVER SCREEN -->
+    <!-- GAME OVER -->
     <div id="gameOverScreen" style="display:none">
         <div id="gameOverBox">
             <h1>GAME OVER</h1>
@@ -104,8 +102,6 @@
     <!-- CANVAS -->
     <canvas id="gameCanvas"></canvas>
 
-    <!-- SCRIPT -->
     <script src="app.js"></script>
-
 </body>
 </html>
