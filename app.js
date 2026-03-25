@@ -1207,21 +1207,25 @@ function quitGame(){
 
 function checkDailyReward(){
 
-    const now = Date.now();
+    let last =
+        localStorage.getItem("dailyReward");
 
-    const day = 24 * 60 * 60 * 1000;
+    let today =
+        new Date().toDateString();
 
-    if(now - lastReward > day){
+    if(last !== today){
 
-        coins += 100;
+        coins += 20;
 
-        lastReward = now;
+        localStorage.setItem(
+            "dailyReward",
+            today
+        );
 
-        alert("Daily Reward +100 coins");
-
-        saveGame();
+        console.log("Daily reward given");
 
     }
+   
 
 }
 
@@ -1255,11 +1259,22 @@ setTimeout(()=>{
 
 window.addEventListener("load", () => {
 
-    loadGame();
+    try {
 
-    resizeGame();
+        if (typeof loadGame === "function")
+            loadGame();
 
-    checkDailyReward();
+        if (typeof resizeGame === "function")
+            resizeGame();
+
+        if (typeof checkDailyReward === "function")
+            checkDailyReward();
+
+    } catch (err) {
+
+        console.log("Init error:", err);
+
+    }
 
     const splash =
         document.getElementById("splashScreen");
@@ -1267,13 +1282,13 @@ window.addEventListener("load", () => {
     const menu =
         document.getElementById("main-menu");
 
-    if(menu){
+    if (menu) {
         menu.style.display = "block";
     }
 
-    if(splash){
+    if (splash) {
 
-        setTimeout(()=>{
+        setTimeout(() => {
 
             splash.style.display = "none";
 
