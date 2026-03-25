@@ -617,6 +617,18 @@ body{
 }
 
 
+.premiumIcon{
+
+    position: absolute;
+
+    top: -5px;
+    right: -5px;
+
+    width: 30px;
+    height: 30px;
+
+}
+
 /* =========================
    PAUSE
 ========================= */
