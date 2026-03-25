@@ -22,6 +22,15 @@ updateSkin();
 const enemyImg = new Image();
 enemyImg.src = "assets/enemy.png";
 
+const enemyFastImg = new Image();
+enemyFastImg.src = "assets/enemy-fast.png";
+
+const enemyTankImg = new Image();
+enemyTankImg.src = "assets/enemy-tank.png";
+
+const enemyShooterImg = new Image();
+enemyShooterImg.src = "assets/enemy-shooter.png";
+
 const bossImg = new Image();
 bossImg.src = "assets/boss.png";
 
@@ -69,6 +78,24 @@ menuMusic.loop = true;
 let gameMusic = new Audio("assets/music.mp3");
 gameMusic.loop = true;
 
+const explosionImg = new Image();
+explosionImg.src = "assets/explosion.png";
+
+let explosions = [];
+
+let stars = [];
+
+for(let i=0;i<80;i++){
+
+    stars.push({
+
+        x: Math.random()*window.innerWidth,
+        y: Math.random()*window.innerHeight,
+        s: Math.random()*3+1
+
+    });
+
+}
 
 /* ---------- CANVAS ---------- */
 
@@ -163,6 +190,7 @@ let lastReward = 0;
 let achievements = [];
 let totalKills = 0;
 
+let hitFlash = 0;
 
 /* ---------- TOUCH ---------- */
 
@@ -576,6 +604,29 @@ function updateBoss(){
 
 }
 
+
+function drawStars(){
+
+    ctx.fillStyle = "white";
+
+    for(let s of stars){
+
+        s.y += s.s * 0.5;
+
+        if(s.y > canvas.height){
+
+            s.y = 0;
+            s.x = Math.random()*canvas.width;
+
+        }
+
+        ctx.fillRect(s.x, s.y, s.s, s.s);
+
+    }
+
+}
+
+
 /* ---------- LOOP ---------- */
 
 function gameLoop(){
@@ -601,6 +652,7 @@ function gameLoop(){
 
     updateBullets();
     updateEnemies();
+    updateExplosions();
     updateEnemyBullets();
     updatePowerups();
     updateBoss();
@@ -619,6 +671,15 @@ function gameLoop(){
     updateHUD();
    
     requestAnimationFrame(gameLoop);
+
+    if(hitFlash > 0){
+
+        ctx.fillStyle = "rgba(255,0,0,0.3)";
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+
+        hitFlash--;
+
+    }
 
 }
 
@@ -650,6 +711,15 @@ function drawPlayer(){
         player.y,
         player.width,
         player.height
+    );
+
+    ctx.fillStyle = "cyan";
+
+    ctx.fillRect(
+        player.x + player.width/2 - 3,
+        player.y + player.height,
+        6,
+        10
     );
 
 }
@@ -713,6 +783,14 @@ function updateBullets(){
                     explosionSound.currentTime = 0;
                     explosionSound.play();
 
+                    explosions.push({
+
+                        x:e.x,
+                        y:e.y,
+                        frame:0
+
+                    });
+                    
                     enemies.splice(j,1);
 
 
@@ -815,6 +893,33 @@ function updateBullets(){
 }
 
 
+function updateExplosions(){
+
+    for(let i=explosions.length-1;i>=0;i--){
+
+        let ex = explosions[i];
+
+        ctx.drawImage(
+            explosionImg,
+            ex.x,
+            ex.y,
+            40,
+            40
+        );
+
+        ex.frame++;
+
+        if(ex.frame > 10){
+
+            explosions.splice(i,1);
+
+        }
+
+    }
+
+}
+
+
 function updateBossBar(){
 
     const bar =
@@ -852,15 +957,24 @@ function updateEnemies(){
 
         // draw enemy
 
+        let img = enemyImg;
+
+        if(e.type === ENEMY_FAST)
+            img = enemyFastImg;
+
+        if(e.type === ENEMY_TANK)
+            img = enemyTankImg;
+
+        if(e.type === ENEMY_SHOOTER)
+            img = enemyShooterImg;
+
         ctx.drawImage(
-            enemyImg,
+            img,
             e.x,
             e.y,
             e.w,
             e.h
         );
-
-        ctx.filter = "none";
 
         // shooting
 
@@ -909,6 +1023,8 @@ function updateEnemyBullets(){
 
             if(!shieldActive){
 
+                hitFlash = 5;
+               
                 health--;
 
                 updateHUD();
