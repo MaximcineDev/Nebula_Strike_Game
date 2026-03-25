@@ -1259,22 +1259,11 @@ setTimeout(()=>{
 
 window.addEventListener("load", () => {
 
-    try {
+    loadGame();
 
-        if (typeof loadGame === "function")
-            loadGame();
+    resizeGame();
 
-        if (typeof resizeGame === "function")
-            resizeGame();
-
-        if (typeof checkDailyReward === "function")
-            checkDailyReward();
-
-    } catch (err) {
-
-        console.log("Init error:", err);
-
-    }
+    checkDailyReward();
 
     const splash =
         document.getElementById("splashScreen");
@@ -1282,13 +1271,13 @@ window.addEventListener("load", () => {
     const menu =
         document.getElementById("main-menu");
 
-    if (menu) {
+    if(menu){
         menu.style.display = "block";
     }
 
-    if (splash) {
+    if(splash){
 
-        setTimeout(() => {
+        setTimeout(()=>{
 
             splash.style.display = "none";
 
