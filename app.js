@@ -252,7 +252,6 @@ function updateHUD(){
     const scoreText =
         document.getElementById("scoreText");
 
-
     if(coinText)
         coinText.innerText = coins;
 
@@ -262,12 +261,6 @@ function updateHUD(){
     if(scoreText)
         scoreText.innerText =
             "Score: " + score;
-
-
-    updateHeartsUI();
-
-   document.getElementById("levelText").innerText =
-   "Lv " + level + " | W " + weaponLevel;
 
 }
 
@@ -1545,6 +1538,30 @@ setTimeout(()=>{
 
 },1000);
 
+
+function openShop(){
+
+    document.getElementById("shopMenu").style.display = "flex";
+
+}
+
+function closeShop(){
+
+    document.getElementById("shopMenu").style.display = "none";
+
+}
+
+function openSettings(){
+
+    document.getElementById("settingsMenu").style.display = "flex";
+
+}
+
+function closeSettings(){
+
+    document.getElementById("settingsMenu").style.display = "none";
+
+}
 
 window.addEventListener("load", () => {
 
