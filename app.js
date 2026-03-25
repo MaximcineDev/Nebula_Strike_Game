@@ -3,11 +3,11 @@
 ========================= */
 
 /* ---------- IMAGES ---------- */
-const skins = [
-    "assets/skins/skin1.png",
-    "assets/skins/skin2.png",
-    "assets/skins/skin3.png",
-    "assets/skins/skin4.png"
+const player = [
+    "assets/player.png",
+    "assets/player2.png",
+    "assets/player3.png",
+    "assets/player4.png"
 ];
 
 let currentSkin = 0;
@@ -161,6 +161,7 @@ function updateHUD() {
     if (levelText) levelText.innerText = `Lv ${level} | W ${weaponLevel}`;
     if (scoreText) scoreText.innerText = `Score: ${score}`;
 }
+
 
 /* ---------- GAME START ---------- */
 function startGame() {
