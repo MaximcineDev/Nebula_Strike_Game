@@ -1315,42 +1315,57 @@ function checkDailyReward(){
     }
 }
 
+
 /* ---------- INITIALIZATION ---------- */
 
-window.addEventListener('load', () => {
+window.addEventListener("load", () => {
+    console.log("Window loaded, initializing game...");
+    
+    loadGame();
+    resizeGame();
+    checkDailyReward();
+    
+    const splash = document.getElementById("splashScreen");
+    const menu = document.getElementById("main-menu");
+    const canvas = document.getElementById("gameCanvas");
+    const hud = document.getElementById("hud");
+    
+    // Ensure game elements are hidden initially
+    if(canvas) canvas.style.display = "none";
+    if(hud) hud.style.display = "none";
+    
+    // Ensure menu is hidden initially
+    if(menu){
+        menu.style.display = "none";
+        menu.classList.remove("show");
+    }
+    
+    // Handle splash screen
+    if(splash){
+        console.log("Splash found, waiting 2 seconds...");
+        setTimeout(() => {
+            splash.style.display = "none";
+            console.log("Splash hidden, showing menu...");
+           
+            if(menu) {
+                menu.style.display = "flex";
+                // Force reflow
+                void menu.offsetWidth;
+                menu.classList.add("show");
+                console.log("Menu should be visible now");
+            }
+        }, 2000);
+    } else {
+        // No splash, show menu immediately
+        if(menu) {
+            menu.style.display = "flex";
+            menu.classList.add("show");
+        }
+    }
+    
+    // Debug: Check elements
     console.log("=== DEBUG INFO ===");
-    
-    const shopBtn = document.querySelector('.shop-btn');
-    const settingsBtn = document.querySelector('.settings-btn');
-    const mainMenu = document.getElementById('main-menu');
-    const shop = document.getElementById('shop');
-    const settings = document.getElementById('settings');
-    
-    console.log("Shop button:", shopBtn);
-    console.log("Settings button:", settingsBtn);
-    console.log("Main menu:", mainMenu);
-    console.log("Shop element:", shop);
-    console.log("Settings element:", settings);
-    
-    if(shopBtn){
-        shopBtn.addEventListener('click', (e) => {
-            console.log("Shop button clicked!");
-            e.preventDefault();
-            e.stopPropagation();
-            openShop();
-        });
-    }
-    
-    if(settingsBtn){
-        settingsBtn.addEventListener('click', (e) => {
-            console.log("Settings button clicked!");
-            e.preventDefault();
-            e.stopPropagation();
-            openSettings();
-        });
-    }
-    
-    document.addEventListener('click', (e) => {
-        console.log("Clicked element:", e.target.tagName, e.target.className, e.target.id);
-    });
+    console.log("Main menu:", menu);
+    console.log("Splash:", splash);
+    console.log("Canvas:", canvas);
 });
