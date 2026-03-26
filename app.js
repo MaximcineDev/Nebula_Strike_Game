@@ -1702,10 +1702,14 @@ document.head.appendChild(style);
 
 function openSettings(){
     const settings = document.getElementById("settings");
-    if(settings) {
-        settings.style.display = "flex";
-       
+    if(settings){
+        // Hide main menu
         document.getElementById("main-menu").style.display = "none";
+        
+        // Update sound button state
+        updateSoundButton();
+        
+        settings.style.display = "flex";
     }
 }
 
@@ -1713,7 +1717,54 @@ function closeSettings(){
     const settings = document.getElementById("settings");
     if(settings) settings.style.display = "none";
     
+    // Return to main menu
     document.getElementById("main-menu").style.display = "flex";
+}
+
+function updateSoundButton(){
+    const soundIcon = document.getElementById("soundIcon");
+    const soundText = document.getElementById("soundText");
+    const soundBtn = document.querySelector(".soundBtn");
+    
+    if(soundOn){
+        if(soundIcon) soundIcon.textContent = "🔊";
+        if(soundText) soundText.textContent = "Sound: ON";
+        if(soundBtn) soundBtn.classList.remove("sound-off");
+    } else {
+        if(soundIcon) soundIcon.textContent = "🔇";
+        if(soundText) soundText.textContent = "Sound: OFF";
+        if(soundBtn) soundBtn.classList.add("sound-off");
+    }
+}
+
+function toggleSound(){
+    soundOn = !soundOn;
+    
+    if(!soundOn){
+        menuMusic.pause();
+        gameMusic.pause();
+    } else {
+        if(gameRunning){
+            gameMusic.play().catch(e => console.log("Audio play failed"));
+        } else {
+            menuMusic.play().catch(e => console.log("Audio play failed"));
+        }
+    }
+    
+    updateSoundButton();
+    saveGame();
+}
+
+function setMusicVolume(val){
+    const vol = val / 100;
+    menuMusic.volume = vol;
+    gameMusic.volume = vol;
+}
+
+function setSFXVolume(val){
+    const vol = val / 100;
+    shootSound.volume = vol;
+    explosionSound.volume = vol;
 }
 
 
