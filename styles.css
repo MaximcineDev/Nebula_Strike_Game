@@ -86,36 +86,369 @@ body {
 
 
 /* =========================
-   MAIN MENU
+   MAIN MENU - ENHANCED
 ========================= */
 
-#main-menu button {
-    background: black;
-    color: white;
-    border: 2px solid cyan;
-    border-radius: 8px;
-    margin: 10px;
-    padding: 15px 40px;
-    font-size: clamp(18px, 4vw, 24px);
-    min-width: 200px;
-    min-height: 50px;
-    box-shadow: 0 0 10px cyan;
-    cursor: pointer;
-    transition: all 0.2s;
-    pointer-events: auto;
-    z-index: 2001;
+#main-menu {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    background: 
+        radial-gradient(ellipse at center, rgba(20, 0, 40, 0.8) 0%, rgba(0, 0, 0, 1) 100%),
+        url("assets/background.png") center / cover no-repeat;
+    display: none; /* Shown via JS after splash */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    opacity: 0;
+    transition: opacity 1s ease-in;
+    overflow: hidden;
+}
+
+#main-menu.show {
+    opacity: 1;
+}
+
+/* Animated background particles effect */
+#main-menu::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(2px 2px at 20px 30px, white, transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 90px 40px, white, transparent),
+        radial-gradient(2px 2px at 160px 120px, rgba(255,255,255,0.9), transparent),
+        radial-gradient(1px 1px at 230px 80px, white, transparent);
+    background-size: 250px 250px;
+    animation: twinkle 5s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+/* =========================
+   TITLE CONTAINER
+========================= */
+
+.title-container {
     position: relative;
-    pointer-events: auto;
+    margin-bottom: 60px;
+    perspective: 1000px;
 }
 
-#main-menu button:hover {
-    box-shadow: 0 0 20px cyan, 0 0 40px cyan;
-    transform: scale(1.05);
-    background: rgba(0, 255, 255, 0.1);
+#gameTitle {
+    font-family: 'Orbitron', 'Arial Black', sans-serif;
+    font-size: clamp(48px, 12vw, 120px);
+    font-weight: 900;
+    text-align: center;
+    line-height: 1.1;
+    margin: 0;
+    position: relative;
+    z-index: 2;
+    text-transform: uppercase;
+    letter-spacing: 8px;
 }
 
-#main-menu button:active {
-    transform: scale(0.95);
+/* Individual letter styling */
+.letter {
+    display: inline-block;
+    position: relative;
+    color: #00ffff;
+    text-shadow: 
+        0 0 10px #00ffff,
+        0 0 20px #00ffff,
+        0 0 40px #0080ff,
+        0 0 80px #0080ff,
+        0 0 120px #0040ff;
+    animation: 
+        letterBounce 2s ease-in-out infinite,
+        letterGlow 1.5s ease-in-out infinite alternate;
+    transform-origin: center bottom;
+}
+
+/* Staggered animation delays for wave effect */
+.letter:nth-child(1) { animation-delay: 0s, 0s; }
+.letter:nth-child(2) { animation-delay: 0.1s, 0.1s; }
+.letter:nth-child(3) { animation-delay: 0.2s, 0.2s; }
+.letter:nth-child(4) { animation-delay: 0.3s, 0.3s; }
+.letter:nth-child(5) { animation-delay: 0.4s, 0.4s; }
+.letter:nth-child(6) { animation-delay: 0.5s, 0.5s; }
+
+/* "STRIKE" letters - different color */
+.letter.strike {
+    color: #ff3366;
+    text-shadow: 
+        0 0 10px #ff3366,
+        0 0 20px #ff3366,
+        0 0 40px #ff0066,
+        0 0 80px #ff0066,
+        0 0 120px #cc0052;
+    animation: 
+        letterBounce 2s ease-in-out infinite,
+        strikeGlow 1.5s ease-in-out infinite alternate;
+}
+
+/* Staggered delays for STRIKE letters */
+.letter.strike:nth-of-type(1) { animation-delay: 0.6s, 0.6s; }
+.letter.strike:nth-of-type(2) { animation-delay: 0.7s, 0.7s; }
+.letter.strike:nth-of-type(3) { animation-delay: 0.8s, 0.8s; }
+.letter.strike:nth-of-type(4) { animation-delay: 0.9s, 0.9s; }
+.letter.strike:nth-of-type(5) { animation-delay: 1.0s, 1.0s; }
+.letter.strike:nth-of-type(6) { animation-delay: 1.1s, 1.1s; }
+
+/* Bouncy animation */
+@keyframes letterBounce {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    25% {
+        transform: translateY(-20px) scale(1.1, 0.9);
+    }
+    50% {
+        transform: translateY(-40px) scale(0.9, 1.1);
+    }
+    75% {
+        transform: translateY(-10px) scale(1.05, 0.95);
+    }
+}
+
+/* Glow animations */
+@keyframes letterGlow {
+    0% {
+        text-shadow: 
+            0 0 10px #00ffff,
+            0 0 20px #00ffff,
+            0 0 40px #0080ff;
+        filter: brightness(1);
+    }
+    100% {
+        text-shadow: 
+            0 0 20px #00ffff,
+            0 0 40px #00ffff,
+            0 0 80px #0080ff,
+            0 0 120px #0040ff,
+            0 0 160px #0040ff;
+        filter: brightness(1.3);
+    }
+}
+
+@keyframes strikeGlow {
+    0% {
+        text-shadow: 
+            0 0 10px #ff3366,
+            0 0 20px #ff3366,
+            0 0 40px #ff0066;
+        filter: brightness(1);
+    }
+    100% {
+        text-shadow: 
+            0 0 20px #ff3366,
+            0 0 40px #ff3366,
+            0 0 80px #ff0066,
+            0 0 120px #cc0052,
+            0 0 160px #cc0052;
+        filter: brightness(1.3);
+    }
+}
+
+/* Background glow effect behind title */
+.title-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(ellipse, rgba(0, 255, 255, 0.3) 0%, transparent 70%);
+    filter: blur(40px);
+    animation: glowPulse 2s ease-in-out infinite;
+    z-index: 1;
+    pointer-events: none;
+}
+
+@keyframes glowPulse {
+    0%, 100% { 
+        opacity: 0.5; 
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% { 
+        opacity: 0.8; 
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+}
+
+/* Lightning bolt decoration */
+.title-container::after {
+    content: '⚡';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: clamp(100px, 20vw, 300px);
+    opacity: 0.1;
+    filter: blur(2px);
+    animation: lightningPulse 1s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes lightningPulse {
+    0%, 100% { opacity: 0.05; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 0.15; transform: translate(-50%, -50%) scale(1.2); }
+}
+
+/* =========================
+   MENU BUTTONS - ENHANCED
+========================= */
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    z-index: 10;
+}
+
+.menu-btn {
+    position: relative;
+    min-width: 280px;
+    padding: 18px 50px;
+    font-family: 'Orbitron', 'Arial Black', sans-serif;
+    font-size: clamp(18px, 4vw, 24px);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #fff;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.1) 0%, rgba(0, 128, 255, 0.1) 100%);
+    border: 2px solid #00ffff;
+    border-radius: 50px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 
+        0 0 20px rgba(0, 255, 255, 0.3),
+        inset 0 0 20px rgba(0, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    transform: translateZ(0);
+}
+
+.menu-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.5s;
+}
+
+.menu-btn:hover::before {
+    left: 100%;
+}
+
+.menu-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 
+        0 10px 30px rgba(0, 255, 255, 0.5),
+        0 0 40px rgba(0, 255, 255, 0.4),
+        inset 0 0 30px rgba(0, 255, 255, 0.2);
+    border-color: #80ffff;
+    text-shadow: 0 0 10px #fff;
+}
+
+.menu-btn:active {
+    transform: translateY(-1px) scale(0.98);
+}
+
+/* Play button - special styling */
+.play-btn {
+    background: linear-gradient(135deg, rgba(0, 255, 128, 0.15) 0%, rgba(0, 200, 100, 0.15) 100%);
+    border-color: #00ff80;
+    box-shadow: 
+        0 0 20px rgba(0, 255, 128, 0.3),
+        inset 0 0 20px rgba(0, 255, 128, 0.1);
+    animation: playPulse 2s ease-in-out infinite;
+}
+
+@keyframes playPulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 128, 0.3), inset 0 0 20px rgba(0, 255, 128, 0.1); }
+    50% { box-shadow: 0 0 40px rgba(0, 255, 128, 0.6), inset 0 0 30px rgba(0, 255, 128, 0.2); }
+}
+
+.play-btn:hover {
+    border-color: #80ffc0;
+    box-shadow: 
+        0 10px 30px rgba(0, 255, 128, 0.5),
+        0 0 50px rgba(0, 255, 128, 0.4);
+}
+
+/* Shop button - special styling */
+.shop-btn {
+    background: linear-gradient(135deg, rgba(255, 200, 0, 0.15) 0%, rgba(255, 150, 0, 0.15) 100%);
+    border-color: #ffc800;
+    box-shadow: 
+        0 0 20px rgba(255, 200, 0, 0.3),
+        inset 0 0 20px rgba(255, 200, 0, 0.1);
+}
+
+.shop-btn:hover {
+    border-color: #ffe080;
+    box-shadow: 
+        0 10px 30px rgba(255, 200, 0, 0.5),
+        0 0 50px rgba(255, 200, 0, 0.4);
+}
+
+/* Settings button - special styling */
+.settings-btn {
+    background: linear-gradient(135deg, rgba(200, 0, 255, 0.15) 0%, rgba(150, 0, 200, 0.15) 100%);
+    border-color: #c800ff;
+    box-shadow: 
+        0 0 20px rgba(200, 0, 255, 0.3),
+        inset 0 0 20px rgba(200, 0, 255, 0.1);
+}
+
+.settings-btn:hover {
+    border-color: #e080ff;
+    box-shadow: 
+        0 10px 30px rgba(200, 0, 255, 0.5),
+        0 0 50px rgba(200, 0, 255, 0.4);
+}
+
+/* Button text */
+.btn-text {
+    position: relative;
+    z-index: 2;
+}
+
+/* Shine effect */
+.btn-shine {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.1) 50%,
+        transparent 70%
+    );
+    transform: rotate(30deg);
+    animation: shine 3s infinite;
+    pointer-events: none;
+}
+
+@keyframes shine {
+    0% { transform: translateX(-100%) rotate(30deg); }
+    100% { transform: translateX(100%) rotate(30deg); }
 }
 
 
