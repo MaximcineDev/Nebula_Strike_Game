@@ -280,31 +280,55 @@ function resumeGame(){
 }
 
 function quitGame(){
-    saveGame();
+    console.log("Quitting game...");
     
-    // Stop all game audio
-    gameMusic.pause();
-    menuMusic.currentTime = 0;
-    if(soundOn) menuMusic.play().catch(e => console.log("Menu music failed"));
+    try {
+        saveGame();
+    } catch(e) {
+        console.log("Save failed:", e);
+    }
+    
+    // Stop all audio
+    try {
+        gameMusic.pause();
+        menuMusic.currentTime = 0;
+        if(soundOn) menuMusic.play().catch(e => console.log("Menu music failed"));
+    } catch(e) {
+        console.log("Audio error:", e);
+    }
     
     // Reset game state
     paused = false;
     gameRunning = false;
     
-    // Hide all game screens
-    document.getElementById("pauseMenu").style.display = "none";
-    document.getElementById("gameCanvas").style.display = "none";
-    document.getElementById("hud").style.display = "none";
-    document.getElementById("bossBar").style.display = "none";
-    document.getElementById("bossWarning").style.display = "none";
-    document.getElementById("levelComplete").style.display = "none";
-    document.getElementById("gameOverScreen").style.display = "none";
+    // Hide all game screens safely
+    const elements = {
+        pauseMenu: document.getElementById("pauseMenu"),
+        gameCanvas: document.getElementById("gameCanvas"),
+        hud: document.getElementById("hud"),
+        bossBar: document.getElementById("bossBar"),
+        bossWarning: document.getElementById("bossWarning"),
+        levelComplete: document.getElementById("levelComplete"),
+        gameOverScreen: document.getElementById("gameOverScreen")
+    };
+    
+    for(let [name, el] of Object.entries(elements)){
+        if(el) {
+            el.style.display = "none";
+            console.log("Hidden:", name);
+        } else {
+            console.log("Not found:", name);
+        }
+    }
     
     // Show main menu
     const menu = document.getElementById("main-menu");
     if(menu) {
         menu.style.display = "flex";
         menu.classList.add("show");
+        console.log("Main menu shown");
+    } else {
+        console.error("Main menu not found!");
     }
     
     // Reset game objects
@@ -314,20 +338,33 @@ function quitGame(){
     powerups = [];
     boss = null;
     waveInProgress = false;
+    waveNumber = 0;
+    enemiesInWave = 0;
+    
+    console.log("Game quit successfully");
 }
+
 
 /* ---------- START ---------- */
 
 function startGame(){
+    console.log("Starting game...");
+    
     const menu = document.getElementById("main-menu");
     const canvasEl = document.getElementById("gameCanvas");
     const hud = document.getElementById("hud");
 
-    if(menu) menu.style.display = "none";
+    if(menu) {
+        menu.style.display = "none";
+        menu.classList.remove("show");
+    }
     if(canvasEl) canvasEl.style.display = "block";
     if(hud) hud.style.display = "flex";
 
+    // Reset game state
     health = maxHearts;
+    score = 0;
+    level = 1;
     gameRunning = true;
     paused = false;
     
@@ -335,29 +372,26 @@ function startGame(){
     waveInProgress = false;
     waveNumber = 0;
     enemiesInWave = 0;
+    spawnTimer = 0;
 
     updateHUD();
-    startAutoShoot();
-    gameLoop();
-}
-
-let autoShootStarted=false;
-
-function startAutoShoot(){
-    if(autoShootStarted) return;
-    autoShootStarted=true;
-
-    setInterval(()=>{
-        if(gameRunning && !paused){
-            shoot();
-        }
-    },250);
-
-    menuMusic.pause();
-    if(soundOn){
-        gameMusic.currentTime = 0;
-        gameMusic.play().catch(e => console.log("Game music failed"));
+    updateHeartsUI();
+    
+    // Start auto-shoot and music
+    if(!autoShootStarted){
+        startAutoShoot();
     }
+    
+    // START THE FIRST WAVE immediately
+    setTimeout(() => {
+        console.log("Starting first wave...");
+        spawnWave();
+    }, 1000);
+    
+    // Start game loop
+    gameLoop();
+    
+    console.log("Game started successfully");
 }
 
 /* ---------- SHOOT ---------- */
@@ -461,24 +495,54 @@ function getDifficultySettings(){
 }
 
 function spawnWave(){
-    if(!gameRunning || paused || boss) return;
+    console.log("Attempting to spawn wave...", {gameRunning, paused, boss: !!boss, waveInProgress});
+    
+    if(!gameRunning || paused || boss) {
+        console.log("Cannot spawn wave - game not running or paused or boss active");
+        return;
+    }
+    
+    if(waveInProgress){
+        console.log("Wave already in progress");
+        return;
+    }
     
     const diff = getDifficultySettings();
     
-    if(!waveInProgress){
-        // Start new wave
-        waveInProgress = true;
-        waveNumber++;
-        enemiesInWave = diff.waveSize;
-        isTroopFormation = diff.troopMode;
-        waveSpawnTimer = 0;
-        
-        console.log(`Wave ${waveNumber} started! Troop mode: ${isTroopFormation}`);
-    }
+    // Start new wave
+    waveInProgress = true;
+    waveNumber++;
+    enemiesInWave = diff.waveSize;
+    isTroopFormation = diff.troopMode;
+    waveSpawnTimer = 0;
+    
+    console.log(`Wave ${waveNumber} started! Size: ${enemiesInWave}, Troop mode: ${isTroopFormation}, Speed: ${diff.speed}`);
 }
 
 function spawnEnemyInWave(){
-    if(!waveInProgress || enemiesInWave <= 0) return;
+    if(!waveInProgress || enemiesInWave <= 0) {
+        if(enemiesInWave <= 0 && waveInProgress) {
+            // Wave complete
+            console.log("Wave complete!");
+            waveInProgress = false;
+            
+            const diff = getDifficultySettings();
+            
+            // Chance to spawn boss after wave (level 2+)
+            if(level >= 2 && Math.random() < diff.bossChance && !boss){
+                console.log("Spawning boss after wave");
+                setTimeout(() => spawnBoss(), 2000);
+            }
+            
+            // Start next wave after delay
+            setTimeout(() => {
+                if(gameRunning && !paused && !boss) {
+                    spawnWave();
+                }
+            }, 3000);
+        }
+        return;
+    }
     
     const diff = getDifficultySettings();
     
@@ -517,32 +581,18 @@ function spawnEnemyInWave(){
     
     // TROOP FORMATION for level 5+
     if(isTroopFormation){
-        // Spawn in organized rows
-        let row = Math.floor((waveSpawnTimer / 10) % 3); // 3 rows
-        let col = (waveSpawnTimer % 5); // 5 columns per row
-        
+        let row = Math.floor((waveSpawnTimer / 10) % 3);
+        let col = (waveSpawnTimer % 5);
         enemy.x = (canvas.width / 6) * (col + 1) - 20;
-        enemy.y = -40 - (row * 50); // Staggered vertical positions
-        
-        // Slower speed for troop formation
+        enemy.y = -40 - (row * 50);
         enemy.speed *= 0.6;
     }
     
     enemies.push(enemy);
     enemiesInWave--;
+    waveSpawnTimer++;
     
-    // Wave complete
-    if(enemiesInWave <= 0){
-        waveInProgress = false;
-        
-        // Chance to spawn boss after wave (level 2+)
-        if(level >= 2 && Math.random() < diff.bossChance && !boss){
-            setTimeout(() => spawnBoss(), 2000);
-        }
-        
-        // Start next wave after delay
-        setTimeout(() => spawnWave(), 3000);
-    }
+    console.log(`Spawned enemy ${waveSpawnTimer}, remaining: ${enemiesInWave}, total enemies: ${enemies.length}`);
 }
 
 function spawnEnemy(){
@@ -670,23 +720,29 @@ function gameLoop(){
         
         // Wave spawning logic
         spawnTimer++;
-        const diff = getDifficultySettings();
         
-        if(waveInProgress){
+        if(waveInProgress && enemiesInWave > 0){
             // Spawn enemies in wave with delay between each
-            let spawnDelay = isTroopFormation ? 15 : 10; // Slower for troops
-            if(spawnTimer > spawnDelay && enemiesInWave > 0){
+            let spawnDelay = isTroopFormation ? 15 : 10;
+            if(spawnTimer > spawnDelay){
                 spawnEnemyInWave();
                 spawnTimer = 0;
-                waveSpawnTimer++;
             }
-        } else {
-            // Start new wave if no enemies left
-            if(enemies.length === 0 && !boss && spawnTimer > 60){
+        } else if(!waveInProgress && enemies.length === 0 && !boss){
+            // Start new wave if no enemies left and enough time passed
+            if(spawnTimer > 60){
+                console.log("Auto-starting new wave...");
                 spawnWave();
                 spawnTimer = 0;
             }
         }
+
+           // DEBUG: Show enemy count
+            ctx.fillStyle = "white";
+            ctx.font = "20px Arial";
+            ctx.fillText(`Enemies: ${enemies.length}`, 10, canvas.height - 20);
+            ctx.fillText(`Wave: ${waveNumber} (${enemiesInWave} left)`, 10, canvas.height - 40);
+            ctx.fillText(`In Wave: ${waveInProgress}`, 10, canvas.height - 60);
         
     } catch(e) {
         console.error("Game loop error:", e);
@@ -1202,18 +1258,50 @@ function closeSettings(){
     console.log("Settings closed");
 }
 
+function toggleSound(){
+    console.log("Toggling sound, current state:", soundOn);
+    soundOn = !soundOn;
+    
+    if(!soundOn){
+        console.log("Muting all audio");
+        menuMusic.pause();
+        gameMusic.pause();
+        shootSound.volume = 0;
+        explosionSound.volume = 0;
+    } else {
+        console.log("Unmuting audio");
+        shootSound.volume = 1;
+        explosionSound.volume = 1;
+        if(gameRunning && gameMusic.paused){
+            gameMusic.play().catch(e => console.log("Game music failed"));
+        } else if(!gameRunning && menuMusic.paused){
+            menuMusic.play().catch(e => console.log("Menu music failed"));
+        }
+    }
+    
+    updateSoundButton();
+    saveGame();
+    console.log("Sound is now:", soundOn ? "ON" : "OFF");
+}
+
 function updateSoundButton(){
+    console.log("Updating sound button UI");
     const soundIcon = document.getElementById("soundIcon");
     const soundText = document.getElementById("soundText");
     const soundBtn = document.querySelector(".soundBtn");
     
+    if(!soundIcon || !soundText){
+        console.error("Sound button elements not found!");
+        return;
+    }
+    
     if(soundOn){
-        if(soundIcon) soundIcon.textContent = "🔊";
-        if(soundText) soundText.textContent = "Sound: ON";
+        soundIcon.textContent = "🔊";
+        soundText.textContent = "Sound: ON";
         if(soundBtn) soundBtn.classList.remove("sound-off");
     } else {
-        if(soundIcon) soundIcon.textContent = "🔇";
-        if(soundText) soundText.textContent = "Sound: OFF";
+        soundIcon.textContent = "🔇";
+        soundText.textContent = "Sound: OFF";
         if(soundBtn) soundBtn.classList.add("sound-off");
     }
 }
