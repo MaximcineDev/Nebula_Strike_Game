@@ -217,11 +217,33 @@
 
 
 <!-- ================= SETTINGS ================= -->
-
 <div id="settings">
-    <h2>Settings</h2>
-    <button onclick="toggleSound()">Toggle Sound</button>
-    <button onclick="closeSettings()">Back</button>
+    <div class="settingsPanel">
+        <h2>Settings</h2>
+        
+        <div class="settingsButtons">
+            <button class="settingsBtn soundBtn" onclick="toggleSound()">
+                <span id="soundIcon">🔊</span>
+                <span id="soundText">Sound: ON</span>
+            </button>
+            
+            <button class="settingsBtn backBtn" onclick="closeSettings()">
+                <span>← Back</span>
+            </button>
+        </div>
+        
+        <!-- More settings -->
+        <div class="settingsOptions">
+            <div class="settingItem">
+                <label>Music Volume</label>
+                <input type="range" min="0" max="100" value="100" id="musicVol" onchange="setMusicVolume(this.value)">
+            </div>
+            <div class="settingItem">
+                <label>SFX Volume</label>
+                <input type="range" min="0" max="100" value="100" id="sfxVol" onchange="setSFXVolume(this.value)">
+            </div>
+        </div>
+    </div>
 </div>
 
 
