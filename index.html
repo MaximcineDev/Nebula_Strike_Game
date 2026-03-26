@@ -140,12 +140,10 @@
 
 
 <!-- ================= SHOP ================= -->
-<div id="shop">
+<div id="shop" style="display: none;">
     <div id="shopPanel">
-        
         <!-- SKINS CONTAINER -->
         <div id="skins">
-            
             <!-- Skin 1 - Unlocked -->
             <div class="skinBtn unlocked" onclick="selectSkin(0)">
                 <img src="assets/player.png" alt="Default Ship" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><rect fill=%22%23333%22 width=%2280%22 height=%2280%22/><text fill=%22%23fff%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>SHIP 1</text></svg>'">
@@ -172,12 +170,11 @@
                 <img class="lockIcon" src="assets/ui/locked-level.png" onerror="this.style.display='none'">
                 <div class="skinPrice">500 🪙</div>
             </div>
-            
         </div>
 
         <!-- SHOP BUTTONS -->
         <div class="shopControls">
-            <div class="shopBtn" onclick="upgradeWeapon()">
+            <div class="shopBtn" onclick="buyWeapon()">
                 <span>Upgrade Weapon (150 🪙)</span>
             </div>
             
@@ -216,7 +213,7 @@
 
 
 <!-- ================= SETTINGS ================= -->
-<div id="settings">
+<div id="settings" style="display: none;">
     <div class="settingsPanel">
         <h2>Settings</h2>
         
@@ -231,7 +228,6 @@
             </button>
         </div>
         
-        <!-- More settings -->
         <div class="settingsOptions">
             <div class="settingItem">
                 <label>Music Volume</label>
@@ -244,7 +240,7 @@
         </div>
     </div>
 </div>
-
+    
 
 <!-- ================= GAME OVER ================= -->
 
