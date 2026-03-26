@@ -127,8 +127,13 @@ body {
     overflow: hidden;
     padding: 20px;
     padding-top: max(20px, env(safe-area-inset-top));
+    pointer-events: auto;
 }
 
+#main-menu.show {
+    opacity: 1;
+    pointer-events: auto;
+}
 /* Mobile-optimized title */
 #gameTitle {
     font-family: 'Orbitron', 'Arial Black', sans-serif;
@@ -144,10 +149,6 @@ body {
     letter-spacing: 4px;
     width: 100%;
     max-width: 100%;
-}
-
-#main-menu.show {
-    opacity: 1;
 }
 
 /* Animated background particles effect */
@@ -353,12 +354,18 @@ body {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    z-index: 10;
+    z-index: 3000;
+    position: relative;
+    pointer-events: auto;
+    width: 100%;
+    max-width: 320px;
+    align-items: center;
 }
 
 .menu-btn {
     position: relative;
-    min-width: 280px;
+    width: 100%;
+    max-width: 280px;
     padding: 18px 50px;
     font-family: 'Orbitron', 'Arial Black', sans-serif;
     font-size: clamp(18px, 4vw, 24px);
@@ -376,7 +383,11 @@ body {
         0 0 20px rgba(0, 255, 255, 0.3),
         inset 0 0 20px rgba(0, 255, 255, 0.1);
     backdrop-filter: blur(10px);
-    transform: translateZ(0);
+    pointer-events: auto; /* ENSURE CLICKABLE */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .menu-btn::before {
@@ -670,22 +681,22 @@ body {
     justify-content: center;
     align-items: center;
     background: rgba(0, 0, 0, 0.95);
-    z-index: 3000;
+    z-index: 4000;
     padding: 20px;
     padding-top: max(20px, env(safe-area-inset-top));
     padding-bottom: max(20px, env(safe-area-inset-bottom));
+    overflow-y: auto;
+    pointer-events: auto;
 }
 
 #shopPanel {
     position: relative;
     width: 100%;
     max-width: 400px;
-    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    pointer-events: auto;
 }
 
 /* SKINS GRID */
@@ -929,12 +940,13 @@ body {
     height: 100vh;
     height: 100dvh;
     min-height: -webkit-fill-available;
-    display: none;
+    display: none; /* Hidden by default */
     justify-content: center;
     align-items: center;
     background: rgba(0, 0, 0, 0.95);
-    z-index: 3500;
+    z-index: 4000; /* ABOVE MAIN MENU */
     padding: 20px;
+    pointer-events: auto;
 }
 
 .settingsPanel {
@@ -948,6 +960,7 @@ body {
     flex-direction: column;
     align-items: center;
     box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+    pointer-events: auto;
 }
 
 .settingsPanel h2 {
