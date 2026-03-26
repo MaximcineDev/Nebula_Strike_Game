@@ -1622,71 +1622,69 @@ setTimeout(()=>{
 
 
 function openShop(){
-
-    const shop =
-        document.getElementById("shop");
-
+    const shop = document.getElementById("shop");
     if(!shop) return;
-
+    
+    document.getElementById("main-menu").style.display = "none";
+    
     shop.style.display = "flex";
-
     animateShopButtons();
-
 }
 
-function openShop(){
-
-    const shop =
-        document.getElementById("shop");
-
-    if(!shop) return;
-
-    shop.style.display = "flex";
-
-    animateShopButtons();
-
+function closeShop(){
+    const shop = document.getElementById("shop");
+    if(shop) shop.style.display = "none";
+    
+    document.getElementById("main-menu").style.display = "flex";
 }
 
 function openSettings(){
-
-    document.getElementById("settingsMenu").style.display = "flex";
-
+    const settings = document.getElementById("settings");
+    if(settings) {
+        settings.style.display = "flex";
+       
+        document.getElementById("main-menu").style.display = "none";
+    }
 }
 
 function closeSettings(){
-
-    document.getElementById("settingsMenu").style.display = "none";
-
+    const settings = document.getElementById("settings");
+    if(settings) settings.style.display = "none";
+    
+    document.getElementById("main-menu").style.display = "flex";
 }
 
+
 window.addEventListener("load", () => {
-
     loadGame();
-
     resizeGame();
-
     checkDailyReward();
-
-    const splash =
-        document.getElementById("splashScreen");
-
-    const menu =
-        document.getElementById("main-menu");
-
+    
+    const splash = document.getElementById("splashScreen");
+    const menu = document.getElementById("main-menu");
+    const canvas = document.getElementById("gameCanvas");
+    const hud = document.getElementById("hud");
+    
+    if(canvas) canvas.style.display = "none";
+    if(hud) hud.style.display = "none";
+   
     if(menu){
-
-        menu.style.display = "flex";
-
+        menu.style.display = "none";
     }
-
+    
     if(splash){
-
-        setTimeout(()=>{
-
+        setTimeout(() => {
             splash.style.display = "none";
-
-        }, 800);
-
+           
+            if(menu) {
+                menu.style.display = "flex";
+                menu.classList.add("show");
+            }
+        }, 2000);
+    } else {
+        if(menu) {
+            menu.style.display = "flex";
+            menu.classList.add("show");
+        }
     }
-
 });
