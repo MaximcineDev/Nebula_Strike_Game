@@ -1597,22 +1597,108 @@ setTimeout(()=>{
 },1000);
 
 
+// Skin management
+let unlockedSkins = [0]; // Start with skin 0 unlocked
+
+function selectSkin(id){
+    if(!unlockedSkins.includes(id)) return;
+    currentSkin = id;
+    updateSkin();
+    saveGame();
+    
+    // Visual feedback
+    document.querySelectorAll('.skinBtn').forEach((btn, idx) => {
+        btn.style.borderColor = (idx === id) ? '#00ff88' : '#444';
+    });
+}
+
+function tryBuySkin(id, price){
+    if(unlockedSkins.includes(id)){
+        selectSkin(id);
+        return;
+    }
+    
+    if(coins >= price){
+        coins -= price;
+        unlockedSkins.push(id);
+        selectSkin(id);
+        updateHUD();
+        updateShopCoins();
+        saveGame();
+        
+        // Update UI to show unlocked
+        const skinBtn = document.getElementById('skin' + (id-1));
+        if(skinBtn){
+            skinBtn.classList.remove('locked');
+            skinBtn.classList.add('unlocked');
+            const lockIcon = skinBtn.querySelector('.lockIcon');
+            if(lockIcon) lockIcon.style.display = 'none';
+            const priceLabel = skinBtn.querySelector('.skinPrice');
+            if(priceLabel) priceLabel.textContent = 'OWNED';
+        }
+    } else {
+        // Not enough coins - shake effect
+        const btn = document.getElementById('skin' + (id-1));
+        if(btn){
+            btn.style.animation = 'shake 0.5s';
+            setTimeout(() => btn.style.animation = '', 500);
+        }
+    }
+}
+
+function updateShopCoins(){
+    const coinText = document.getElementById('shopCoinText');
+    if(coinText) coinText.textContent = coins;
+}
+
 function openShop(){
     const shop = document.getElementById("shop");
     if(!shop) return;
     
+    // Hide menu
     document.getElementById("main-menu").style.display = "none";
     
+    // Update coin display
+    updateShopCoins();
+    
+    // Show shop
     shop.style.display = "flex";
-    animateShopButtons();
+    
+    // Update skin states
+    unlockedSkins.forEach(id => {
+        if(id > 0){
+            const btn = document.getElementById('skin' + (id-1));
+            if(btn){
+                btn.classList.remove('locked');
+                btn.classList.add('unlocked');
+                const lockIcon = btn.querySelector('.lockIcon');
+                if(lockIcon) lockIcon.style.display = 'none';
+                const priceLabel = btn.querySelector('.skinPrice');
+                if(priceLabel) priceLabel.textContent = 'OWNED';
+            }
+        }
+    });
 }
 
 function closeShop(){
     const shop = document.getElementById("shop");
     if(shop) shop.style.display = "none";
     
+    // Return to main menu
     document.getElementById("main-menu").style.display = "flex";
 }
+
+// Add shake animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
+    }
+`;
+document.head.appendChild(style);
+
 
 function openSettings(){
     const settings = document.getElementById("settings");
