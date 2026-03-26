@@ -1069,6 +1069,63 @@ function loadGame(){
 
 /* ---------- SHOP FUNCTIONS ---------- */
 
+function openShop(){
+    console.log("Opening shop...");
+    const shop = document.getElementById("shop");
+    const mainMenu = document.getElementById("main-menu");
+    
+    if(!shop){
+        console.error("Shop element not found!");
+        return;
+    }
+
+    if(mainMenu) mainMenu.style.display = "none";
+    
+    updateShopCoins();
+    
+    shop.style.display = "flex";
+    
+    updateShopUI();
+    
+    console.log("Shop opened successfully");
+}
+
+function closeShop(){
+    console.log("Closing shop...");
+    const shop = document.getElementById("shop");
+    const mainMenu = document.getElementById("main-menu");
+    
+    if(shop) shop.style.display = "none";
+    
+    if(mainMenu){
+        mainMenu.style.display = "flex";
+        mainMenu.classList.add("show");
+    }
+    
+    console.log("Shop closed");
+}
+
+function updateShopCoins(){
+    const coinText = document.getElementById("shopCoinText");
+    if(coinText) coinText.textContent = coins;
+}
+
+function updateShopUI(){
+    unlockedSkins.forEach(id => {
+        if(id > 0){
+            const btn = document.getElementById('skin' + (id-1));
+            if(btn){
+                btn.classList.remove('locked');
+                btn.classList.add('unlocked');
+                const lockIcon = btn.querySelector('.lockIcon');
+                if(lockIcon) lockIcon.style.display = 'none';
+                const priceLabel = btn.querySelector('.skinPrice');
+                if(priceLabel) priceLabel.textContent = 'OWNED';
+            }
+        }
+    });
+}
+
 function buyShield(){
     if(coins >= 50){
         coins -= 50;
@@ -1098,10 +1155,6 @@ function buyHearts(){
     }
 }
 
-function upgradeWeapon(){
-    buyWeapon();
-}
-
 function animateShopButtons(){
     const btns = document.querySelectorAll(".shopBtn");
     btns.forEach(b=>{
@@ -1112,6 +1165,71 @@ function animateShopButtons(){
     });
 }
 
+
+// ================= SETTINGS FUNCTIONS =================
+
+function openSettings(){
+    console.log("Opening settings...");
+    const settings = document.getElementById("settings");
+    const mainMenu = document.getElementById("main-menu");
+    
+    if(!settings){
+        console.error("Settings element not found!");
+        return;
+    }
+    
+    if(mainMenu) mainMenu.style.display = "none";
+    
+    updateSoundButton();
+    
+    settings.style.display = "flex";
+    
+    console.log("Settings opened successfully");
+}
+
+function closeSettings(){
+    console.log("Closing settings...");
+    const settings = document.getElementById("settings");
+    const mainMenu = document.getElementById("main-menu");
+    
+    if(settings) settings.style.display = "none";
+    
+    if(mainMenu){
+        mainMenu.style.display = "flex";
+        mainMenu.classList.add("show");
+    }
+    
+    console.log("Settings closed");
+}
+
+function updateSoundButton(){
+    const soundIcon = document.getElementById("soundIcon");
+    const soundText = document.getElementById("soundText");
+    const soundBtn = document.querySelector(".soundBtn");
+    
+    if(soundOn){
+        if(soundIcon) soundIcon.textContent = "🔊";
+        if(soundText) soundText.textContent = "Sound: ON";
+        if(soundBtn) soundBtn.classList.remove("sound-off");
+    } else {
+        if(soundIcon) soundIcon.textContent = "🔇";
+        if(soundText) soundText.textContent = "Sound: OFF";
+        if(soundBtn) soundBtn.classList.add("sound-off");
+    }
+}
+
+function setMusicVolume(val){
+    const vol = val / 100;
+    if(menuMusic) menuMusic.volume = vol;
+    if(gameMusic) gameMusic.volume = vol;
+}
+
+function setSFXVolume(val){
+    const vol = val / 100;
+    if(shootSound) shootSound.volume = vol;
+    if(explosionSound) explosionSound.volume = vol;
+}
+   
 function levelComplete(){
     gameRunning = false;
     document.getElementById("levelComplete").style.display = "block";
@@ -1126,13 +1244,11 @@ function nextLevel(){
         highestLevel = level;
     }
     
-    // Reset for next level
     enemies = [];
     enemyBullets = [];
     bullets = [];
     waveInProgress = false;
     
-    // Level 2+ boss chance
     if(level >= 2 && Math.random() < 0.5){
         setTimeout(() => spawnBoss(), 1000);
     } else {
@@ -1147,6 +1263,7 @@ function resetSave(){
     localStorage.removeItem("nebulaSave");
     location.reload();
 }
+
 
 /* ---------- GAME OVER ---------- */
 
