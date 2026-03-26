@@ -1529,18 +1529,34 @@ function resumeGame(){
 }
 
 function quitGame(){
-
     saveGame();
-
+    
     gameMusic.pause();
-
+    menuMusic.currentTime = 0;
+    if(soundOn) menuMusic.play();
+    
     paused = false;
     gameRunning = false;
-
+    
     document.getElementById("pauseMenu").style.display = "none";
-
-    document.getElementById("main-menu").style.display = "block";
-
+    document.getElementById("gameCanvas").style.display = "none";
+    document.getElementById("hud").style.display = "none";
+    document.getElementById("bossBar").style.display = "none";
+    document.getElementById("bossWarning").style.display = "none";
+    document.getElementById("levelComplete").style.display = "none";
+    document.getElementById("gameOverScreen").style.display = "none";
+    
+    const menu = document.getElementById("main-menu");
+    if(menu) {
+        menu.style.display = "flex";
+        menu.classList.add("show");
+    }
+    
+    enemies = [];
+    bullets = [];
+    enemyBullets = [];
+    powerups = [];
+    boss = null;
 }
 
 
