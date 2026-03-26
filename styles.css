@@ -89,84 +89,34 @@ body {
    MAIN MENU
 ========================= */
 
-#main-menu {
-
-    position: fixed;
-
-    width: 100vw;
-    height: 100vh;
-
-    background: url("assets/background.png")
-        center / cover no-repeat;
-
-    display: flex;
-    flex-direction: column;
-
-    justify-content: center;
-    align-items: center;
-
-    z-index: 2000;
-
-    opacity: 0;
-    transition: 1s;
-
-}
-
-#main-menu.show {
-    opacity: 1;
-}
-
-
-#gameTitle {
-
-    color: white;
-
-    font-size: clamp(32px, 8vw, 64px);
-
-    text-shadow:
-        0 0 10px cyan,
-        0 0 20px blue,
-        0 0 40px purple;
-
-    animation: titleGlow 2s infinite alternate;
-}
-
-@keyframes titleGlow {
-
-    0% {
-        transform: scale(1);
-    }
-
-    100% {
-        transform: scale(1.05);
-    }
-
-}
-
-
 #main-menu button {
-
     background: black;
     color: white;
-
     border: 2px solid cyan;
-
     border-radius: 8px;
-
     margin: 10px;
-
+    padding: 15px 40px;
+    font-size: clamp(18px, 4vw, 24px);
+    min-width: 200px;
+    min-height: 50px;
     box-shadow: 0 0 10px cyan;
-
     cursor: pointer;
+    transition: all 0.2s;
+    pointer-events: auto;
+    z-index: 2001;
+    position: relative;
+    pointer-events: auto;
 }
 
 #main-menu button:hover {
-
-    box-shadow: 0 0 20px cyan;
-
+    box-shadow: 0 0 20px cyan, 0 0 40px cyan;
     transform: scale(1.05);
+    background: rgba(0, 255, 255, 0.1);
 }
 
+#main-menu button:active {
+    transform: scale(0.95);
+}
 
 
 /* =========================
@@ -579,6 +529,8 @@ html, body {
 
     width: 100vw;
     height: 100vh;
+
+    pointer-events: auto;
 
 }
 
