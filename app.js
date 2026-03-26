@@ -306,15 +306,9 @@ function updateHeartsUI(){
         }
 
     }
-   for(let i = 0; i < maxHearts; i++){
-
-    let img = i < hearts ? heartFull : heartEmpty;
-
-    ctx.drawImage(img, 20 + i*40, 20, 32, 32);
-
+   
 }
 
-}
 
 function coinPulse(){
 
