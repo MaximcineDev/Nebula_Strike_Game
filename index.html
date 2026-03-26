@@ -198,20 +198,19 @@
 </div>
 
 
-<!-- ================= PAUSE ================= -->
-
+<!-- ================= PAUSE MENU ================= -->
 <div id="pauseMenu">
-
     <div id="pauseBox">
-
-        <h2>Paused</h2>
-
-        <button onclick="resumeGame()">Resume</button>
-
-        <button onclick="quitGame()">Quit</button>
-
+        <h2>GAME PAUSED</h2>
+        <div class="pauseButtons">
+            <button class="pauseBtn resumeBtn" onclick="resumeGame()">
+                <span>▶ RESUME</span>
+            </button>
+            <button class="pauseBtn quitBtn" onclick="quitGame()">
+                <span>✕ QUIT</span>
+            </button>
+        </div>
     </div>
-
 </div>
 
 
