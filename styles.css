@@ -127,14 +127,14 @@ body {
     overflow: hidden;
     padding: 20px;
     padding-top: max(20px, env(safe-area-inset-top));
-    pointer-events: none !important;
+          
+    <button onclick="alert('CLICK WORKS!')" style="position:fixed; top:10px; left:10px; z-index:99999;">TEST CLICK</button>
 }
 
 #main-menu.show {
     opacity: 1;
-    pointer-events: auto;
 }
-/* Mobile-optimized title */
+
 #gameTitle {
     font-family: 'Orbitron', 'Arial Black', sans-serif;
     font-size: clamp(36px, 10vw, 80px);
@@ -151,7 +151,6 @@ body {
     max-width: 100%;
 }
 
-/* Animated background particles effect */
 #main-menu::before {
     content: '';
     position: absolute;
