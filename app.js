@@ -711,80 +711,78 @@ function updateCoinFX(){
 /* ---------- LOOP ---------- */
 
 function gameLoop(){
-
-   if(boss && boss.hp <= 0){
-       boss = null;
-   }
-   
-   if(!gameRunning || paused) return;
-
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-
+    // Safety exit conditions
+    if(!gameRunning || paused) return;
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Apply screen shake
     if(screenShake > 0){
-
         ctx.save();
-
-        ctx.translate(
-            Math.random()*10-5,
-            Math.random()*10-5
-        );
-
+        let shakeX = (Math.random() - 0.5) * 10;
+        let shakeY = (Math.random() - 0.5) * 10;
+        ctx.translate(shakeX, shakeY);
         screenShake--;
-
     }
-
-    if(bgImg.complete){
-
-        ctx.drawImage(
-            bgImg,
-            0,
-            0,
-            canvas.width,
-            canvas.height
-        );
+    
+    // Draw background
+    if(bgImg && bgImg.complete && bgImg.naturalWidth > 0){
+        ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+        drawStars();
+    } else {
+        // Fallback background
+        ctx.fillStyle = "#000011";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        drawStars();
+    }
+    
+    // Update game objects with error handling
+    try {
+        updatePlayer();
+        drawPlayer();
         
-       drawStars();
-
-    } 
-
-    updatePlayer();
-    drawPlayer();
-
-    updateBullets();
-    updateEnemies();
-    updateExplosions();
-    updateCoinFX();
-    updateEnemyBullets();
-    updatePowerups();
-    updateBoss();
-    updateTimers();
-
-    spawnTimer++;
-
-    if(spawnTimer > enemySpawnRate/16){
-
-        spawnEnemy();
-
-        spawnTimer = 0;
-
+        updateBullets();
+        updateEnemies();
+        updateExplosions();
+        updateCoinFX();
+        updateEnemyBullets();
+        updatePowerups();
+        updateBoss();
+        updateTimers();
+        
+        // Spawning
+        spawnTimer++;
+        if(spawnTimer > Math.max(30, enemySpawnRate / 16)){
+            spawnEnemy();
+            spawnTimer = 0;
+        }
+        
+        // Boss spawn check
+        if(!boss && level % 5 === 0 && enemies.length === 0 && score > 0){
+            spawnBoss();
+        }
+        
+    } catch(e) {
+        console.error("Game loop error:", e);
     }
-
-    updateHUD();
-
-    if(screenShake > 0){
+    
+    // Restore from shake
+    if(screenShake >= 0){
         ctx.restore();
     }
-    requestAnimationFrame(gameLoop);
-
+    
+    // Hit flash overlay
     if(hitFlash > 0){
-
-        ctx.fillStyle = "rgba(255,0,0,0.3)";
-        ctx.fillRect(0,0,canvas.width,canvas.height);
-
+        ctx.fillStyle = "rgba(255, 0, 0, 0.3)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         hitFlash--;
-
     }
-
+    
+    // Continue loop
+    if(gameRunning && !paused){
+        requestAnimationFrame(gameLoop);
+    }
 }
 
 
@@ -832,20 +830,21 @@ function drawPlayer(){
 /* ---------- BULLETS ---------- */
 
 function updateBullets(){
-
+    // Use traditional for loop and check bounds carefully
     for(let i = bullets.length - 1; i >= 0; i--){
-
+        
+        // Safety check - ensure bullet exists
+        if(!bullets[i]) continue;
+        
         let b = bullets[i];
-
+        
+        // Update position
         b.y -= 8;
-
         if(b.dx){
             b.x += b.dx;
         }
-
-
-        // bullet color
-
+        
+        // Draw bullet
         if(weaponLevel === 1)
             ctx.fillStyle = "cyan";
         else if(weaponLevel === 2)
@@ -854,168 +853,135 @@ function updateBullets(){
             ctx.fillStyle = "yellow";
         else
             ctx.fillStyle = "orange";
-
-
-        ctx.fillRect(b.x,b.y,b.w,b.h);
-
-
-        // =========================
-        // HIT ENEMIES
-        // =========================
-
-        let hitSomething = false;
-
+        
+        ctx.fillRect(b.x, b.y, b.w, b.h);
+        
+        // Check enemy collisions - separate loop with safety checks
+        let hit = false;
+        
         for(let j = enemies.length - 1; j >= 0; j--){
-
+            
+            // Safety check
+            if(!enemies[j]) continue;
+            
             let e = enemies[j];
-
-            if(
-
-                b.x < e.x + e.w &&
-                b.x + b.w > e.x &&
-                b.y < e.y + e.h &&
-                b.y + b.h > e.y
-
-            ){
-
-                bullets.splice(i,1);
-
+            
+            // AABB collision detection
+            if(b.x < e.x + e.w &&
+               b.x + b.w > e.x &&
+               b.y < e.y + e.h &&
+               b.y + b.h > e.y){
+                
+                // Remove bullet first
+                bullets.splice(i, 1);
+                hit = true;
+                
+                // Damage enemy
                 e.hp--;
-
+                
                 if(e.hp <= 0){
-
-                    explosionSound.currentTime = 0;
-                    explosionSound.play();
-
+                    // Enemy death - remove from array
+                    enemies.splice(j, 1);
+                    
+                    // Play sound
+                    if(soundOn){
+                        explosionSound.currentTime = 0;
+                        explosionSound.play().catch(e => console.log("Audio play failed"));
+                    }
+                    
+                    // Create explosion
                     explosions.push({
-
-                        x:e.x,
-                        y:e.y,
-                        frame:0
-
+                        x: e.x,
+                        y: e.y,
+                        frame: 0,
+                        maxFrame: 10
                     });
                     
-                    enemies.splice(j,1);
-
-
-                    // ===== REWARD BY TYPE =====
-
+                    // Calculate rewards
                     let reward = 5;
-
-                    if(e.type === ENEMY_FAST)
-                        reward = 8;
-
-                    if(e.type === ENEMY_TANK)
-                        reward = 15;
-
-                    if(e.type === ENEMY_SHOOTER)
-                        reward = 12;
-
+                    if(e.type === ENEMY_FAST) reward = 8;
+                    if(e.type === ENEMY_TANK) reward = 15;
+                    if(e.type === ENEMY_SHOOTER) reward = 12;
+                    
                     coins += reward;
-                    coinPulse();
                     score += reward * 2;
-
-                    for(let k=0;k<reward;k++){
-
+                    totalKills++;
+                    
+                    // Coin effects
+                    for(let k = 0; k < Math.min(reward, 10); k++){
                         coinFX.push({
-
-                            x:e.x,
-                            y:e.y,
-                            vx:(Math.random()-0.5)*4,
-                            vy:-Math.random()*3,
-                            life:40
-
+                            x: e.x + e.w/2,
+                            y: e.y + e.h/2,
+                            vx: (Math.random() - 0.5) * 6,
+                            vy: -Math.random() * 4 - 2,
+                            life: 30,
+                            maxLife: 30
                         });
-
                     }
-
+                    
+                    coinPulse();
                     updateHUD();
-                    try{
-                       saveGame();
-                    }catch(e){
-                       console.log(e);
-                    }
-
-
-                    // ===== POWERUP =====
-
+                    
+                    // Powerup drop (30% chance)
                     if(Math.random() < 0.3){
-
                         powerups.push({
-                            x: e.x,
-                            y: e.y,
-                            type: Math.floor(Math.random()*3)
+                            x: e.x + e.w/2 - 16,
+                            y: e.y + e.h/2,
+                            type: Math.floor(Math.random() * 3),
+                            w: 32,
+                            h: 32
                         });
-
                     }
-
+                    
+                    // Try save
+                    try{
+                        saveGame();
+                    } catch(err){
+                        console.log("Save failed:", err);
+                    }
                 }
-
-                hitSomething = true;
-                break;
-
+                
+                break; // Bullet hit something, stop checking
             }
-
         }
-
-
-        if(hitSomething) continue;
-
-
-        // =========================
-        // HIT BOSS (OUTSIDE LOOP)
-        // =========================
-
-        if(boss){
-
-            if(
-
-                b.x < boss.x + boss.w &&
-                b.x + b.w > boss.x &&
-                b.y < boss.y + boss.h &&
-                b.y + b.h > boss.y
-
-            ){
-
-                bullets.splice(i,1);
-
-                bossHP -= damage;
-
+        
+        // If bullet already removed, skip rest
+        if(hit) continue;
+        
+        // Check boss collision
+        if(boss && boss.hp > 0){
+            if(b.x < boss.x + boss.w &&
+               b.x + b.w > boss.x &&
+               b.y < boss.y + boss.h &&
+               b.y + b.h > boss.y){
+                
+                bullets.splice(i, 1);
+                boss.hp -= damage;
+                
                 updateBossBar();
-
-                if(boss && boss.hp <= 0){
-
-                    boss = null;
-
-                    const bar =
-                    document.getElementById("bossBar");
-
-                    if(bar)
-                        bar.style.display = "none";
-
-                    coins += 50;
-
-                    saveGame();
-
+                
+                if(boss.hp <= 0){
+                    bossDefeated();
                 }
-
                 continue;
-
             }
-
         }
-
-
-        // remove offscreen
-
-        if(b.y < -20){
-
-            bullets.splice(i,1);
-
+        
+        // Remove offscreen bullets
+        if(b.y < -50 || b.x < -50 || b.x > canvas.width + 50){
+            bullets.splice(i, 1);
         }
-
     }
+}
 
+
+function bossDefeated(){
+    boss = null;
+    document.getElementById("bossBar").style.display = "none";
+    coins += 50;
+    score += 100;
+    levelComplete();
+    saveGame();
 }
 
 
