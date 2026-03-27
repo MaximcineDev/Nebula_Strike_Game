@@ -71,27 +71,48 @@ gameMusic.loop = true;
 gameMusic.volume = 0.7;
 
 let audioUnlocked = false;
+let audioContext = null;
 
 function unlockAudio(){
     if(audioUnlocked) return;
-    audioUnlocked = true;
-   
-    if(typeof AudioContext !== 'undefined'){
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        if(ctx.state === 'suspended'){
-            ctx.resume();
-        }
+    
+    if(!audioContext){
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
     }
+    
+    if(audioContext.state === 'suspended' || audioContext.state === 'interrupted'){
+        audioContext.resume().then(() => {
+            console.log("AudioContext resumed");
+        });
+    }
+    
+    audioUnlocked = true;
     
     if(soundOn){
         menuMusic.currentTime = 0;
         menuMusic.play().catch(e => console.log("Menu music failed:", e));
     }
     
-    console.log("Audio unlocked by user interaction");
+    console.log("Audio unlocked");
+}
+
+function setupAudioUnlock(){
+    const unlockEvents = ['click', 'touchstart', 'touchend', 'keydown'];
+    
+    const tryUnlock = (e) => {
+        if(!audioUnlocked){
+            console.log("Unlocking audio via:", e.type);
+            unlockAudio();
+        }
+    };
+    
+    unlockEvents.forEach(event => {
+        document.addEventListener(event, tryUnlock, {once: true, passive: true});
+    });
 }
 
 window.addEventListener('load', () => {
+    setupAudioUnlock();
     const interactiveElements = ['main-menu', 'gameCanvas', 'pauseBtn'];
     
     const tryUnlock = () => {
@@ -133,15 +154,30 @@ const player = {
 };
 
 function resizeGame(){
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    canvas.style.width = window.innerWidth + "px";
-    canvas.style.height = window.innerHeight + "px";
-    player.x = canvas.width / 2;
-    player.y = canvas.height - 120;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px";
+    
+    player.x = Math.min(Math.max(player.x, 0), canvas.width - player.width);
+    player.y = Math.min(Math.max(player.y, 0), canvas.height - player.height);
+    
+    if(player.x === 0 && player.y === 0){
+        player.x = canvas.width / 2;
+        player.y = canvas.height - 120;
+    }
 }
-window.addEventListener("resize", resizeGame);
-window.addEventListener("orientationchange", resizeGame);
+
+window.addEventListener("resize", () => {
+    setTimeout(resizeGame, 100);
+});
+window.addEventListener("orientationchange", () => {
+    setTimeout(resizeGame, 300);
+});
+
 
 /* ---------- GAME STATE ---------- */
 
@@ -507,7 +543,7 @@ function getDifficultySettings(){
         speed: 2 + (level - 1) * 0.3,
         spawnRate: Math.max(400, 1500 - (level - 1) * 100),
         hpBase: 2 + Math.floor((level - 1) / 2),
-        maxEnemies: 10p + level,
+        maxEnemies: 10 + level,
         waveSize: 3 + Math.floor(level / 2),
         troopMode: level >= 5,
         bossChance: level >= 2 ? 0.3 : 0
@@ -617,30 +653,6 @@ function spawnBoss(){
         setTimeout(()=>{
             bossWarning.style.display = "none";
         }, 2000);
-    }
-}
-
-function updateSpawning(){
-    if(boss) return;
-    
-    spawnTimer++;
-    
-    if(waveInProgress){
-        if(enemiesInWave > 0){
-            let spawnDelay = isTroopFormation ? 20 : 10;
-            if(spawnTimer >= spawnDelay){
-                spawnSingleEnemy();
-                spawnTimer = 0;
-            }
-        } else if(enemies.length === 0){
-            console.log("Wave complete!");
-            endWave();
-        }
-    } else {
-        if(spawnTimer > 120){
-            startWave();
-            spawnTimer = 0;
-        }
     }
 }
 
