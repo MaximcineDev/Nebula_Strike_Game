@@ -1,6 +1,5 @@
 /* =========================
    NEBULA STRIKE
-   FINAL FIXED VERSION
 ========================= */
 
 console.log("APP STARTED - FINAL VERSION");
