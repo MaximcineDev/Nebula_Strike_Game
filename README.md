@@ -8,7 +8,7 @@
 **A 3D sci-fi space shooter with fast-paced action, stunning graphics, and cross-platform progression. Play instantly in your browser or install as a PWA.**
 
 <p align="center">
-  <img src="shared-assets/raw/textures/ui/logo.png" alt="Nebula Strike" width="400">
+  <img src="shared-assets/raw/textures/ui/icon.png" alt="Nebula Strike" width="400">
 </p>
 
 ---
