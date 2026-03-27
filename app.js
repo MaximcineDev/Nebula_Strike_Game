@@ -1,8 +1,9 @@
 /* =========================
    NEBULA STRIKE
+   FINAL FIXED VERSION
 ========================= */
 
-console.log("APP STARTED");
+console.log("APP STARTED - FINAL VERSION");
 
 /* ---------- IMAGES ---------- */
 
@@ -13,7 +14,7 @@ const enemyImg = new Image();
 enemyImg.src = "assets/enemy.png";
 
 const enemyFastImg = new Image();
-enemyImg.src = "assets/enemy-fast.png";
+enemyFastImg.src = "assets/enemy-fast.png";
 
 const enemyTankImg = new Image();
 enemyImg.src = "assets/enemy-tank.png";
@@ -174,6 +175,11 @@ let totalKills = 0;
 let hitFlash = 0;
 let screenShake = 0;
 
+// LOOP TIMING
+let lastTime = 0;
+const targetFPS = 60;
+const frameInterval = 1000 / targetFPS;
+
 /* ---------- TOUCH ---------- */
 
 let touchX = null;
@@ -240,7 +246,6 @@ window.addEventListener("keydown",e=>{
     if(e.key==="ArrowRight") moveRight=true;
     if(e.key==="ArrowUp") moveUp=true;
     if(e.key==="ArrowDown") moveDown=true;
-    // Pause with P key
     if(e.key==="p" || e.key==="P") togglePause();
 });
 
@@ -254,29 +259,33 @@ window.addEventListener("keyup",e=>{
 /* ---------- PAUSE SYSTEM ---------- */
 
 function togglePause(){
+    console.log("Toggle pause called, current state:", {gameRunning, paused});
+    
     if(!gameRunning) return;
     
     paused = !paused;
     const pauseMenu = document.getElementById("pauseMenu");
     
     if(paused){
-        // Show pause menu
+        console.log("Pausing game");
         if(pauseMenu) pauseMenu.style.display = "flex";
-        // Pause music
         if(gameMusic) gameMusic.pause();
     } else {
-        // Hide pause menu and resume
+        console.log("Resuming game");
         if(pauseMenu) pauseMenu.style.display = "none";
-        // Resume music
-        if(soundOn && gameMusic) gameMusic.play().catch(e => console.log("Audio resume failed"));
-        // Resume game loop
-        gameLoop();
+        if(soundOn && gameMusic) {
+            gameMusic.play().catch(e => console.log("Resume music failed"));
+        }
+        lastTime = 0;
+        requestAnimationFrame(gameLoop);
     }
 }
 
 function resumeGame(){
-    if(!paused) return;
-    togglePause(); // This will set paused to false and resume
+    console.log("Resume game button clicked");
+    if(paused){
+        togglePause();
+    }
 }
 
 function quitGame(){
@@ -288,7 +297,6 @@ function quitGame(){
         console.log("Save failed:", e);
     }
     
-    // Stop all audio
     try {
         gameMusic.pause();
         menuMusic.currentTime = 0;
@@ -297,11 +305,9 @@ function quitGame(){
         console.log("Audio error:", e);
     }
     
-    // Reset game state
     paused = false;
     gameRunning = false;
     
-    // Hide all game screens safely
     const elements = {
         pauseMenu: document.getElementById("pauseMenu"),
         gameCanvas: document.getElementById("gameCanvas"),
@@ -313,25 +319,15 @@ function quitGame(){
     };
     
     for(let [name, el] of Object.entries(elements)){
-        if(el) {
-            el.style.display = "none";
-            console.log("Hidden:", name);
-        } else {
-            console.log("Not found:", name);
-        }
+        if(el) el.style.display = "none";
     }
     
-    // Show main menu
     const menu = document.getElementById("main-menu");
     if(menu) {
         menu.style.display = "flex";
         menu.classList.add("show");
-        console.log("Main menu shown");
-    } else {
-        console.error("Main menu not found!");
     }
     
-    // Reset game objects
     enemies = [];
     bullets = [];
     enemyBullets = [];
@@ -344,11 +340,10 @@ function quitGame(){
     console.log("Game quit successfully");
 }
 
-
-/* ---------- START ---------- */
+/* ---------- START GAME ---------- */
 
 function startGame(){
-    console.log("Starting game...");
+    console.log(">>> STARTING GAME <<<");
     
     const menu = document.getElementById("main-menu");
     const canvasEl = document.getElementById("gameCanvas");
@@ -361,248 +356,231 @@ function startGame(){
     if(canvasEl) canvasEl.style.display = "block";
     if(hud) hud.style.display = "flex";
 
-    // Reset game state
     health = maxHearts;
     score = 0;
     level = 1;
     gameRunning = true;
     paused = false;
     
-    // Reset wave system
+    enemies = [];
+    bullets = [];
+    enemyBullets = [];
+    powerups = [];
+    explosions = [];
+    coinFX = [];
+    
     waveInProgress = false;
     waveNumber = 0;
     enemiesInWave = 0;
+    waveSpawnTimer = 0;
     spawnTimer = 0;
+    boss = null;
 
     updateHUD();
     updateHeartsUI();
     
-    // Start auto-shoot and music
-    if(!autoShootStarted){
-        startAutoShoot();
-    }
+    startAutoShoot();
     
-    // START THE FIRST WAVE immediately
     setTimeout(() => {
-        console.log("Starting first wave...");
-        spawnWave();
-    }, 1000);
+        console.log("Triggering first wave...");
+        startWave();
+    }, 500);
     
-    // Start game loop
-    gameLoop();
+    lastTime = 0;
+    requestAnimationFrame(gameLoop);
     
-    console.log("Game started successfully");
+    console.log("Game started, loop running");
 }
 
-/* ---------- SHOOT ---------- */
+/* ---------- AUTO SHOOT ---------- */
 
-canvas.addEventListener("click",()=>{
-    if(gameRunning && !paused){
-        shoot();
+let autoShootInterval = null;
+let autoShootStarted = false;
+
+function startAutoShoot(){
+    if(autoShootStarted) return;
+    autoShootStarted = true;
+    
+    console.log("Auto-shoot started");
+    
+    if(autoShootInterval){
+        clearInterval(autoShootInterval);
     }
-});
+    
+    autoShootInterval = setInterval(() => {
+        if(gameRunning && !paused){
+            playerShoot();
+        }
+    }, fireRate);
+    
+    menuMusic.pause();
+    if(soundOn){
+        gameMusic.currentTime = 0;
+        gameMusic.play().catch(e => console.log("Game music failed:", e));
+    }
+}
 
-function shoot(){
+function playerShoot(){
     let now = Date.now();
-    if(now - lastShot < fireRate) return;
+    if(now - lastShot < 100) return;
     lastShot = now;
 
     if(soundOn){
         shootSound.currentTime = 0;
-        shootSound.play().catch(e => console.log("Shoot sound failed"));
+        shootSound.play().catch(e => {});
     }
 
-    if(weaponLevel === 1){
-        bullets.push({
-            x: player.x + 28,
-            y: player.y,
-            w: 4,
-            h: 10,
-            dx: 0
-        });
-    }
-    else if(weaponLevel === 2){
-        bullets.push({
-            x: player.x + 15,
-            y: player.y,
-            w: 4,
-            h: 10,
-            dx: -1
-        });
-        bullets.push({
-            x: player.x + 40,
-            y: player.y,
-            w: 4,
-            h: 10,
-            dx: 1
-        });
-    }
-    else if(weaponLevel === 3){
-        bullets.push({
-            x: player.x + 10,
-            y: player.y,
-            w: 5,
-            h: 12,
-            dx: -1.5
-        });
-        bullets.push({
-            x: player.x + 28,
-            y: player.y,
-            w: 5,
-            h: 12,
-            dx: 0
-        });
-        bullets.push({
-            x: player.x + 46,
-            y: player.y,
-            w: 5,
-            h: 12,
-            dx: 1.5
-        });
-    }
-    else{
-        for(let i=-2;i<=2;i++){
-            bullets.push({
-                x: player.x + 28,
-                y: player.y,
-                w: 6,
-                h: 14,
-                dx: i * 1.2
-            });
-        }
+    const bulletY = player.y;
+    const centerX = player.x + player.width / 2;
+    
+    switch(weaponLevel){
+        case 1:
+            createBullet(centerX, bulletY, 0, -10);
+            break;
+        case 2:
+            createBullet(centerX - 15, bulletY, -0.5, -10);
+            createBullet(centerX + 15, bulletY, 0.5, -10);
+            break;
+        case 3:
+            createBullet(centerX - 20, bulletY, -1, -10);
+            createBullet(centerX, bulletY, 0, -12);
+            createBullet(centerX + 20, bulletY, 1, -10);
+            break;
+        default:
+            for(let i = -2; i <= 2; i++){
+                createBullet(centerX, bulletY, i * 1.5, -10);
+            }
     }
 }
 
-/* ---------- WAVE & ENEMY SPAWN SYSTEM ---------- */
+function createBullet(x, y, dx, dy){
+    bullets.push({
+        x: x,
+        y: y,
+        w: 4,
+        h: 12,
+        dx: dx,
+        dy: dy || -10,
+        active: true
+    });
+}
+
+/* ---------- WAVE & SPAWN SYSTEM ---------- */
 
 function getDifficultySettings(){
-    // Base settings that scale with level
-    let settings = {
+    return {
         speed: 2 + (level - 1) * 0.3,
         spawnRate: Math.max(400, 1500 - (level - 1) * 100),
         hpBase: 2 + Math.floor((level - 1) / 2),
         maxEnemies: 5 + level,
         waveSize: 3 + Math.floor(level / 2),
-        troopMode: level >= 5 // Troop formations for level 5+
+        troopMode: level >= 5,
+        bossChance: level >= 2 ? 0.3 : 0
     };
-    
-    // Level 2+ slight speed increase and boss chance
-    if(level >= 2){
-        settings.bossChance = 0.3; // 30% chance for boss after wave
-    }
-    
-    return settings;
 }
 
-function spawnWave(){
-    console.log("Attempting to spawn wave...", {gameRunning, paused, boss: !!boss, waveInProgress});
-    
-    if(!gameRunning || paused || boss) {
-        console.log("Cannot spawn wave - game not running or paused or boss active");
-        return;
-    }
-    
-    if(waveInProgress){
-        console.log("Wave already in progress");
-        return;
-    }
+function startWave(){
+    if(!gameRunning || paused || boss) return;
     
     const diff = getDifficultySettings();
     
-    // Start new wave
     waveInProgress = true;
     waveNumber++;
     enemiesInWave = diff.waveSize;
     isTroopFormation = diff.troopMode;
     waveSpawnTimer = 0;
     
-    console.log(`Wave ${waveNumber} started! Size: ${enemiesInWave}, Troop mode: ${isTroopFormation}, Speed: ${diff.speed}`);
+    console.log(`>>> WAVE ${waveNumber} STARTED! Size: ${enemiesInWave}, Troop: ${isTroopFormation}`);
+    
+    showWaveNotification(waveNumber);
 }
 
-function spawnEnemyInWave(){
-    if(!waveInProgress || enemiesInWave <= 0) {
-        if(enemiesInWave <= 0 && waveInProgress) {
-            // Wave complete
-            console.log("Wave complete!");
-            waveInProgress = false;
-            
-            const diff = getDifficultySettings();
-            
-            // Chance to spawn boss after wave (level 2+)
-            if(level >= 2 && Math.random() < diff.bossChance && !boss){
-                console.log("Spawning boss after wave");
-                setTimeout(() => spawnBoss(), 2000);
-            }
-            
-            // Start next wave after delay
-            setTimeout(() => {
-                if(gameRunning && !paused && !boss) {
-                    spawnWave();
-                }
-            }, 3000);
-        }
-        return;
-    }
-    
+function spawnSingleEnemy(){
     const diff = getDifficultySettings();
     
     let type = ENEMY_NORMAL;
-    let r = Math.random() + level * 0.02;
+    let r = Math.random();
     
     if(level > 2 && r < 0.25) type = ENEMY_FAST;
-    if(level > 4 && r < 0.15) type = ENEMY_TANK;
-    if(level > 6 && r < 0.15) type = ENEMY_SHOOTER;
+    else if(level > 4 && r < 0.15) type = ENEMY_TANK;
+    else if(level > 6 && r < 0.15) type = ENEMY_SHOOTER;
     
     let enemy = {
         x: Math.random() * (canvas.width - 40),
-        y: -40,
+        y: -50,
         w: 40,
         h: 40,
         type: type,
         hp: diff.hpBase + level,
         speed: diff.speed,
-        shootChance: 0.01
+        shootChance: 0.01,
+        active: true
     };
     
-    // Apply type modifiers
     if(type === ENEMY_FAST){
         enemy.speed = diff.speed + 2;
         enemy.hp = Math.max(1, diff.hpBase + level - 1);
-    }
-    if(type === ENEMY_TANK){
-        enemy.speed = Math.max(1, diff.speed - 1);
+    } else if(type === ENEMY_TANK){
+        enemy.speed = Math.max(0.5, diff.speed - 1);
         enemy.hp = (diff.hpBase + level) * 2;
-    }
-    if(type === ENEMY_SHOOTER){
+    } else if(type === ENEMY_SHOOTER){
         enemy.speed = diff.speed;
         enemy.hp = diff.hpBase + level + 1;
         enemy.shootChance = 0.03;
     }
     
-    // TROOP FORMATION for level 5+
     if(isTroopFormation){
-        let row = Math.floor((waveSpawnTimer / 10) % 3);
-        let col = (waveSpawnTimer % 5);
-        enemy.x = (canvas.width / 6) * (col + 1) - 20;
-        enemy.y = -40 - (row * 50);
-        enemy.speed *= 0.6;
+        let row = Math.floor(waveSpawnTimer / 5) % 3;
+        let col = waveSpawnTimer % 5;
+        enemy.x = (canvas.width / 6) * (col + 1);
+        enemy.y = -60 - (row * 40);
+        enemy.speed *= 0.5;
     }
     
     enemies.push(enemy);
     enemiesInWave--;
     waveSpawnTimer++;
     
-    console.log(`Spawned enemy ${waveSpawnTimer}, remaining: ${enemiesInWave}, total enemies: ${enemies.length}`);
+    console.log(`Spawned enemy. Remaining: ${enemiesInWave}, Active: ${enemies.length}`);
 }
 
-function spawnEnemy(){
-    // Legacy function - now handled by wave system
-    if(!waveInProgress){
-        spawnWave();
+function endWave(){
+    waveInProgress = false;
+    waveSpawnTimer = 0;
+    spawnTimer = 0;
+    
+    if(level >= 2 && Math.random() < 0.3){
+        console.log("Spawning boss after wave!");
+        setTimeout(() => spawnBoss(), 1500);
     }
 }
 
-/* ---------- BOSS SPAWN ---------- */
+function showWaveNotification(waveNum){
+    const notif = document.createElement('div');
+    notif.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 255, 255, 0.9);
+        color: black;
+        padding: 20px 40px;
+        border-radius: 10px;
+        font-family: Orbitron, sans-serif;
+        font-size: 24px;
+        font-weight: bold;
+        z-index: 9999;
+        animation: pop 0.5s ease;
+    `;
+    notif.textContent = `WAVE ${waveNum}`;
+    document.body.appendChild(notif);
+    
+    setTimeout(() => {
+        notif.style.opacity = '0';
+        notif.style.transition = 'opacity 0.5s';
+        setTimeout(() => notif.remove(), 500);
+    }, 1500);
+}
 
 function spawnBoss(){
     if(boss) return;
@@ -612,7 +590,7 @@ function spawnBoss(){
         y: -120,
         w: 160,
         h: 160,
-        speed: 1.5 + (level * 0.2) // Faster at higher levels
+        speed: 1.5 + (level * 0.2)
     };
     
     bossMaxHP = 100 + level * 25;
@@ -630,62 +608,43 @@ function spawnBoss(){
     }
 }
 
-function updateBoss(){
-    if(!boss) return;
-
-    if(boss.y < 40){
-        boss.y += boss.speed;
-    }
-
-    ctx.drawImage(bossImg, boss.x, boss.y, boss.w, boss.h);
-
-    // Boss shooting pattern
-    if(Math.random() < 0.03 + (level * 0.005)){
-        // Multiple bullets for higher levels
-        let bulletCount = level >= 5 ? 3 : 1;
-        for(let i=0; i<bulletCount; i++){
-            enemyBullets.push({
-                x: boss.x + boss.w/2 + (i-1)*30,
-                y: boss.y + boss.h,
-                w: 6,
-                h: 12
-            });
+function updateSpawning(){
+    if(boss) return;
+    
+    spawnTimer++;
+    
+    if(waveInProgress){
+        if(enemiesInWave > 0){
+            let spawnDelay = isTroopFormation ? 20 : 10;
+            if(spawnTimer >= spawnDelay){
+                spawnSingleEnemy();
+                spawnTimer = 0;
+            }
+        } else if(enemies.length === 0){
+            console.log("Wave complete!");
+            endWave();
         }
-    }
-}
-
-function drawStars(){
-    ctx.fillStyle = "white";
-    for(let s of stars){
-        s.y += s.s * 0.5;
-        if(s.y > canvas.height){
-            s.y = 0;
-            s.x = Math.random()*canvas.width;
-        }
-        ctx.fillRect(s.x, s.y, s.s, s.s);
-    }
-}
-
-function updateCoinFX(){
-    for(let i=coinFX.length-1;i>=0;i--){
-        let c = coinFX[i];
-        c.x += c.vx;
-        c.y += c.vy;
-        c.life--;
-        
-        ctx.drawImage(coinImg, c.x, c.y, 16, 16);
-        
-        if(c.life <= 0){
-            coinFX.splice(i,1);
+    } else {
+        if(spawnTimer > 120){
+            startWave();
+            spawnTimer = 0;
         }
     }
 }
 
 /* ---------- MAIN GAME LOOP ---------- */
 
-function gameLoop(){
-    if(!gameRunning) return;
-    if(paused) return; // Don't continue if paused
+function gameLoop(currentTime = 0){
+    if(gameRunning && !paused){
+        requestAnimationFrame(gameLoop);
+    }
+    
+    const deltaTime = currentTime - lastTime;
+    if(deltaTime < frameInterval) return;
+    
+    lastTime = currentTime - (deltaTime % frameInterval);
+    
+    if(!gameRunning || paused) return;
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
@@ -694,7 +653,6 @@ function gameLoop(){
         let shakeX = (Math.random() - 0.5) * 10;
         let shakeY = (Math.random() - 0.5) * 10;
         ctx.translate(shakeX, shakeY);
-        screenShake--;
     }
     
     if(bgImg && bgImg.complete && bgImg.naturalWidth > 0){
@@ -717,39 +675,14 @@ function gameLoop(){
         updatePowerups();
         updateBoss();
         updateTimers();
-        
-        // Wave spawning logic
-        spawnTimer++;
-        
-        if(waveInProgress && enemiesInWave > 0){
-            // Spawn enemies in wave with delay between each
-            let spawnDelay = isTroopFormation ? 15 : 10;
-            if(spawnTimer > spawnDelay){
-                spawnEnemyInWave();
-                spawnTimer = 0;
-            }
-        } else if(!waveInProgress && enemies.length === 0 && !boss){
-            // Start new wave if no enemies left and enough time passed
-            if(spawnTimer > 60){
-                console.log("Auto-starting new wave...");
-                spawnWave();
-                spawnTimer = 0;
-            }
-        }
-
-           // DEBUG: Show enemy count
-            ctx.fillStyle = "white";
-            ctx.font = "20px Arial";
-            ctx.fillText(`Enemies: ${enemies.length}`, 10, canvas.height - 20);
-            ctx.fillText(`Wave: ${waveNumber} (${enemiesInWave} left)`, 10, canvas.height - 40);
-            ctx.fillText(`In Wave: ${waveInProgress}`, 10, canvas.height - 60);
-        
+        updateSpawning();
     } catch(e) {
         console.error("Game loop error:", e);
     }
     
     if(screenShake > 0){
         ctx.restore();
+        screenShake--;
     }
     
     if(hitFlash > 0){
@@ -758,9 +691,13 @@ function gameLoop(){
         hitFlash--;
     }
     
-    if(gameRunning && !paused){
-        requestAnimationFrame(gameLoop);
-    }
+    // DEBUG INFO
+    ctx.fillStyle = "#00ff00";
+    ctx.font = "14px monospace";
+    ctx.fillText(`Enemies: ${enemies.length}`, 10, canvas.height - 80);
+    ctx.fillText(`Wave: ${waveNumber} (${enemiesInWave} left)`, 10, canvas.height - 60);
+    ctx.fillText(`InWave: ${waveInProgress}`, 10, canvas.height - 40);
+    ctx.fillText(`Paused: ${paused}`, 10, canvas.height - 20);
 }
 
 /* ---------- PLAYER ---------- */
@@ -776,7 +713,6 @@ function updatePlayer(){
         player.y += (touchY - player.y - player.height/2) * 0.2;
     }
     
-    // Keep player on screen
     player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
     player.y = Math.max(0, Math.min(canvas.height - player.height, player.y));
 }
@@ -791,24 +727,33 @@ function drawPlayer(){
 
 function updateBullets(){
     for(let i = bullets.length - 1; i >= 0; i--){
-        if(!bullets[i]) continue;
-        
         let b = bullets[i];
-        b.y -= 8;
+        
+        b.y += b.dy || -8;
         if(b.dx) b.x += b.dx;
         
-        if(weaponLevel === 1) ctx.fillStyle = "cyan";
-        else if(weaponLevel === 2) ctx.fillStyle = "lime";
-        else if(weaponLevel === 3) ctx.fillStyle = "yellow";
-        else ctx.fillStyle = "orange";
+        ctx.save();
+        ctx.shadowBlur = 10;
+        if(weaponLevel === 1){
+            ctx.fillStyle = "cyan";
+            ctx.shadowColor = "cyan";
+        } else if(weaponLevel === 2){
+            ctx.fillStyle = "lime";
+            ctx.shadowColor = "lime";
+        } else if(weaponLevel === 3){
+            ctx.fillStyle = "yellow";
+            ctx.shadowColor = "yellow";
+        } else {
+            ctx.fillStyle = "orange";
+            ctx.shadowColor = "orange";
+        }
         
-        ctx.fillRect(b.x, b.y, b.w, b.h);
+        ctx.fillRect(b.x - b.w/2, b.y, b.w, b.h);
+        ctx.restore();
         
         let hit = false;
         
         for(let j = enemies.length - 1; j >= 0; j--){
-            if(!enemies[j]) continue;
-            
             let e = enemies[j];
             
             if(b.x < e.x + e.w && b.x + b.w > e.x &&
@@ -906,7 +851,6 @@ function bossDefeated(){
     coins += 50;
     score += 100;
     
-    // Create explosion effect
     for(let i=0; i<20; i++){
         explosions.push({
             x: canvas.width/2 + (Math.random()-0.5)*200,
@@ -918,10 +862,9 @@ function bossDefeated(){
     
     updateHUD();
     
-    // Continue to next wave after boss
     setTimeout(() => {
         waveInProgress = false;
-        spawnWave();
+        startWave();
     }, 3000);
     
     saveGame();
@@ -932,7 +875,7 @@ function updateExplosions(){
         let ex = explosions[i];
         ctx.drawImage(explosionImg, ex.x, ex.y, 40, 40);
         ex.frame++;
-        if(ex.frame > ex.maxFrame || 10){
+        if(ex.frame > (ex.maxFrame || 10)){
             explosions.splice(i,1);
         }
     }
@@ -946,6 +889,33 @@ function updateBossBar(){
     if(!bar || !hp) return;
     bar.style.display = "block";
     hp.style.width = (boss.hp / bossMaxHP * 100) + "%";
+}
+
+function drawStars(){
+    ctx.fillStyle = "white";
+    for(let s of stars){
+        s.y += s.s * 0.5;
+        if(s.y > canvas.height){
+            s.y = 0;
+            s.x = Math.random()*canvas.width;
+        }
+        ctx.fillRect(s.x, s.y, s.s, s.s);
+    }
+}
+
+function updateCoinFX(){
+    for(let i=coinFX.length-1;i>=0;i--){
+        let c = coinFX[i];
+        c.x += c.vx;
+        c.y += c.vy;
+        c.life--;
+        
+        ctx.drawImage(coinImg, c.x, c.y, 16, 16);
+        
+        if(c.life <= 0){
+            coinFX.splice(i,1);
+        }
+    }
 }
 
 /* ---------- ENEMIES ---------- */
@@ -1006,7 +976,6 @@ function updateEnemyBullets(){
             }
         }
         
-        // Remove offscreen bullets
         if(b.y > canvas.height + 50){
             enemyBullets.splice(i, 1);
         }
@@ -1026,7 +995,6 @@ function updatePowerups(){
         
         ctx.drawImage(img, p.x, p.y, 32, 32);
         
-        // Check collision with player
         if(p.x < player.x + player.width &&
            p.x + 32 > player.x &&
            p.y < player.y + player.height &&
@@ -1034,15 +1002,15 @@ function updatePowerups(){
             
             powerups.splice(i, 1);
             
-            if(p.type === 0){ // Health
+            if(p.type === 0){
                 health = Math.min(maxHearts, health + 1);
                 updateHeartsUI();
             }
-            else if(p.type === 1){ // Rapid fire
+            else if(p.type === 1){
                 rapidFire = true;
-                rapidTimer = 300; // 5 seconds at 60fps
+                rapidTimer = 300;
             }
-            else if(p.type === 2){ // Shield
+            else if(p.type === 2){
                 shieldActive = true;
                 shieldTimer = 300;
             }
@@ -1089,7 +1057,7 @@ function saveGame(){
         lastReward: lastReward,
         achievements: achievements,
         totalKills: totalKills,
-        unlockedSkins: unlockedSkins
+        unlockedSkins: unlockedSkins || [0]
     };
     localStorage.setItem("nebulaSave", JSON.stringify(saveData));
 }
@@ -1125,44 +1093,53 @@ function loadGame(){
 
 /* ---------- SHOP FUNCTIONS ---------- */
 
-function openShop(){
-    console.log("Opening shop...");
-    const shop = document.getElementById("shop");
-    const mainMenu = document.getElementById("main-menu");
-    
-    if(!shop){
-        console.error("Shop element not found!");
-        return;
-    }
+let unlockedSkins = [0];
 
-    if(mainMenu) mainMenu.style.display = "none";
+function selectSkin(id){
+    if(!unlockedSkins.includes(id)) return;
+    currentSkin = id;
+    updateSkin();
+    saveGame();
     
-    updateShopCoins();
-    
-    shop.style.display = "flex";
-    
-    updateShopUI();
-    
-    console.log("Shop opened successfully");
+    document.querySelectorAll('.skinBtn').forEach((btn, idx) => {
+        btn.style.borderColor = (idx === id) ? '#00ff88' : '#444';
+    });
 }
 
-function closeShop(){
-    console.log("Closing shop...");
-    const shop = document.getElementById("shop");
-    const mainMenu = document.getElementById("main-menu");
-    
-    if(shop) shop.style.display = "none";
-    
-    if(mainMenu){
-        mainMenu.style.display = "flex";
-        mainMenu.classList.add("show");
+function tryBuySkin(id, price){
+    if(unlockedSkins.includes(id)){
+        selectSkin(id);
+        return;
     }
     
-    console.log("Shop closed");
+    if(coins >= price){
+        coins -= price;
+        unlockedSkins.push(id);
+        selectSkin(id);
+        updateHUD();
+        updateShopCoins();
+        saveGame();
+        
+        const skinBtn = document.getElementById('skin' + (id-1));
+        if(skinBtn){
+            skinBtn.classList.remove('locked');
+            skinBtn.classList.add('unlocked');
+            const lockIcon = skinBtn.querySelector('.lockIcon');
+            if(lockIcon) lockIcon.style.display = 'none';
+            const priceLabel = skinBtn.querySelector('.skinPrice');
+            if(priceLabel) priceLabel.textContent = 'OWNED';
+        }
+    } else {
+        const btn = document.getElementById('skin' + (id-1));
+        if(btn){
+            btn.style.animation = 'shake 0.5s';
+            setTimeout(() => btn.style.animation = '', 500);
+        }
+    }
 }
 
 function updateShopCoins(){
-    const coinText = document.getElementById("shopCoinText");
+    const coinText = document.getElementById('shopCoinText');
     if(coinText) coinText.textContent = coins;
 }
 
@@ -1180,6 +1157,38 @@ function updateShopUI(){
             }
         }
     });
+}
+
+function openShop(){
+    console.log("Opening shop...");
+    const shop = document.getElementById("shop");
+    const mainMenu = document.getElementById("main-menu");
+    
+    if(!shop){
+        console.error("Shop element not found!");
+        return;
+    }
+
+    if(mainMenu) mainMenu.style.display = "none";
+    
+    updateShopCoins();
+    shop.style.display = "flex";
+    updateShopUI();
+    
+    console.log("Shop opened");
+}
+
+function closeShop(){
+    console.log("Closing shop...");
+    const shop = document.getElementById("shop");
+    const mainMenu = document.getElementById("main-menu");
+    
+    if(shop) shop.style.display = "none";
+    
+    if(mainMenu){
+        mainMenu.style.display = "flex";
+        mainMenu.classList.add("show");
+    }
 }
 
 function buyShield(){
@@ -1211,18 +1220,7 @@ function buyHearts(){
     }
 }
 
-function animateShopButtons(){
-    const btns = document.querySelectorAll(".shopBtn");
-    btns.forEach(b=>{
-        b.style.transform = "scale(1.1)";
-        setTimeout(()=>{
-            b.style.transform = "scale(1)";
-        },200);
-    });
-}
-
-
-// ================= SETTINGS FUNCTIONS =================
+/* ---------- SETTINGS FUNCTIONS ---------- */
 
 function openSettings(){
     console.log("Opening settings...");
@@ -1237,10 +1235,9 @@ function openSettings(){
     if(mainMenu) mainMenu.style.display = "none";
     
     updateSoundButton();
-    
     settings.style.display = "flex";
     
-    console.log("Settings opened successfully");
+    console.log("Settings opened");
 }
 
 function closeSettings(){
@@ -1254,12 +1251,32 @@ function closeSettings(){
         mainMenu.style.display = "flex";
         mainMenu.classList.add("show");
     }
+}
+
+function updateSoundButton(){
+    console.log("Updating sound button UI, soundOn:", soundOn);
+    const soundIcon = document.getElementById("soundIcon");
+    const soundText = document.getElementById("soundText");
+    const soundBtn = document.querySelector(".soundBtn");
     
-    console.log("Settings closed");
+    if(!soundIcon || !soundText){
+        console.error("Sound button elements not found!");
+        return;
+    }
+    
+    if(soundOn){
+        soundIcon.textContent = "🔊";
+        soundText.textContent = "Sound: ON";
+        if(soundBtn) soundBtn.classList.remove("sound-off");
+    } else {
+        soundIcon.textContent = "🔇";
+        soundText.textContent = "Sound: OFF";
+        if(soundBtn) soundBtn.classList.add("sound-off");
+    }
 }
 
 function toggleSound(){
-    console.log("Toggling sound, current state:", soundOn);
+    console.log("Toggling sound, current:", soundOn);
     soundOn = !soundOn;
     
     if(!soundOn){
@@ -1284,28 +1301,6 @@ function toggleSound(){
     console.log("Sound is now:", soundOn ? "ON" : "OFF");
 }
 
-function updateSoundButton(){
-    console.log("Updating sound button UI");
-    const soundIcon = document.getElementById("soundIcon");
-    const soundText = document.getElementById("soundText");
-    const soundBtn = document.querySelector(".soundBtn");
-    
-    if(!soundIcon || !soundText){
-        console.error("Sound button elements not found!");
-        return;
-    }
-    
-    if(soundOn){
-        soundIcon.textContent = "🔊";
-        soundText.textContent = "Sound: ON";
-        if(soundBtn) soundBtn.classList.remove("sound-off");
-    } else {
-        soundIcon.textContent = "🔇";
-        soundText.textContent = "Sound: OFF";
-        if(soundBtn) soundBtn.classList.add("sound-off");
-    }
-}
-
 function setMusicVolume(val){
     const vol = val / 100;
     if(menuMusic) menuMusic.volume = vol;
@@ -1317,7 +1312,9 @@ function setSFXVolume(val){
     if(shootSound) shootSound.volume = vol;
     if(explosionSound) explosionSound.volume = vol;
 }
-   
+
+/* ---------- LEVEL & GAME OVER ---------- */
+
 function levelComplete(){
     gameRunning = false;
     document.getElementById("levelComplete").style.display = "block";
@@ -1340,20 +1337,13 @@ function nextLevel(){
     if(level >= 2 && Math.random() < 0.5){
         setTimeout(() => spawnBoss(), 1000);
     } else {
-        setTimeout(() => spawnWave(), 1000);
+        setTimeout(() => startWave(), 1000);
     }
     
-    gameLoop();
+    lastTime = 0;
+    requestAnimationFrame(gameLoop);
     saveGame();
 }
-
-function resetSave(){
-    localStorage.removeItem("nebulaSave");
-    location.reload();
-}
-
-
-/* ---------- GAME OVER ---------- */
 
 function gameOver(){
     gameRunning = false;
@@ -1363,16 +1353,9 @@ function gameOver(){
     menuMusic.play().catch(e => console.log("Menu music failed"));
 }
 
-function showGameOver(){
-    gameRunning = false;
-    const go = document.getElementById("gameOverScreen");
-    if(go) go.style.display = "flex";
-}
-
 function restartGame(){
     document.getElementById("gameOverScreen").style.display = "none";
     
-    // Reset game state
     health = maxHearts;
     level = 1;
     score = 0;
@@ -1403,11 +1386,10 @@ function checkDailyReward(){
     }
 }
 
-
 /* ---------- INITIALIZATION ---------- */
 
 window.addEventListener("load", () => {
-    console.log("Window loaded, initializing game...");
+    console.log("Window loaded, initializing...");
     
     loadGame();
     resizeGame();
@@ -1418,42 +1400,30 @@ window.addEventListener("load", () => {
     const canvas = document.getElementById("gameCanvas");
     const hud = document.getElementById("hud");
     
-    // Ensure game elements are hidden initially
     if(canvas) canvas.style.display = "none";
     if(hud) hud.style.display = "none";
-    
-    // Ensure menu is hidden initially
+   
     if(menu){
         menu.style.display = "none";
-        menu.classList.remove("show");
     }
     
-    // Handle splash screen
     if(splash){
-        console.log("Splash found, waiting 2 seconds...");
         setTimeout(() => {
             splash.style.display = "none";
-            console.log("Splash hidden, showing menu...");
            
             if(menu) {
                 menu.style.display = "flex";
-                // Force reflow
                 void menu.offsetWidth;
                 menu.classList.add("show");
-                console.log("Menu should be visible now");
+                console.log("Menu shown");
             }
         }, 2000);
     } else {
-        // No splash, show menu immediately
         if(menu) {
             menu.style.display = "flex";
             menu.classList.add("show");
         }
     }
     
-    // Debug: Check elements
-    console.log("=== DEBUG INFO ===");
-    console.log("Main menu:", menu);
-    console.log("Splash:", splash);
-    console.log("Canvas:", canvas);
+    console.log("Initialization complete");
 });
