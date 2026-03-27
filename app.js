@@ -64,17 +64,43 @@ const explosionSound = new Audio("assets/sounds/explosion.wav");
 
 let menuMusic = new Audio("assets/menu.mp3");
 menuMusic.loop = true;
+menuMusic.volume = 0.7;
 
 let gameMusic = new Audio("assets/music.mp3");
 gameMusic.loop = true;
+gameMusic.volume = 0.7;
 
-const explosionImg = new Image();
-explosionImg.src = "assets/explosion.png";
+let audioUnlocked = false;
 
-let explosions = [];
-let coinFX = [];
-const coinImg = new Image();
-coinImg.src = "assets/ui/coin-icon.png";
+function unlockAudio(){
+    if(audioUnlocked) return;
+    audioUnlocked = true;
+   
+    if(typeof AudioContext !== 'undefined'){
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if(ctx.state === 'suspended'){
+            ctx.resume();
+        }
+    }
+    
+    if(soundOn){
+        menuMusic.currentTime = 0;
+        menuMusic.play().catch(e => console.log("Menu music failed:", e));
+    }
+    
+    console.log("Audio unlocked by user interaction");
+}
+
+window.addEventListener('load', () => {
+    const interactiveElements = ['main-menu', 'gameCanvas', 'pauseBtn'];
+    
+    const tryUnlock = () => {
+        if(!audioUnlocked) unlockAudio();
+    };
+   
+    document.addEventListener('click', tryUnlock, {once: true});
+    document.addEventListener('touchstart', tryUnlock, {once: true});
+});
 
 let stars = [];
 for(let i=0;i<80;i++){
@@ -344,6 +370,8 @@ function quitGame(){
 function startGame(){
     console.log(">>> STARTING GAME <<<");
     
+    unlockAudio();
+    
     const menu = document.getElementById("main-menu");
     const canvasEl = document.getElementById("gameCanvas");
     const hud = document.getElementById("hud");
@@ -378,6 +406,12 @@ function startGame(){
     updateHUD();
     updateHeartsUI();
     
+    menuMusic.pause();
+    if(soundOn && audioUnlocked){
+        gameMusic.currentTime = 0;
+        gameMusic.play().catch(e => console.log("Game music failed:", e));
+    }
+    
     startAutoShoot();
     
     setTimeout(() => {
@@ -390,6 +424,7 @@ function startGame(){
     
     console.log("Game started, loop running");
 }
+
 
 /* ---------- AUTO SHOOT ---------- */
 
@@ -464,6 +499,7 @@ function createBullet(x, y, dx, dy){
     });
 }
 
+
 /* ---------- WAVE & SPAWN SYSTEM ---------- */
 
 function getDifficultySettings(){
@@ -472,7 +508,7 @@ function getDifficultySettings(){
         spawnRate: Math.max(400, 1500 - (level - 1) * 100),
         hpBase: 2 + Math.floor((level - 1) / 2),
         maxEnemies: 5 + level,
-        waveSize: 3 + Math.floor(level / 2),
+        waveSize: 5 + Math.floor(level / 2),
         troopMode: level >= 5,
         bossChance: level >= 2 ? 0.3 : 0
     };
@@ -485,62 +521,39 @@ function startWave(){
     
     waveInProgress = true;
     waveNumber++;
+ 
     enemiesInWave = diff.waveSize;
     isTroopFormation = diff.troopMode;
     waveSpawnTimer = 0;
+    spawnTimer = 0;
     
     console.log(`>>> WAVE ${waveNumber} STARTED! Size: ${enemiesInWave}, Troop: ${isTroopFormation}`);
     
     showWaveNotification(waveNumber);
 }
 
-function spawnSingleEnemy(){
-    const diff = getDifficultySettings();
+function updateSpawning(){
+    if(boss) return;
     
-    let type = ENEMY_NORMAL;
-    let r = Math.random();
+    spawnTimer++;
     
-    if(level > 2 && r < 0.25) type = ENEMY_FAST;
-    else if(level > 4 && r < 0.15) type = ENEMY_TANK;
-    else if(level > 6 && r < 0.15) type = ENEMY_SHOOTER;
-    
-    let enemy = {
-        x: Math.random() * (canvas.width - 40),
-        y: -50,
-        w: 40,
-        h: 40,
-        type: type,
-        hp: diff.hpBase + level,
-        speed: diff.speed,
-        shootChance: 0.01,
-        active: true
-    };
-    
-    if(type === ENEMY_FAST){
-        enemy.speed = diff.speed + 2;
-        enemy.hp = Math.max(1, diff.hpBase + level - 1);
-    } else if(type === ENEMY_TANK){
-        enemy.speed = Math.max(0.5, diff.speed - 1);
-        enemy.hp = (diff.hpBase + level) * 2;
-    } else if(type === ENEMY_SHOOTER){
-        enemy.speed = diff.speed;
-        enemy.hp = diff.hpBase + level + 1;
-        enemy.shootChance = 0.03;
+    if(waveInProgress){
+        if(enemiesInWave > 0){
+            let spawnDelay = isTroopFormation ? 30 : 20;
+            if(spawnTimer >= spawnDelay){
+                spawnSingleEnemy();
+                spawnTimer = 0;
+            }
+        } else if(enemies.length === 0){
+            console.log("Wave complete!");
+            endWave();
+        }
+    } else {
+        if(spawnTimer > 180){
+            startWave();
+            spawnTimer = 0;
+        }
     }
-    
-    if(isTroopFormation){
-        let row = Math.floor(waveSpawnTimer / 5) % 3;
-        let col = waveSpawnTimer % 5;
-        enemy.x = (canvas.width / 6) * (col + 1);
-        enemy.y = -60 - (row * 40);
-        enemy.speed *= 0.5;
-    }
-    
-    enemies.push(enemy);
-    enemiesInWave--;
-    waveSpawnTimer++;
-    
-    console.log(`Spawned enemy. Remaining: ${enemiesInWave}, Active: ${enemies.length}`);
 }
 
 function endWave(){
