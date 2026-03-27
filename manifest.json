@@ -2,7 +2,7 @@
   "id": "com.nebulastrike.game",
   "name": "Nebula Strike",
   "short_name": "NebulaStrike",
-  "description": "Fast-paced 3D sci-fi space shooter with stunning graphics and addictive arcade gameplay",
+  "description": "Fast-paced 2D sci-fi space shooter with addictive arcade gameplay",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
