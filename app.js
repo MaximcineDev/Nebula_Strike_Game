@@ -178,7 +178,6 @@ window.addEventListener("orientationchange", () => {
     setTimeout(resizeGame, 300);
 });
 
-
 /* ---------- GAME STATE ---------- */
 
 let gameRunning = false;
