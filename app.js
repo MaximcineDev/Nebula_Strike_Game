@@ -17,10 +17,10 @@ const enemyFastImg = new Image();
 enemyFastImg.src = "assets/enemy-fast.png";
 
 const enemyTankImg = new Image();
-enemyImg.src = "assets/enemy-tank.png";
+enemyTankImg.src = "assets/enemy-tank.png";
 
 const enemyShooterImg = new Image();
-enemyImg.src = "assets/enemy-shooter.png";
+enemyShooterImg.src = "assets/enemy-shooter.png";
 
 const bossImg = new Image();
 bossImg.src = "assets/boss.png";
@@ -691,13 +691,6 @@ function gameLoop(currentTime = 0){
         hitFlash--;
     }
     
-    // DEBUG INFO
-    ctx.fillStyle = "#00ff00";
-    ctx.font = "14px monospace";
-    ctx.fillText(`Enemies: ${enemies.length}`, 10, canvas.height - 80);
-    ctx.fillText(`Wave: ${waveNumber} (${enemiesInWave} left)`, 10, canvas.height - 60);
-    ctx.fillText(`InWave: ${waveInProgress}`, 10, canvas.height - 40);
-    ctx.fillText(`Paused: ${paused}`, 10, canvas.height - 20);
 }
 
 /* ---------- PLAYER ---------- */
@@ -945,6 +938,7 @@ function updateEnemies(){
             });
         }
     });
+    ctx.filter = "none";
 }
 
 /* ---------- ENEMY BULLETS ---------- */
