@@ -507,8 +507,8 @@ function getDifficultySettings(){
         speed: 2 + (level - 1) * 0.3,
         spawnRate: Math.max(400, 1500 - (level - 1) * 100),
         hpBase: 2 + Math.floor((level - 1) / 2),
-        maxEnemies: 5 + level,
-        waveSize: 5 + Math.floor(level / 2),
+        maxEnemies: 10p + level,
+        waveSize: 3 + Math.floor(level / 2),
         troopMode: level >= 5,
         bossChance: level >= 2 ? 0.3 : 0
     };
