@@ -600,24 +600,16 @@ function getDifficultySettings(){
 }
 
 function startWave(){
-    console.log("Attempting to start wave...", {gameRunning, paused, boss, level});
-    
-    if(!gameRunning || paused || boss) {
-        console.log("Cannot start wave:", {gameRunning, paused, boss});
-        return;
-    }
+    if(!gameRunning || paused || boss) return;
     
     const diff = getDifficultySettings();
     
     waveInProgress = true;
     waveNumber++;
- 
     enemiesInWave = diff.waveSize;
     isTroopFormation = diff.troopMode;
     waveSpawnTimer = 0;
-    spawnTimer = 0;
-    
-    console.log(`>>> WAVE ${waveNumber} STARTED! Size: ${enemiesInWave}, Troop: ${isTroopFormation}`);
+    lastSpawnTime = performance.now();
     
     showWaveNotification(waveNumber);
 }
@@ -634,13 +626,13 @@ function spawnSingleEnemy(){
     
     let enemy = {
         x: Math.random() * (canvas.width - 40),
-        y: -50, // Start above screen
+        y: -50,
         w: 40,
         h: 40,
         type: type,
         hp: diff.hpBase + level,
         speed: diff.speed,
-        shootChance: 0.05,
+        shootChance: 0.20,
         active: true
     };
     
@@ -653,7 +645,7 @@ function spawnSingleEnemy(){
     } else if(type === ENEMY_SHOOTER){
         enemy.speed = diff.speed;
         enemy.hp = diff.hpBase + level + 1;
-        enemy.shootChance = 0.03;
+        enemy.shootChance = 0.30;
     }
     
     if(isTroopFormation){
@@ -667,8 +659,6 @@ function spawnSingleEnemy(){
     enemies.push(enemy);
     enemiesInWave--;
     waveSpawnTimer++;
-    
-    console.log(`Spawned enemy type ${type}. Remaining: ${enemiesInWave}, Active: ${enemies.length}`);
 }
 
 let lastSpawnTime = 0;
@@ -687,13 +677,15 @@ function updateSpawning(currentTime){
 
     // Wave in progress
     if(enemiesInWave > 0){
-        let spawnDelay = isTroopFormation ? 500 : 300;
+        let spawnDelay = isTroopFormation ? 800 : 600; // Increased delay for testing
         
         if(currentTime - lastSpawnTime > spawnDelay){
+            console.log("Spawning enemy, remaining:", enemiesInWave);
             spawnSingleEnemy();
             lastSpawnTime = currentTime;
         }
     } else if(enemies.length === 0){
+        console.log("All enemies cleared, ending wave");
         endWave();
         lastSpawnTime = currentTime;
     }
@@ -779,10 +771,7 @@ function spawnBoss(){
 /* ---------- MAIN GAME LOOP ---------- */
 
 function gameLoop(currentTime = 0){
-    if(!gameRunning) {
-        console.log("Game not running, stopping loop");
-        return;
-    }
+    if(!gameRunning) return;
     
     if(!paused){
         requestAnimationFrame(gameLoop);
@@ -804,6 +793,7 @@ function gameLoop(currentTime = 0){
         ctx.translate(shakeX, shakeY);
     }
     
+    // Draw background
     if(bgImg && bgImg.complete && bgImg.naturalWidth > 0){
         ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
         drawStars();
@@ -813,28 +803,18 @@ function gameLoop(currentTime = 0){
         drawStars();
     }
     
-    try {
-        updatePlayer();
-        drawPlayer();
-        updateBullets();
-        updateEnemies();
-        updateExplosions();
-        updateCoinFX();
-        updateEnemyBullets();
-        updatePowerups();
-        updateBoss();
-        updateTimers();
-        updateSpawning(currentTime);
-    } catch(e) {
-        console.error("Game loop error:", e);
-    }
-    
-    ctx.fillStyle = "#00ff00";
-    ctx.font = "12px monospace";
-    ctx.fillText(`Enemies: ${enemies.length}`, 10, canvas.height - 60);
-    ctx.fillText(`Wave: ${waveNumber} (left: ${enemiesInWave})`, 10, canvas.height - 45);
-    ctx.fillText(`InWave: ${waveInProgress}`, 10, canvas.height - 30);
-    ctx.fillText(`SpawnTimer: ${spawnTimer}`, 10, canvas.height - 15);
+    // Update all game systems
+    updatePlayer();
+    drawPlayer();
+    updateBullets();
+    updateEnemies();
+    updateExplosions();
+    updateCoinFX();
+    updateEnemyBullets();
+    updatePowerups();
+    updateBoss();
+    updateTimers();
+    updateSpawning(currentTime);
     
     if(screenShake > 0){
         ctx.restore();
@@ -846,7 +826,6 @@ function gameLoop(currentTime = 0){
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         hitFlash--;
     }
-    
 }
 
 /* ---------- PLAYER ---------- */
@@ -934,14 +913,12 @@ function updateBullets(){
                     if(e.type === ENEMY_TANK) reward = 15;
                     if(e.type === ENEMY_SHOOTER) reward = 12;
                     
-                    console.log(`Enemy destroyed! Type: ${e.type}, Reward: ${reward}, Coins before: ${coins}`);
-                    
+                    // ADD COINS AND SCORE
                     coins += reward;
                     score += reward * 2;
                     totalKills++;
                     
-                    console.log(`Coins after: ${coins}, Score: ${score}`);
-                    
+                    // Visual coin effect
                     for(let k = 0; k < Math.min(reward, 10); k++){
                         coinFX.push({
                             x: e.x + e.w/2,
@@ -954,9 +931,9 @@ function updateBullets(){
                     }
                     
                     coinPulse();
-                    updateHUD(); // Update immediately
+                    updateHUD(); // Update UI immediately
                     
-                    // Powerup drop
+                    // Powerup drop (30% chance)
                     if(Math.random() < 0.3){
                         powerups.push({
                             x: e.x + e.w/2 - 16,
@@ -967,11 +944,7 @@ function updateBullets(){
                         });
                     }
                     
-                    try{
-                        saveGame();
-                    } catch(err){
-                        console.log("Save failed:", err);
-                    }
+                    saveGame();
                 }
                 
                 break;
@@ -1095,19 +1068,19 @@ function updateEnemies(){
 
         if(e.y > canvas.height + 50){
             enemies.splice(i, 1);
-            continue; // Important: skip shooting if enemy removed
+            continue;
         }
 
-        // INCREASED shoot chance - 8% for normal, 15% for shooters
-        let actualShootChance = (e.type === ENEMY_SHOOTER) ? 0.15 : 0.08;
+        // HIGH shoot chance - 20% for normal, 30% for shooters
+        let actualShootChance = (e.type === ENEMY_SHOOTER) ? 0.30 : 0.20;
         
-        if(Math.random() < actualShootChance){
-            console.log("Enemy shooting! Type:", e.type, "at position:", e.x, e.y);
+        // Only shoot if enemy is on screen and has been alive for a moment
+        if(e.y > 50 && e.y < canvas.height - 100 && Math.random() < actualShootChance){
             enemyBullets.push({
-                x: e.x + e.w/2 - 3, // Centered
-                y: e.y + e.h, // Start from bottom of enemy
-                w: 6,
-                h: 15
+                x: e.x + e.w/2 - 4,
+                y: e.y + e.h,
+                w: 8,
+                h: 20
             });
         }
     }
@@ -1118,18 +1091,19 @@ function updateEnemies(){
 function updateEnemyBullets(){
     for(let i = enemyBullets.length - 1; i >= 0; i--){
         let b = enemyBullets[i];
-        b.y += 6; // Slightly faster
+        b.y += 8;
         
-        // Make bullets VERY visible with bright glow
+        // Bright glowing red bullets
         ctx.save();
-        ctx.fillStyle = "#ff0044"; // Bright red
-        ctx.shadowBlur = 20;
+        ctx.fillStyle = "#ff0044";
+        ctx.shadowBlur = 25;
         ctx.shadowColor = "#ff0044";
         ctx.fillRect(b.x, b.y, b.w, b.h);
         
         // White core
         ctx.fillStyle = "#ffffff";
-        ctx.fillRect(b.x + 1, b.y + 1, b.w - 2, b.h - 2);
+        ctx.shadowBlur = 0;
+        ctx.fillRect(b.x + 2, b.y + 2, b.w - 4, b.h - 4);
         ctx.restore();
         
         // Collision with player
@@ -1146,7 +1120,6 @@ function updateEnemyBullets(){
                 health--;
                 updateHeartsUI();
                 updateHUD();
-                console.log("Player hit! Health:", health);
             }
             
             if(health <= 0){
@@ -1155,7 +1128,6 @@ function updateEnemyBullets(){
             continue;
         }
         
-        // Remove if off screen
         if(b.y > canvas.height + 50){
             enemyBullets.splice(i, 1);
         }
