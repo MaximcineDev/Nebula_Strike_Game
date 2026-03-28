@@ -82,24 +82,42 @@ let audioContext = null;
 function unlockAudio(){
     if(audioUnlocked) return;
     
+    // Create AudioContext on user gesture (required for iOS)
     if(!audioContext){
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
     }
     
+    // Resume AudioContext (critical for iOS)
     if(audioContext.state === 'suspended' || audioContext.state === 'interrupted'){
         audioContext.resume().then(() => {
             console.log("AudioContext resumed");
-        });
+        }).catch(e => console.log("Resume failed:", e));
     }
+    
+    // Play silent sound to fully unlock iOS audio
+    const buffer = audioContext.createBuffer(1, 1, 22050);
+    const source = audioContext.createBufferSource();
+    source.buffer = buffer;
+    source.connect(audioContext.destination);
+    source.start(0);
     
     audioUnlocked = true;
     
+    // Start menu music
     if(soundOn){
         menuMusic.currentTime = 0;
         menuMusic.play().catch(e => console.log("Menu music failed:", e));
     }
     
     console.log("Audio unlocked");
+}
+
+function playSilentSound(){
+    const silentBuffer = audioContext.createBuffer(1, 1, 22050);
+    const source = audioContext.createBufferSource();
+    source.buffer = silentBuffer;
+    source.connect(audioContext.destination);
+    source.start(0);
 }
 
 function setupAudioUnlock(){
@@ -585,7 +603,7 @@ function spawnSingleEnemy(){
     
     let enemy = {
         x: Math.random() * (canvas.width - 40),
-        y: -50,
+        y: -50, // Start above screen
         w: 40,
         h: 40,
         type: type,
@@ -619,7 +637,7 @@ function spawnSingleEnemy(){
     enemiesInWave--;
     waveSpawnTimer++;
     
-    console.log(`Spawned enemy. Remaining: ${enemiesInWave}, Active: ${enemies.length}`);
+    console.log(`Spawned enemy type ${type}. Remaining: ${enemiesInWave}, Active: ${enemies.length}`);
 }
 
 function updateSpawning(){
@@ -757,6 +775,13 @@ function gameLoop(currentTime = 0){
     } catch(e) {
         console.error("Game loop error:", e);
     }
+    
+    ctx.fillStyle = "#00ff00";
+    ctx.font = "12px monospace";
+    ctx.fillText(`Enemies: ${enemies.length}`, 10, canvas.height - 60);
+    ctx.fillText(`Wave: ${waveNumber} (left: ${enemiesInWave})`, 10, canvas.height - 45);
+    ctx.fillText(`InWave: ${waveInProgress}`, 10, canvas.height - 30);
+    ctx.fillText(`SpawnTimer: ${spawnTimer}`, 10, canvas.height - 15);
     
     if(screenShake > 0){
         ctx.restore();
@@ -1475,35 +1500,66 @@ window.addEventListener("load", () => {
     if(canvas) canvas.style.display = "none";
     if(hud) hud.style.display = "none";
    
-    if(menu){
-        menu.style.display = "none";
-    }
+    // Create TAP TO START overlay for iOS audio unlock
+    const tapOverlay = document.createElement('div');
+    tapOverlay.id = 'tapToStart';
+    tapOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        color: #00ffff;
+        font-family: Orbitron, sans-serif;
+        font-size: 28px;
+        font-weight: bold;
+        text-align: center;
+        cursor: pointer;
+        flex-direction: column;
+    `;
+    tapOverlay.innerHTML = `
+        <div style="margin-bottom: 20px;">⚡ NEBULA STRIKE ⚡</div>
+        <div style="font-size: 20px; color: #fff;">TAP TO START</div>
+    `;
     
-    // FORCE fallback: Show menu after max 3 seconds regardless
-    const forceShowMenu = () => {
+    document.body.appendChild(tapOverlay);
+    
+    // Handle tap to unlock audio and show menu
+    const handleStart = (e) => {
+        e.preventDefault();
+        
+        // CRITICAL: Unlock audio first
+        if(!audioUnlocked){
+            unlockAudio();
+        }
+        
+        // Remove overlay
+        tapOverlay.remove();
+        
+        // Show menu
         if(splash) splash.style.display = "none";
         if(menu) {
             menu.style.display = "flex";
             menu.classList.add("show");
-            console.log("Menu shown (forced)");
         }
+        
+        console.log("Game started via user tap");
     };
     
-    if(splash){
-        // Normal flow: 2 seconds
-        setTimeout(() => {
-            splash.style.display = "none";
-            if(menu) {
-                menu.style.display = "flex";
-                menu.classList.add("show");
-            }
-        }, 2000);
-        
-        // Emergency fallback: 3.5 seconds
-        setTimeout(forceShowMenu, 3500);
-    } else {
-        forceShowMenu();
-    }
+    tapOverlay.addEventListener('click', handleStart);
+    tapOverlay.addEventListener('touchstart', handleStart, {passive: false});
     
-    console.log("Initialization complete");
+    // Emergency fallback: Auto-start after 4 seconds
+    setTimeout(() => {
+        if(document.getElementById('tapToStart')) {
+            handleStart({preventDefault: () => {}});
+        }
+    }, 4000);
+    
+    console.log("Initialization complete - waiting for tap");
 });
