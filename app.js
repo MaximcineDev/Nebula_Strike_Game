@@ -83,19 +83,23 @@ let audioUnlocked = false;
 
 function unlockAudio(){
     if(audioUnlocked) return;
-
     audioUnlocked = true;
 
     if(audioContext.state === "suspended"){
-        audioContext.resume();
+        audioContext.resume().then(() => {
+            console.log("AudioContext resumed, playing music");
+            playMenuMusic();
+        }).catch(e => console.log("Resume failed:", e));
+    } else {
+        playMenuMusic();
     }
+}
 
-    if(soundOn){
+function playMenuMusic(){
+    if(soundOn && menuMusic.paused){
         menuMusic.currentTime = 0;
-        menuMusic.play().catch(()=>{});
+        menuMusic.play().catch(e => console.log("Music play failed:", e));
     }
-
-    console.log("Audio unlocked properly");
 }
 
 function playSilentSound(){
@@ -420,6 +424,10 @@ function startGame(){
 
     unlockAudio();
     resizeGame();
+    
+    setTimeout(() => {
+        resizeGame();
+    }, 100);
 
     health = maxHearts;
     score = 0;
@@ -460,6 +468,21 @@ function startGame(){
         gameMusic.play().catch(()=>{});
     }
 
+    setTimeout(() => {
+        console.log("FORCE SPAWNING TEST ENEMY");
+        enemies.push({
+            x: canvas.width / 2,
+            y: 50,
+            w: 40,
+            h: 40,
+            type: ENEMY_NORMAL,
+            hp: 2,
+            speed: 2,
+            shootChance: 0.01,
+            active: true
+        });
+    }, 1000);
+    
     startAutoShoot();
     startWave();
 
@@ -577,7 +600,12 @@ function getDifficultySettings(){
 }
 
 function startWave(){
-    if(!gameRunning || paused || boss) return;
+    console.log("Attempting to start wave...", {gameRunning, paused, boss, level});
+    
+    if(!gameRunning || paused || boss) {
+        console.log("Cannot start wave:", {gameRunning, paused, boss});
+        return;
+    }
     
     const diff = getDifficultySettings();
     
@@ -643,33 +671,31 @@ function spawnSingleEnemy(){
     console.log(`Spawned enemy type ${type}. Remaining: ${enemiesInWave}, Active: ${enemies.length}`);
 }
 
-function updateSpawning(){
+let lastSpawnTime = 0;
+
+function updateSpawning(currentTime){
     if(boss) return;
 
-    spawnTimer += 16;
-
-    if(waveInProgress){
-
-        if(enemiesInWave > 0){
-
-            let spawnDelay = isTroopFormation ? 500 : 300;
-
-            if(spawnTimer >= spawnDelay){
-                spawnSingleEnemy();
-                spawnTimer = 0;
-            }
-
-        } else if(enemies.length === 0){
-            endWave();
-        }
-
-    } else {
-
-        if(spawnTimer > 2000){
+    if(!waveInProgress){
+        // Time between waves
+        if(currentTime - lastSpawnTime > 2000){
             startWave();
-            spawnTimer = 0;
+            lastSpawnTime = currentTime;
         }
+        return;
+    }
 
+    // Wave in progress
+    if(enemiesInWave > 0){
+        let spawnDelay = isTroopFormation ? 500 : 300;
+        
+        if(currentTime - lastSpawnTime > spawnDelay){
+            spawnSingleEnemy();
+            lastSpawnTime = currentTime;
+        }
+    } else if(enemies.length === 0){
+        endWave();
+        lastSpawnTime = currentTime;
     }
 }
 
@@ -740,7 +766,12 @@ function spawnBoss(){
 /* ---------- MAIN GAME LOOP ---------- */
 
 function gameLoop(currentTime = 0){
-    if(gameRunning && !paused){
+    if(!gameRunning) {
+        console.log("Game not running, stopping loop");
+        return;
+    }
+    
+    if(!paused){
         requestAnimationFrame(gameLoop);
     }
     
@@ -748,6 +779,8 @@ function gameLoop(currentTime = 0){
     if(deltaTime < frameInterval) return;
     
     lastTime = currentTime - (deltaTime % frameInterval);
+    
+    updateSpawning(currentTime);
     
     if(!gameRunning || paused) return;
     
