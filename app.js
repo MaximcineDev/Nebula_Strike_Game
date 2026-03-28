@@ -76,20 +76,26 @@ let gameMusic = new Audio("assets/music.mp3");
 gameMusic.loop = true;
 gameMusic.volume = 0.7;
 
+/* ---------- AUDIO FIX ---------- */
+
+let audioContext = new (window.AudioContext || window.webkitAudioContext)();
 let audioUnlocked = false;
-let audioContext = null;
 
 function unlockAudio(){
     if(audioUnlocked) return;
 
     audioUnlocked = true;
 
-    if(soundOn){
-        menuMusic.currentTime = 0;
-        menuMusic.play().catch(e => console.log("Menu music blocked:", e));
+    if(audioContext.state === "suspended"){
+        audioContext.resume();
     }
 
-    console.log("Audio unlocked clean");
+    if(soundOn){
+        menuMusic.currentTime = 0;
+        menuMusic.play().catch(()=>{});
+    }
+
+    console.log("Audio unlocked properly");
 }
 
 function playSilentSound(){
@@ -411,66 +417,44 @@ function quitGame(){
 
 function startGame(){
     console.log(">>> STARTING GAME <<<");
-    
-    unlockAudio();
-    
-    const menu = document.getElementById("main-menu");
-    const canvasEl = document.getElementById("gameCanvas");
-    const hud = document.getElementById("hud");
 
-    if(menu) {
-        menu.style.display = "none";
-        menu.classList.remove("show");
-    }
-    if(canvasEl) canvasEl.style.display = "block";
-    if(hud) hud.style.display = "flex";
+    unlockAudio();
+
+    resizeGame();
 
     health = maxHearts;
     score = 0;
     level = 1;
+
     gameRunning = true;
     paused = false;
-    
+
     enemies = [];
     bullets = [];
     enemyBullets = [];
     powerups = [];
-    explosions = [];
-    coinFX = [];
-    
+
     waveInProgress = false;
     waveNumber = 0;
     enemiesInWave = 0;
-    waveSpawnTimer = 0;
     spawnTimer = 0;
-    boss = null;
 
     updateHUD();
     updateHeartsUI();
-    
+
     menuMusic.pause();
 
     if(soundOn){
         gameMusic.currentTime = 0;
-
-        gameMusic.play().then(()=>{
-            console.log("Game music playing");
-        }).catch(e=>{
-            console.log("Game music failed:", e);
-        });
+        gameMusic.play().catch(()=>{});
     }
-    
+
     startAutoShoot();
-    
-    setTimeout(() => {
-        console.log("Triggering first wave...");
-        startWave();
-    }, 500);
-    
+
+    startWave();
+
     lastTime = 0;
     requestAnimationFrame(gameLoop);
-    
-    console.log("Game started, loop running");
 }
 
 /* ---------- CLOSE APP ---------- */
@@ -651,25 +635,31 @@ function spawnSingleEnemy(){
 
 function updateSpawning(){
     if(boss) return;
-    
-    spawnTimer++;
-    
+
+    spawnTimer += 16;
+
     if(waveInProgress){
+
         if(enemiesInWave > 0){
-            let spawnDelay = isTroopFormation ? 30 : 20;
+
+            let spawnDelay = isTroopFormation ? 500 : 300;
+
             if(spawnTimer >= spawnDelay){
                 spawnSingleEnemy();
                 spawnTimer = 0;
             }
+
         } else if(enemies.length === 0){
-            console.log("Wave complete!");
             endWave();
         }
+
     } else {
-        if(spawnTimer > 180){
+
+        if(spawnTimer > 2000){
             startWave();
             spawnTimer = 0;
         }
+
     }
 }
 
@@ -1027,21 +1017,25 @@ function updateCoinFX(){
 /* ---------- ENEMIES ---------- */
 
 function updateEnemies(){
-    enemies.forEach(e=>{
+    for(let i = enemies.length - 1; i >= 0; i--){
+        let e = enemies[i];
+
         e.y += e.speed;
-        
-        if(e.type === ENEMY_FAST) ctx.filter = "hue-rotate(90deg)";
-        else if(e.type === ENEMY_TANK) ctx.filter = "brightness(0.6)";
-        else if(e.type === ENEMY_SHOOTER) ctx.filter = "hue-rotate(200deg)";
-        else ctx.filter = "none";
-        
+
         let img = enemyImg;
+
         if(e.type === ENEMY_FAST) img = enemyFastImg;
         if(e.type === ENEMY_TANK) img = enemyTankImg;
         if(e.type === ENEMY_SHOOTER) img = enemyShooterImg;
-        
-        ctx.drawImage(img, e.x, e.y, e.w, e.h);
-        
+
+        if(img.complete){
+            ctx.drawImage(img, e.x, e.y, e.w, e.h);
+        }
+
+        if(e.y > canvas.height + 50){
+            enemies.splice(i, 1);
+        }
+
         if(Math.random() < e.shootChance){
             enemyBullets.push({
                 x: e.x + e.w/2,
@@ -1050,8 +1044,7 @@ function updateEnemies(){
                 h: 10
             });
         }
-    });
-    ctx.filter = "none";
+    }
 }
 
 /* ---------- ENEMY BULLETS ---------- */
@@ -1194,8 +1187,6 @@ function loadGame(){
     }catch(e){
         console.log("Save load error", e);
     }
-    
-    menuMusic.play().catch(e => console.log("Menu music failed"));
 }
 
 /* ---------- SHOP FUNCTIONS ---------- */
@@ -1498,79 +1489,94 @@ function checkDailyReward(){
 
 window.addEventListener("load", () => {
     console.log("Window loaded, initializing...");
-    
+
     loadGame();
     resizeGame();
     checkDailyReward();
-    
+
     const splash = document.getElementById("splashScreen");
     const menu = document.getElementById("main-menu");
     const canvas = document.getElementById("gameCanvas");
     const hud = document.getElementById("hud");
-    
+
     if(canvas) canvas.style.display = "none";
     if(hud) hud.style.display = "none";
-   
-    // Create TAP TO START overlay for iOS audio unlock
-    const tapOverlay = document.createElement('div');
-    tapOverlay.id = 'tapToStart';
+
+    /* ---------- TAP TO START OVERLAY ---------- */
+
+    const tapOverlay = document.createElement("div");
+    tapOverlay.id = "tapToStart";
     tapOverlay.style.cssText = `
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.8);
+        inset: 0;
+        background: rgba(0,0,0,0.85);
         display: flex;
         justify-content: center;
         align-items: center;
         z-index: 10000;
         color: #00ffff;
         font-family: Orbitron, sans-serif;
-        font-size: 28px;
-        font-weight: bold;
         text-align: center;
         cursor: pointer;
         flex-direction: column;
     `;
+
     tapOverlay.innerHTML = `
-        <div style="margin-bottom: 20px;">⚡ NEBULA STRIKE ⚡</div>
-        <div style="font-size: 20px; color: #fff;">TAP TO START</div>
+        <div style="font-size: 30px; margin-bottom: 20px;">⚡ NEBULA STRIKE ⚡</div>
+        <div style="font-size: 18px; color: #ffffff;">TAP TO START</div>
     `;
-    
+
     document.body.appendChild(tapOverlay);
-    
-    // Handle tap to unlock audio and show menu
+
+    /* ---------- SAFE START HANDLER ---------- */
+
+    let started = false; // ✅ prevents double trigger
+
     const handleStart = (e) => {
-        e.preventDefault();
-        
-        // CRITICAL: Unlock audio first
-        if(!audioUnlocked){
-            unlockAudio();
+        if(started) return;
+        started = true;
+
+        if(e && e.preventDefault) e.preventDefault();
+
+        console.log("User interaction detected → unlocking audio");
+
+        // ✅ CRITICAL: Resume AudioContext
+        if(audioContext && audioContext.state === "suspended"){
+            audioContext.resume();
         }
-        
-        // Remove overlay
-        tapOverlay.remove();
-        
-        // Show menu
+
+        unlockAudio();
+
+        if(soundOn){
+            menuMusic.currentTime = 0;
+            menuMusic.play().catch(() => {});
+        }
+
+        if(tapOverlay && tapOverlay.parentNode){
+            tapOverlay.remove();
+        }
+
         if(splash) splash.style.display = "none";
-        if(menu) {
+
+        if(menu){
             menu.style.display = "flex";
             menu.classList.add("show");
         }
-        
-        console.log("Game started via user tap");
+
+        console.log("Game ready");
     };
-    
-    tapOverlay.addEventListener('click', handleStart);
-    tapOverlay.addEventListener('touchstart', handleStart, {passive: false});
-    
-    // Emergency fallback: Auto-start after 4 seconds
+
+    tapOverlay.addEventListener("click", handleStart, { once: true });
+    tapOverlay.addEventListener("touchstart", handleStart, { once: true, passive: false });
+
+    /* ---------- FALLBACK ---------- */
+
     setTimeout(() => {
-        if(document.getElementById('tapToStart')) {
-            handleStart({preventDefault: () => {}});
+        if(!started && document.getElementById("tapToStart")){
+            console.log("Fallback trigger");
+            handleStart();
         }
     }, 4000);
-    
+
     console.log("Initialization complete - waiting for tap");
 });
