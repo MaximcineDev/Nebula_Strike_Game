@@ -27,6 +27,12 @@ bossImg.src = "assets/boss.png";
 const bgImg = new Image();
 bgImg.src = "assets/background.png";
 
+const explosionImg = new Image();
+explosionImg.src = "assets/explosion.png";
+
+const coinImg = new Image();
+coinImg.src = "assets/ui/coin-icon.png";
+
 let currentSkin = 0;
 
 const skins = [
