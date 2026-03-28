@@ -259,6 +259,8 @@ let totalKills = 0;
 let hitFlash = 0;
 let screenShake = 0;
 
+let sfxVolume = 1;
+
 // LOOP TIMING
 let lastTime = 0;
 const targetFPS = 60;
@@ -467,11 +469,21 @@ function startGame(){
     updateHUD();
     updateHeartsUI();
     
-    menuMusic.pause();
-    if(soundOn && audioUnlocked){
-        gameMusic.currentTime = 0;
-        gameMusic.play().catch(e => console.log("Game music failed:", e));
-    }
+   menuMusic.pause();
+
+   if(soundOn){
+       gameMusic.currentTime = 0;
+
+       gameMusic.play().then(() => {
+           console.log("Game music started successfully");
+       }).catch(e => {
+           console.log("Game music blocked, retrying...");
+        
+           setTimeout(() => {
+               gameMusic.play().catch(()=>{});
+           }, 300);
+       });
+   }
     
     startAutoShoot();
     
@@ -486,6 +498,31 @@ function startGame(){
     console.log("Game started, loop running");
 }
 
+/* ---------- CLOSE APP ---------- */
+function closeApp(){
+    gameRunning = false;
+    paused = false;
+
+    gameMusic.pause();
+    menuMusic.pause();
+
+    window.close();
+
+    document.body.innerHTML = `
+        <div style="
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+            background:black;
+            color:#00ffff;
+            font-family:Orbitron;
+            font-size:24px;
+        ">
+            Game Closed
+        </div>
+    `;
+}
 
 /* ---------- AUTO SHOOT ---------- */
 
@@ -507,12 +544,6 @@ function startAutoShoot(){
             playerShoot();
         }
     }, fireRate);
-    
-    menuMusic.pause();
-    if(soundOn){
-        gameMusic.currentTime = 0;
-        gameMusic.play().catch(e => console.log("Game music failed:", e));
-    }
 }
 
 function playerShoot(){
@@ -521,8 +552,9 @@ function playerShoot(){
     lastShot = now;
 
     if(soundOn){
+        shootSound.volume = sfxVolume;
         shootSound.currentTime = 0;
-        shootSound.play().catch(e => {});
+        shootSound.play().catch(()=>{});
     }
 
     const bulletY = player.y;
@@ -866,7 +898,8 @@ function updateBullets(){
                     
                     if(soundOn){
                         explosionSound.currentTime = 0;
-                        explosionSound.play().catch(e => console.log("Explosion sound failed"));
+                        explosionSound.volume = sfxVolume;
+                        explosionSound.play().catch(()=>{});
                     }
                     
                     explosions.push({
@@ -1407,9 +1440,10 @@ function setMusicVolume(val){
 }
 
 function setSFXVolume(val){
-    const vol = val / 100;
-    if(shootSound) shootSound.volume = vol;
-    if(explosionSound) explosionSound.volume = vol;
+    sfxVolume = val / 100;
+
+    shootSound.volume = sfxVolume;
+    explosionSound.volume = sfxVolume;
 }
 
 /* ---------- LEVEL & GAME OVER ---------- */
