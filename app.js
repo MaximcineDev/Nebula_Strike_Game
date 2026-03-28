@@ -640,7 +640,7 @@ function spawnSingleEnemy(){
         type: type,
         hp: diff.hpBase + level,
         speed: diff.speed,
-        shootChance: 0.01,
+        shootChance: 0.05,
         active: true
     };
     
@@ -1080,9 +1080,10 @@ function updateEnemies(){
         }
 
         if(Math.random() < e.shootChance){
+            console.log("Enemy shooting!", e.type);
             enemyBullets.push({
                 x: e.x + e.w/2,
-                y: e.y,
+                y: e.y + e.h, // Start from bottom of enemy
                 w: 4,
                 h: 10
             });
@@ -1096,8 +1097,12 @@ function updateEnemyBullets(){
     for(let i=enemyBullets.length-1;i>=0;i--){
         let b=enemyBullets[i];
         b.y += 5;
-        ctx.fillStyle = "red";
-        ctx.fillRect(b.x, b.y, b.w, b.h);
+        ctx.save();
+        ctx.fillStyle = "#ff0000";
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "red";
+        ctx.fillRect(b.x - 3, b.y, 6, 15);
+        ctx.restore();
         
         if(b.x < player.x + player.width &&
            b.x + b.w > player.x &&
