@@ -284,9 +284,12 @@ function updateHUD(){
     const levelText = document.getElementById("levelText");
     const scoreText = document.getElementById("scoreText");
 
-    if(coinText) coinText.innerText = coins;
-    if(levelText) levelText.innerText = "Lv " + level;
-    if(scoreText) scoreText.innerText = "Score: " + score;
+    if(coinText) {
+        coinText.textContent = coins; // Use textContent instead of innerText
+        coinText.innerHTML = coins;   // Double ensure it updates
+    }
+    if(levelText) levelText.textContent = "Lv " + level;
+    if(scoreText) scoreText.textContent = "Score: " + score;
 }
 
 function updateHeartsUI(){
@@ -420,18 +423,15 @@ function quitGame(){
 /* ---------- START GAME ---------- */
 
 function startGame(){
-    console.log(">>> STARTING GAME <<<");
-
     unlockAudio();
     resizeGame();
     
-    setTimeout(() => {
-        resizeGame();
-    }, 100);
+    setTimeout(() => resizeGame(), 100);
 
     health = maxHearts;
     score = 0;
     level = 1;
+    coins = 0; // Reset coins or keep from save? Your choice
 
     gameRunning = true;
     paused = false;
@@ -444,7 +444,10 @@ function startGame(){
     waveInProgress = false;
     waveNumber = 0;
     enemiesInWave = 0;
-    spawnTimer = 0;
+    
+    // RESET TIMERS
+    lastWaveTime = 0;
+    lastEnemySpawnTime = 0;
 
     updateHUD();
     updateHeartsUI();
@@ -468,25 +471,15 @@ function startGame(){
         gameMusic.play().catch(()=>{});
     }
 
-    setTimeout(() => {
-        console.log("FORCE SPAWNING TEST ENEMY");
-        enemies.push({
-            x: canvas.width / 2,
-            y: 50,
-            w: 40,
-            h: 40,
-            type: ENEMY_NORMAL,
-            hp: 2,
-            speed: 2,
-            shootChance: 0.01,
-            active: true
-        });
-    }, 1000);
+    // REMOVE force spawn - let wave system handle it
     
     startAutoShoot();
     startWave();
 
     lastTime = 0;
+    lastWaveTime = performance.now(); // Initialize wave timer
+    lastEnemySpawnTime = performance.now(); // Initialize spawn timer
+    
     requestAnimationFrame(gameLoop);
 }
 
@@ -609,7 +602,9 @@ function startWave(){
     enemiesInWave = diff.waveSize;
     isTroopFormation = diff.troopMode;
     waveSpawnTimer = 0;
-    lastSpawnTime = performance.now();
+    
+    // Reset spawn timer when wave starts
+    lastEnemySpawnTime = performance.now();
     
     showWaveNotification(waveNumber);
 }
@@ -661,33 +656,34 @@ function spawnSingleEnemy(){
     waveSpawnTimer++;
 }
 
-let lastSpawnTime = 0;
+let lastWaveTime = 0;
+let lastEnemySpawnTime = 0;
 
 function updateSpawning(currentTime){
     if(boss) return;
 
     if(!waveInProgress){
         // Time between waves
-        if(currentTime - lastSpawnTime > 2000){
+        if(currentTime - lastWaveTime > 2000){
             startWave();
-            lastSpawnTime = currentTime;
+            lastWaveTime = currentTime;
+            lastEnemySpawnTime = currentTime; // Reset spawn timer too
         }
         return;
     }
 
-    // Wave in progress
+    // Wave in progress - spawn enemies
     if(enemiesInWave > 0){
-        let spawnDelay = isTroopFormation ? 800 : 600; // Increased delay for testing
+        let spawnDelay = isTroopFormation ? 800 : 500; // Faster spawning
         
-        if(currentTime - lastSpawnTime > spawnDelay){
-            console.log("Spawning enemy, remaining:", enemiesInWave);
+        if(currentTime - lastEnemySpawnTime > spawnDelay){
             spawnSingleEnemy();
-            lastSpawnTime = currentTime;
+            lastEnemySpawnTime = currentTime;
         }
     } else if(enemies.length === 0){
-        console.log("All enemies cleared, ending wave");
+        // All enemies cleared, end wave
         endWave();
-        lastSpawnTime = currentTime;
+        lastWaveTime = currentTime;
     }
 }
 
@@ -803,18 +799,18 @@ function gameLoop(currentTime = 0){
         drawStars();
     }
     
-    // Update all game systems
+    // Update all game systems - IN CORRECT ORDER
+    updateSpawning(currentTime);
     updatePlayer();
     drawPlayer();
     updateBullets();
-    updateEnemies();
+    updateEnemies();        // Enemies move and shoot
+    updateEnemyBullets();   // Update bullets AFTER enemies shoot
     updateExplosions();
     updateCoinFX();
-    updateEnemyBullets();
     updatePowerups();
     updateBoss();
     updateTimers();
-    updateSpawning(currentTime);
     
     if(screenShake > 0){
         ctx.restore();
@@ -1071,17 +1067,19 @@ function updateEnemies(){
             continue;
         }
 
-        // HIGH shoot chance - 20% for normal, 30% for shooters
-        let actualShootChance = (e.type === ENEMY_SHOOTER) ? 0.30 : 0.20;
+        // GUARANTEED shooting - every 2 seconds per enemy
+        if(!e.lastShotTime) e.lastShotTime = 0;
         
-        // Only shoot if enemy is on screen and has been alive for a moment
-        if(e.y > 50 && e.y < canvas.height - 100 && Math.random() < actualShootChance){
+        let shootInterval = (e.type === ENEMY_SHOOTER) ? 1000 : 2000; // ms between shots
+        
+        if(performance.now() - e.lastShotTime > shootInterval && e.y > 100){
             enemyBullets.push({
                 x: e.x + e.w/2 - 4,
                 y: e.y + e.h,
                 w: 8,
                 h: 20
             });
+            e.lastShotTime = performance.now();
         }
     }
 }
@@ -1091,19 +1089,27 @@ function updateEnemies(){
 function updateEnemyBullets(){
     for(let i = enemyBullets.length - 1; i >= 0; i--){
         let b = enemyBullets[i];
-        b.y += 8;
+        b.y += 10; // Fast bullets
         
-        // Bright glowing red bullets
+        // EXTREMELY visible bullets
         ctx.save();
+        
+        // Outer glow
+        ctx.fillStyle = "rgba(255, 0, 0, 0.3)";
+        ctx.fillRect(b.x - 4, b.y - 4, b.w + 8, b.h + 8);
+        
+        // Main bullet
         ctx.fillStyle = "#ff0044";
-        ctx.shadowBlur = 25;
+        ctx.shadowBlur = 30;
         ctx.shadowColor = "#ff0044";
         ctx.fillRect(b.x, b.y, b.w, b.h);
         
-        // White core
+        // Bright core
         ctx.fillStyle = "#ffffff";
-        ctx.shadowBlur = 0;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "#ffffff";
         ctx.fillRect(b.x + 2, b.y + 2, b.w - 4, b.h - 4);
+        
         ctx.restore();
         
         // Collision with player
