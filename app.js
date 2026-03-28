@@ -419,7 +419,6 @@ function startGame(){
     console.log(">>> STARTING GAME <<<");
 
     unlockAudio();
-
     resizeGame();
 
     health = maxHearts;
@@ -442,6 +441,18 @@ function startGame(){
     updateHUD();
     updateHeartsUI();
 
+    const menu = document.getElementById("main-menu");
+    if(menu) {
+        menu.style.display = "none";
+        menu.classList.remove("show");
+    }
+
+    const gameCanvas = document.getElementById("gameCanvas");
+    const hud = document.getElementById("hud");
+    
+    if(gameCanvas) gameCanvas.style.display = "block";
+    if(hud) hud.style.display = "flex";
+
     menuMusic.pause();
 
     if(soundOn){
@@ -450,7 +461,6 @@ function startGame(){
     }
 
     startAutoShoot();
-
     startWave();
 
     lastTime = 0;
