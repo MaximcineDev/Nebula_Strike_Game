@@ -133,16 +133,16 @@ body {
 
 #gameTitle {
     font-family: 'Orbitron', 'Arial Black', sans-serif;
-    font-size: clamp(28px, 8vw, 60px);
+    font-size: clamp(32px, 10vw, 80px);  /* Balanced size */
     font-weight: 900;
     text-align: center;
-    line-height: 1.1;
+    line-height: 1.0;
     margin: 0;
-    margin-top: 5vh;
+    margin-top: 8vh;
     position: relative;
     z-index: 2;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 4px;
     width: 100%;
     max-width: 100%;
     word-break: break-word;
@@ -180,19 +180,6 @@ body {
     position: relative;
     margin-bottom: 60px;
     perspective: 1000px;
-}
-
-#gameTitle {
-    font-family: 'Orbitron', 'Arial Black', sans-serif;
-    font-size: clamp(48px, 12vw, 120px);
-    font-weight: 900;
-    text-align: center;
-    line-height: 1.1;
-    margin: 0;
-    position: relative;
-    z-index: 2;
-    text-transform: uppercase;
-    letter-spacing: 8px;
 }
 
 /* Individual letter styling */
