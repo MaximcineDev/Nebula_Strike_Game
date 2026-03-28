@@ -258,7 +258,6 @@ let achievements = [];
 let totalKills = 0;
 let hitFlash = 0;
 let screenShake = 0;
-
 let sfxVolume = 1;
 
 // LOOP TIMING
