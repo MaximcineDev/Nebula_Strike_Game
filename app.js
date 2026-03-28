@@ -1473,22 +1473,30 @@ window.addEventListener("load", () => {
         menu.style.display = "none";
     }
     
-    if(splash){
-        setTimeout(() => {
-            splash.style.display = "none";
-           
-            if(menu) {
-                menu.style.display = "flex";
-                void menu.offsetWidth;
-                menu.classList.add("show");
-                console.log("Menu shown");
-            }
-        }, 2000);
-    } else {
+    // FORCE fallback: Show menu after max 3 seconds regardless
+    const forceShowMenu = () => {
+        if(splash) splash.style.display = "none";
         if(menu) {
             menu.style.display = "flex";
             menu.classList.add("show");
+            console.log("Menu shown (forced)");
         }
+    };
+    
+    if(splash){
+        // Normal flow: 2 seconds
+        setTimeout(() => {
+            splash.style.display = "none";
+            if(menu) {
+                menu.style.display = "flex";
+                menu.classList.add("show");
+            }
+        }, 2000);
+        
+        // Emergency fallback: 3.5 seconds
+        setTimeout(forceShowMenu, 3500);
+    } else {
+        forceShowMenu();
     }
     
     console.log("Initialization complete");
