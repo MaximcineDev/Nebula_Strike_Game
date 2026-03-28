@@ -372,6 +372,8 @@ function resumeGame(){
     }
 }
 
+/* ---------- QUIT GAME ---------- */
+
 function quitGame(){
     console.log("Quitting game...");
     
