@@ -567,6 +567,55 @@ function startWave(){
     showWaveNotification(waveNumber);
 }
 
+function spawnSingleEnemy(){
+    const diff = getDifficultySettings();
+    
+    let type = ENEMY_NORMAL;
+    let r = Math.random();
+    
+    if(level > 2 && r < 0.25) type = ENEMY_FAST;
+    else if(level > 4 && r < 0.15) type = ENEMY_TANK;
+    else if(level > 6 && r < 0.15) type = ENEMY_SHOOTER;
+    
+    let enemy = {
+        x: Math.random() * (canvas.width - 40),
+        y: -50,
+        w: 40,
+        h: 40,
+        type: type,
+        hp: diff.hpBase + level,
+        speed: diff.speed,
+        shootChance: 0.01,
+        active: true
+    };
+    
+    if(type === ENEMY_FAST){
+        enemy.speed = diff.speed + 2;
+        enemy.hp = Math.max(1, diff.hpBase + level - 1);
+    } else if(type === ENEMY_TANK){
+        enemy.speed = Math.max(0.5, diff.speed - 1);
+        enemy.hp = (diff.hpBase + level) * 2;
+    } else if(type === ENEMY_SHOOTER){
+        enemy.speed = diff.speed;
+        enemy.hp = diff.hpBase + level + 1;
+        enemy.shootChance = 0.03;
+    }
+    
+    if(isTroopFormation){
+        let row = Math.floor(waveSpawnTimer / 5) % 3;
+        let col = waveSpawnTimer % 5;
+        enemy.x = (canvas.width / 6) * (col + 1);
+        enemy.y = -60 - (row * 40);
+        enemy.speed *= 0.5;
+    }
+    
+    enemies.push(enemy);
+    enemiesInWave--;
+    waveSpawnTimer++;
+    
+    console.log(`Spawned enemy. Remaining: ${enemiesInWave}, Active: ${enemies.length}`);
+}
+
 function updateSpawning(){
     if(boss) return;
     
