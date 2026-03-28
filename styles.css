@@ -26,7 +26,6 @@ html, body {
     touch-action: none;
 }
 
-/* iOS safe area support */
 body {
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
@@ -71,14 +70,19 @@ body {
     height: 100vh;
     height: 100dvh;
     min-height: -webkit-fill-available;
-    background: url("assets/ui/splash-screen.png") center center / cover no-repeat;
+    background: url("assets/ui/splash-screen.png") center center no-repeat;
+    background-size: cover;
+    background-color: #000;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
     z-index: 9999;
-    background-size: cover;
-    background-position: center;
+@media (max-aspect-ratio: 9/16) {
+    #splashScreen {
+        background-size: contain;
+        background-color: #000;
+    }
 }
 
 #loadingText {
