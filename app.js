@@ -81,35 +81,15 @@ let audioContext = null;
 
 function unlockAudio(){
     if(audioUnlocked) return;
-    
-    // Create AudioContext on user gesture (required for iOS)
-    if(!audioContext){
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    
-    // Resume AudioContext (critical for iOS)
-    if(audioContext.state === 'suspended' || audioContext.state === 'interrupted'){
-        audioContext.resume().then(() => {
-            console.log("AudioContext resumed");
-        }).catch(e => console.log("Resume failed:", e));
-    }
-    
-    // Play silent sound to fully unlock iOS audio
-    const buffer = audioContext.createBuffer(1, 1, 22050);
-    const source = audioContext.createBufferSource();
-    source.buffer = buffer;
-    source.connect(audioContext.destination);
-    source.start(0);
-    
+
     audioUnlocked = true;
-    
-    // Start menu music
+
     if(soundOn){
         menuMusic.currentTime = 0;
-        menuMusic.play().catch(e => console.log("Menu music failed:", e));
+        menuMusic.play().catch(e => console.log("Menu music blocked:", e));
     }
-    
-    console.log("Audio unlocked");
+
+    console.log("Audio unlocked clean");
 }
 
 function playSilentSound(){
@@ -124,10 +104,10 @@ function setupAudioUnlock(){
     const unlockEvents = ['click', 'touchstart', 'touchend', 'keydown'];
     
     const tryUnlock = (e) => {
-        if(!audioUnlocked){
-            console.log("Unlocking audio via:", e.type);
-            unlockAudio();
-        }
+        unlockAudio();
+
+        menuMusic.currentTime = 0;
+        menuMusic.play().catch(()=>{});
     };
     
     unlockEvents.forEach(event => {
@@ -468,21 +448,17 @@ function startGame(){
     updateHUD();
     updateHeartsUI();
     
-   menuMusic.pause();
+    menuMusic.pause();
 
-   if(soundOn){
-       gameMusic.currentTime = 0;
+    if(soundOn){
+        gameMusic.currentTime = 0;
 
-       gameMusic.play().then(() => {
-           console.log("Game music started successfully");
-       }).catch(e => {
-           console.log("Game music blocked, retrying...");
-        
-           setTimeout(() => {
-               gameMusic.play().catch(()=>{});
-           }, 300);
-       });
-   }
+        gameMusic.play().then(()=>{
+            console.log("Game music playing");
+        }).catch(e=>{
+            console.log("Game music failed:", e);
+        });
+    }
     
     startAutoShoot();
     
