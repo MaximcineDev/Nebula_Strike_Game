@@ -704,9 +704,22 @@ function endWave(){
     waveSpawnTimer = 0;
     spawnTimer = 0;
     
+    console.log("Wave ended. Wave number:", waveNumber);
+    
+    // Every 3 waves, complete the level
+    if(waveNumber >= 3 && waveNumber % 3 === 0){
+        console.log("Level complete! Triggering level complete screen.");
+        setTimeout(() => levelComplete(), 1000);
+        return;
+    }
+    
+    // Maybe spawn boss (30% chance after level 2)
     if(level >= 2 && Math.random() < 0.3){
         console.log("Spawning boss after wave!");
         setTimeout(() => spawnBoss(), 1500);
+    } else {
+        // Continue to next wave
+        setTimeout(() => startWave(), 2000);
     }
 }
 
@@ -780,8 +793,6 @@ function gameLoop(currentTime = 0){
     
     lastTime = currentTime - (deltaTime % frameInterval);
     
-    updateSpawning(currentTime);
-    
     if(!gameRunning || paused) return;
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -813,7 +824,7 @@ function gameLoop(currentTime = 0){
         updatePowerups();
         updateBoss();
         updateTimers();
-        updateSpawning();
+        updateSpawning(currentTime);
     } catch(e) {
         console.error("Game loop error:", e);
     }
@@ -917,14 +928,19 @@ function updateBullets(){
                         maxFrame: 10
                     });
                     
+                    // REWARD CALCULATION
                     let reward = 5;
                     if(e.type === ENEMY_FAST) reward = 8;
                     if(e.type === ENEMY_TANK) reward = 15;
                     if(e.type === ENEMY_SHOOTER) reward = 12;
                     
+                    console.log(`Enemy destroyed! Type: ${e.type}, Reward: ${reward}, Coins before: ${coins}`);
+                    
                     coins += reward;
                     score += reward * 2;
                     totalKills++;
+                    
+                    console.log(`Coins after: ${coins}, Score: ${score}`);
                     
                     for(let k = 0; k < Math.min(reward, 10); k++){
                         coinFX.push({
@@ -938,8 +954,9 @@ function updateBullets(){
                     }
                     
                     coinPulse();
-                    updateHUD();
+                    updateHUD(); // Update immediately
                     
+                    // Powerup drop
                     if(Math.random() < 0.3){
                         powerups.push({
                             x: e.x + e.w/2 - 16,
@@ -963,6 +980,7 @@ function updateBullets(){
         
         if(hit) continue;
         
+        // Boss collision
         if(boss && boss.hp > 0){
             if(b.x < boss.x + boss.w && b.x + b.w > boss.x &&
                b.y < boss.y + boss.h && b.y + b.h > boss.y){
@@ -978,6 +996,7 @@ function updateBullets(){
             }
         }
         
+        // Remove off-screen bullets
         if(b.y < -50 || b.x < -50 || b.x > canvas.width + 50){
             bullets.splice(i, 1);
         }
@@ -1066,7 +1085,6 @@ function updateEnemies(){
         e.y += e.speed;
 
         let img = enemyImg;
-
         if(e.type === ENEMY_FAST) img = enemyFastImg;
         if(e.type === ENEMY_TANK) img = enemyTankImg;
         if(e.type === ENEMY_SHOOTER) img = enemyShooterImg;
@@ -1077,15 +1095,19 @@ function updateEnemies(){
 
         if(e.y > canvas.height + 50){
             enemies.splice(i, 1);
+            continue; // Important: skip shooting if enemy removed
         }
 
-        if(Math.random() < e.shootChance){
-            console.log("Enemy shooting!", e.type);
+        // INCREASED shoot chance - 8% for normal, 15% for shooters
+        let actualShootChance = (e.type === ENEMY_SHOOTER) ? 0.15 : 0.08;
+        
+        if(Math.random() < actualShootChance){
+            console.log("Enemy shooting! Type:", e.type, "at position:", e.x, e.y);
             enemyBullets.push({
-                x: e.x + e.w/2,
+                x: e.x + e.w/2 - 3, // Centered
                 y: e.y + e.h, // Start from bottom of enemy
-                w: 4,
-                h: 10
+                w: 6,
+                h: 15
             });
         }
     }
@@ -1094,36 +1116,46 @@ function updateEnemies(){
 /* ---------- ENEMY BULLETS ---------- */
 
 function updateEnemyBullets(){
-    for(let i=enemyBullets.length-1;i>=0;i--){
-        let b=enemyBullets[i];
-        b.y += 5;
+    for(let i = enemyBullets.length - 1; i >= 0; i--){
+        let b = enemyBullets[i];
+        b.y += 6; // Slightly faster
+        
+        // Make bullets VERY visible with bright glow
         ctx.save();
-        ctx.fillStyle = "#ff0000";
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = "red";
-        ctx.fillRect(b.x - 3, b.y, 6, 15);
+        ctx.fillStyle = "#ff0044"; // Bright red
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = "#ff0044";
+        ctx.fillRect(b.x, b.y, b.w, b.h);
+        
+        // White core
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(b.x + 1, b.y + 1, b.w - 2, b.h - 2);
         ctx.restore();
         
+        // Collision with player
         if(b.x < player.x + player.width &&
            b.x + b.w > player.x &&
            b.y < player.y + player.height &&
            b.y + b.h > player.y){
             
-            enemyBullets.splice(i,1);
+            enemyBullets.splice(i, 1);
             
             if(!shieldActive){
-                hitFlash = 5;
-                screenShake = 6;
+                hitFlash = 10;
+                screenShake = 10;
                 health--;
-                updateHUD();
                 updateHeartsUI();
+                updateHUD();
+                console.log("Player hit! Health:", health);
             }
             
             if(health <= 0){
                 gameOver();
             }
+            continue;
         }
         
+        // Remove if off screen
         if(b.y > canvas.height + 50){
             enemyBullets.splice(i, 1);
         }
@@ -1433,8 +1465,9 @@ function toggleSound(){
         explosionSound.volume = 0;
     } else {
         console.log("Unmuting audio");
-        shootSound.volume = 1;
-        explosionSound.volume = 1;
+        shootSound.volume = sfxVolume; // Use sfxVolume, not 1
+        explosionSound.volume = sfxVolume; // Use sfxVolume, not 1
+        
         if(gameRunning && gameMusic.paused){
             gameMusic.play().catch(e => console.log("Game music failed"));
         } else if(!gameRunning && menuMusic.paused){
@@ -1464,28 +1497,47 @@ function setSFXVolume(val){
 
 function levelComplete(){
     gameRunning = false;
-    document.getElementById("levelComplete").style.display = "block";
+    paused = false;
+    
+    const levelCompleteScreen = document.getElementById("levelComplete");
+    if(levelCompleteScreen) {
+        levelCompleteScreen.style.display = "block";
+    }
+    
+    // Bonus coins for completing level
+    let bonus = 50 * level;
+    coins += bonus;
+    updateHUD();
+    saveGame();
+    
+    console.log("Level complete! Bonus:", bonus, "Total coins:", coins);
 }
 
 function nextLevel(){
-    document.getElementById("levelComplete").style.display = "none";
-    gameRunning = true;
-    level++;
+    const levelCompleteScreen = document.getElementById("levelComplete");
+    if(levelCompleteScreen) levelCompleteScreen.style.display = "none";
     
+    level++;
     if(level > highestLevel){
         highestLevel = level;
     }
     
+    // Reset for next level
     enemies = [];
     enemyBullets = [];
     bullets = [];
+    powerups = [];
+    boss = null;
     waveInProgress = false;
+    waveNumber = 0; // Reset wave counter for new level
     
-    if(level >= 2 && Math.random() < 0.5){
-        setTimeout(() => spawnBoss(), 1000);
-    } else {
-        setTimeout(() => startWave(), 1000);
-    }
+    gameRunning = true;
+    paused = false;
+    
+    updateHUD();
+    
+    // Start first wave of new level
+    setTimeout(() => startWave(), 1000);
     
     lastTime = 0;
     requestAnimationFrame(gameLoop);
