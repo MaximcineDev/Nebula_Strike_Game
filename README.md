@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)  
 [![PWA](https://img.shields.io/badge/PWA-Ready-5A0FC8?logo=pwa)](https://web.dev/progressive-web-apps/)
 
-**A 3D sci-fi space shooter with fast-paced action, stunning graphics, and cross-platform progression. Play instantly in your browser or install as a PWA.**
+**A 2D sci-fi space shooter with arcade gameplay, and cross-platform progression. Play instantly in your browser or mobile.**
 
 <p align="center">
   <img src="assets/icon.png" alt="Nebula Strike" width="400">
