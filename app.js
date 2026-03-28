@@ -284,12 +284,27 @@ function updateHUD(){
     const levelText = document.getElementById("levelText");
     const scoreText = document.getElementById("scoreText");
 
+    // Force update with multiple methods
     if(coinText) {
-        coinText.textContent = coins; // Use textContent instead of innerText
-        coinText.innerHTML = coins;   // Double ensure it updates
+        coinText.innerText = coins.toString();
+        coinText.textContent = coins.toString();
     }
-    if(levelText) levelText.textContent = "Lv " + level;
-    if(scoreText) scoreText.textContent = "Score: " + score;
+    if(levelText) levelText.innerText = "Lv " + level;
+    if(scoreText) scoreText.innerText = "Score: " + score;
+    
+    // Debug - remove after testing
+    console.log("HUD Update - Coins:", coins, "Score:", score);
+}
+
+// Also fix coinPulse to ensure it works
+function coinPulse(){
+    const coinBox = document.getElementById("coinBox");
+    if(!coinBox) return;
+    coinBox.style.transform = "scale(1.3)";
+    coinBox.style.transition = "transform 0.1s";
+    setTimeout(()=>{
+        coinBox.style.transform = "scale(1)";
+    },150);
 }
 
 function updateHeartsUI(){
@@ -780,47 +795,52 @@ function gameLoop(currentTime = 0){
     
     if(!gameRunning || paused) return;
     
+    // Clear entire canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
+    // Screen shake effect
     if(screenShake > 0){
         ctx.save();
-        let shakeX = (Math.random() - 0.5) * 10;
-        let shakeY = (Math.random() - 0.5) * 10;
+        let shakeX = (Math.random() - 0.5) * screenShake;
+        let shakeY = (Math.random() - 0.5) * screenShake;
         ctx.translate(shakeX, shakeY);
     }
     
     // Draw background
     if(bgImg && bgImg.complete && bgImg.naturalWidth > 0){
         ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-        drawStars();
     } else {
         ctx.fillStyle = "#000011";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        drawStars();
     }
     
-    // Update all game systems - IN CORRECT ORDER
+    // Draw stars
+    drawStars();
+    
+    // Update all systems in proper order
     updateSpawning(currentTime);
     updatePlayer();
     drawPlayer();
     updateBullets();
-    updateEnemies();        // Enemies move and shoot
-    updateEnemyBullets();   // Update bullets AFTER enemies shoot
+    updateEnemies();
+    updateEnemyBullets();
     updateExplosions();
     updateCoinFX();
     updatePowerups();
     updateBoss();
     updateTimers();
     
+    // Restore from shake
     if(screenShake > 0){
         ctx.restore();
-        screenShake--;
+        screenShake = Math.max(0, screenShake - 1);
     }
     
+    // Hit flash effect
     if(hitFlash > 0){
-        ctx.fillStyle = "rgba(255, 0, 0, 0.3)";
+        ctx.fillStyle = `rgba(255, 0, 0, ${hitFlash * 0.1})`;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        hitFlash--;
+        hitFlash = Math.max(0, hitFlash - 1);
     }
 }
 
@@ -909,12 +929,12 @@ function updateBullets(){
                     if(e.type === ENEMY_TANK) reward = 15;
                     if(e.type === ENEMY_SHOOTER) reward = 12;
                     
-                    // ADD COINS AND SCORE
+                    // UPDATE SCORE AND COINS
                     coins += reward;
                     score += reward * 2;
                     totalKills++;
                     
-                    // Visual coin effect
+                    // Visual effects
                     for(let k = 0; k < Math.min(reward, 10); k++){
                         coinFX.push({
                             x: e.x + e.w/2,
@@ -926,10 +946,11 @@ function updateBullets(){
                         });
                     }
                     
+                    // UPDATE HUD IMMEDIATELY
                     coinPulse();
-                    updateHUD(); // Update UI immediately
+                    updateHUD();
                     
-                    // Powerup drop (30% chance)
+                    // Powerup drop
                     if(Math.random() < 0.3){
                         powerups.push({
                             x: e.x + e.w/2 - 16,
@@ -965,7 +986,7 @@ function updateBullets(){
             }
         }
         
-        // Remove off-screen bullets
+        // Remove off-screen
         if(b.y < -50 || b.x < -50 || b.x > canvas.width + 50){
             bullets.splice(i, 1);
         }
@@ -1477,47 +1498,108 @@ function levelComplete(){
     gameRunning = false;
     paused = false;
     
+    // Stop game music
+    if(gameMusic) gameMusic.pause();
+    
     const levelCompleteScreen = document.getElementById("levelComplete");
     if(levelCompleteScreen) {
-        levelCompleteScreen.style.display = "block";
+        // Clear previous content and create popup style
+        levelCompleteScreen.innerHTML = `
+            <div style="
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+                border: 3px solid #00ff80;
+                border-radius: 20px;
+                padding: 40px;
+                text-align: center;
+                box-shadow: 0 0 40px rgba(0, 255, 128, 0.5);
+                animation: pop 0.5s ease;
+            ">
+                <h1 style="
+                    color: #00ff80;
+                    font-family: 'Orbitron', sans-serif;
+                    font-size: 32px;
+                    margin: 0 0 20px 0;
+                    text-shadow: 0 0 20px rgba(0, 255, 128, 0.8);
+                ">LEVEL ${level} COMPLETE!</h1>
+                
+                <p style="
+                    color: white;
+                    font-size: 18px;
+                    margin: 10px 0;
+                ">Score: ${score}</p>
+                
+                <p style="
+                    color: #ffd700;
+                    font-size: 20px;
+                    margin: 10px 0 30px 0;
+                ">Bonus: +${50 * level} 🪙</p>
+                
+                <button onclick="nextLevel()" style="
+                    padding: 15px 40px;
+                    font-family: 'Orbitron', sans-serif;
+                    font-size: 20px;
+                    font-weight: bold;
+                    background: linear-gradient(135deg, rgba(0, 255, 128, 0.2) 0%, rgba(0, 200, 100, 0.2) 100%);
+                    border: 2px solid #00ff80;
+                    border-radius: 50px;
+                    color: #00ff80;
+                    cursor: pointer;
+                    box-shadow: 0 0 20px rgba(0, 255, 128, 0.3);
+                    transition: all 0.2s;
+                ">NEXT LEVEL →</button>
+            </div>
+        `;
+        levelCompleteScreen.style.display = "flex";
+        levelCompleteScreen.style.justifyContent = "center";
+        levelCompleteScreen.style.alignItems = "center";
     }
     
-    // Bonus coins for completing level
-    let bonus = 50 * level;
-    coins += bonus;
+    // Bonus coins
+    coins += 50 * level;
     updateHUD();
     saveGame();
-    
-    console.log("Level complete! Bonus:", bonus, "Total coins:", coins);
 }
 
 function nextLevel(){
     const levelCompleteScreen = document.getElementById("levelComplete");
-    if(levelCompleteScreen) levelCompleteScreen.style.display = "none";
+    if(levelCompleteScreen) {
+        levelCompleteScreen.style.display = "none";
+        // Reset innerHTML for next time
+        levelCompleteScreen.innerHTML = '';
+    }
     
     level++;
     if(level > highestLevel){
         highestLevel = level;
     }
     
-    // Reset for next level
+    // Reset game state
     enemies = [];
     enemyBullets = [];
     bullets = [];
     powerups = [];
     boss = null;
     waveInProgress = false;
-    waveNumber = 0; // Reset wave counter for new level
+    waveNumber = 0;
     
     gameRunning = true;
     paused = false;
     
     updateHUD();
     
-    // Start first wave of new level
-    setTimeout(() => startWave(), 1000);
+    // Restart music
+    if(soundOn && gameMusic){
+        gameMusic.currentTime = 0;
+        gameMusic.play().catch(()=>{});
+    }
+    
+    // Start first wave
+    setTimeout(() => startWave(), 500);
     
     lastTime = 0;
+    lastWaveTime = 0;
+    lastEnemySpawnTime = 0;
+    
     requestAnimationFrame(gameLoop);
     saveGame();
 }
