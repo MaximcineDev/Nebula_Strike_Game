@@ -929,7 +929,7 @@ function updateBullets(){
                     });
                     
                     // REWARD CALCULATION
-                    let reward = 5;
+                    let reward = 50;
                     if(e.type === ENEMY_FAST) reward = 8;
                     if(e.type === ENEMY_TANK) reward = 15;
                     if(e.type === ENEMY_SHOOTER) reward = 12;
@@ -1001,8 +1001,10 @@ function updateBullets(){
 function bossDefeated(){
     boss = null;
     document.getElementById("bossBar").style.display = "none";
-    coins += 50;
-    score += 100;
+    let bossReward = 150;
+
+    coins += bossReward;
+    score += bossReward * 2;
     
     for(let i=0; i<20; i++){
         explosions.push({
@@ -1122,6 +1124,8 @@ function updateEnemies(){
 /* ---------- ENEMY BULLETS ---------- */
 
 function updateEnemyBullets(){
+    if(playerHitCooldown > 0) continue;
+    
     for(let i = enemyBullets.length - 1; i >= 0; i--){
         let b = enemyBullets[i];
         b.y += 10;
@@ -1149,12 +1153,17 @@ function updateEnemyBullets(){
             enemyBullets.splice(i, 1);
             
             if(!shieldActive && playerHitCooldown <= 0){
+                health = Math.max(0, health - 1); // never go negative
+
                 hitFlash = 10;
                 screenShake = 10;
-                health--;
-                playerHitCooldown = 30; // ~0.5 sec protection
+
+                playerHitCooldown = 20; // 🔥 slightly shorter = more responsive
 
                 updateHeartsUI();
+                updateHUD();
+
+                console.log("Player hit! Health:", health); // debug
 
                 if(health <= 0){
                     gameOver();
