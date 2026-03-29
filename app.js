@@ -1135,8 +1135,6 @@ function updateEnemyBullets(){
             enemyBullets.splice(i, 1);
             
             if(!shieldActive){
-                hitFlash = 5;
-            } else {
                 hitFlash = 10;
                 screenShake = 10;
                 health--;
@@ -1146,12 +1144,16 @@ function updateEnemyBullets(){
                     gameOver();
                     return;  // Exit early if game over
                 }
+            } else {
+                // Shield active - just visual feedback
+                hitFlash = 5;
             }
+            
             updateHUD();  // Always update HUD
             continue;
-            }
         }
         
+        // Remove off-screen bullets
         if(b.y > canvas.height + 50){
             enemyBullets.splice(i, 1);
         }
