@@ -221,6 +221,8 @@ let fireRate = 300;
 let lastShot = 0;
 
 let coins = 0;
+let coinFX = [];
+let explosions = [];
 let weaponLevel = 1;
 let shieldLevel = 0;
 let highestLevel = 1;
@@ -235,6 +237,8 @@ let shieldActive = false;
 let shieldTimer = 0;
 
 let soundOn = true;
+
+let playerHitCooldown = 0;
 
 // WAVE SYSTEM VARIABLES
 let enemySpawnRate = 1500;
@@ -918,8 +922,8 @@ function updateBullets(){
                     }
                     
                     explosions.push({
-                        x: e.x,
-                        y: e.y,
+                        x: e.x + e.w/2,
+                        y: e.y + e.h/2,
                         frame: 0,
                         maxFrame: 10
                     });
@@ -1020,12 +1024,21 @@ function bossDefeated(){
 }
 
 function updateExplosions(){
-    for(let i=explosions.length-1;i>=0;i--){
+    for(let i = explosions.length - 1; i >= 0; i--){
         let ex = explosions[i];
-        ctx.drawImage(explosionImg, ex.x, ex.y, 40, 40);
+
+        // Animate size
+        let size = 20 + ex.frame * 4;
+
+        ctx.save();
+        ctx.globalAlpha = 1 - (ex.frame / ex.maxFrame);
+        ctx.drawImage(explosionImg, ex.x - size/2, ex.y - size/2, size, size);
+        ctx.restore();
+
         ex.frame++;
-        if(ex.frame > (ex.maxFrame || 10)){
-            explosions.splice(i,1);
+
+        if(ex.frame > ex.maxFrame){
+            explosions.splice(i, 1);
         }
     }
 }
@@ -1135,12 +1148,14 @@ function updateEnemyBullets(){
             
             enemyBullets.splice(i, 1);
             
-            if(!shieldActive){
+            if(!shieldActive && playerHitCooldown <= 0){
                 hitFlash = 10;
                 screenShake = 10;
                 health--;
+                playerHitCooldown = 30; // ~0.5 sec protection
+
                 updateHeartsUI();
-                
+
                 if(health <= 0){
                     gameOver();
                     return;
@@ -1218,6 +1233,10 @@ function updateTimers(){
         if(shieldTimer <= 0){
             shieldActive = false;
         }
+    }
+    
+    if(playerHitCooldown > 0){
+        playerHitCooldown--;
     }
 }
 
