@@ -418,9 +418,11 @@ function quitGame(){
     }
     
     const menu = document.getElementById("main-menu");
-    if(menu) {
-        menu.style.display = "flex";
-        menu.classList.add("show");
+    if(menu){
+        menu.style.display = "none";
+        menu.style.visibility = "hidden";
+        menu.style.opacity = "0";
+        menu.classList.remove("show");
     }
     
     enemies = [];
