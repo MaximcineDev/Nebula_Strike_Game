@@ -27,6 +27,11 @@ bossImg.src = "assets/boss.png";
 const bgImg = new Image();
 bgImg.src = "assets/background.png";
 
+bgImg.onerror = function() {
+    console.error("Background image failed to load!");
+    window.bgGradient = true;
+};
+
 const explosionImg = new Image();
 explosionImg.src = "assets/explosion.png";
 
@@ -801,7 +806,12 @@ function gameLoop(currentTime = 0){
     if(bgImg && bgImg.complete && bgImg.naturalWidth > 0){
         ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
     } else {
-        ctx.fillStyle = "#000011";
+        // Create a space-like gradient fallback
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, "#000022");
+        gradient.addColorStop(0.5, "#000044");
+        gradient.addColorStop(1, "#000011");
+        ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
     
@@ -924,8 +934,6 @@ function updateBullets(){
                     coins += reward;
                     score += reward * 2;
                     totalKills++;
-                    
-                    saveGame();
                     
                     // Visual effects
                     for(let k = 0; k < Math.min(reward, 10); k++){
@@ -1103,27 +1111,20 @@ function updateEnemies(){
 function updateEnemyBullets(){
     for(let i = enemyBullets.length - 1; i >= 0; i--){
         let b = enemyBullets[i];
-        b.y += 10; // Fast bullets
+        b.y += 10;
         
-        // EXTREMELY visible bullets
+        // Draw bullet
         ctx.save();
-        
-        // Outer glow
         ctx.fillStyle = "rgba(255, 0, 0, 0.3)";
         ctx.fillRect(b.x - 4, b.y - 4, b.w + 8, b.h + 8);
-        
-        // Main bullet
         ctx.fillStyle = "#ff0044";
         ctx.shadowBlur = 30;
         ctx.shadowColor = "#ff0044";
         ctx.fillRect(b.x, b.y, b.w, b.h);
-        
-        // Bright core
         ctx.fillStyle = "#ffffff";
         ctx.shadowBlur = 10;
         ctx.shadowColor = "#ffffff";
         ctx.fillRect(b.x + 2, b.y + 2, b.w - 4, b.h - 4);
-        
         ctx.restore();
         
         // Collision with player
@@ -1142,14 +1143,14 @@ function updateEnemyBullets(){
                 
                 if(health <= 0){
                     gameOver();
-                    return;  // Exit early if game over
+                    return;
                 }
             } else {
-                // Shield active - just visual feedback
-                hitFlash = 5;
+                // Shield hit effect - minimal feedback
+                hitFlash = 3;
             }
             
-            updateHUD();  // Always update HUD
+            updateHUD();
             continue;
         }
         
