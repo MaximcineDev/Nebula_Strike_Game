@@ -318,15 +318,6 @@ function updateHeartsUI(){
     }
 }
 
-function coinPulse(){
-    const coinBox = document.getElementById("coinBox");
-    if(!coinBox) return;
-    coinBox.style.transform = "scale(1.2)";
-    setTimeout(()=>{
-        coinBox.style.transform = "scale(1)";
-    },120);
-}
-
 /* ---------- KEYBOARD ---------- */
 
 let moveLeft=false;
@@ -934,6 +925,8 @@ function updateBullets(){
                     score += reward * 2;
                     totalKills++;
                     
+                    saveGame();
+                    
                     // Visual effects
                     for(let k = 0; k < Math.min(reward, 10); k++){
                         coinFX.push({
@@ -1142,17 +1135,21 @@ function updateEnemyBullets(){
             enemyBullets.splice(i, 1);
             
             if(!shieldActive){
+                hitFlash = 5;
+            } else {
                 hitFlash = 10;
                 screenShake = 10;
                 health--;
                 updateHeartsUI();
-                updateHUD();
+                
+                if(health <= 0){
+                    gameOver();
+                    return;  // Exit early if game over
+                }
             }
-            
-            if(health <= 0){
-                gameOver();
-            }
+            updateHUD();  // Always update HUD
             continue;
+            }
         }
         
         if(b.y > canvas.height + 50){
