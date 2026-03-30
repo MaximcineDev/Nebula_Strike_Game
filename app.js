@@ -42,9 +42,10 @@ let currentSkin = 0;
 
 const skins = [
     "assets/player.png",
-    "assets/player2.png",
-    "assets/player3.png",
-    "assets/player4.png"
+    "assets/skins/skin1.png",
+    "assets/skins/skin2.png",
+    "assets/skins/skin3.png",
+    "assets/skins/skin4.png"
 ];
 
 function updateSkin(){
@@ -1535,28 +1536,41 @@ function buyShield(){
         shieldTimer = 300 + (shieldLevel * 150);
 
         updateHUD();
+        updateShopCoins(); // ✅ ADD THIS
         saveGame();
     }
 }
 
 function buyWeapon(){
-    if(coins < 150) return;
+    if(coins < 150){
+        alert("Not enough coins!");
+        return;
+    }
+
     coins -= 150;
     weaponLevel++;
+
     if(weaponLevel > 5) weaponLevel = 5;
-    saveGame();
+
     updateHUD();
+    updateShopCoins(); // ✅ ADD THIS
+    saveGame();
 }
 
 function buyHearts(){
-    if(coins >= 50){
-        coins -= 50;
-        maxHearts++;
-        health = maxHearts;
-        updateHUD();
-        updateHeartsUI();
-        saveGame();
+    if(coins < 50){
+        alert("Not enough coins!");
+        return;
     }
+
+    coins -= 50;
+    maxHearts++;
+    health = maxHearts;
+
+    updateHUD();
+    updateHeartsUI();
+    updateShopCoins(); // ✅ ADD THIS
+    saveGame();
 }
 
 /* ---------- SETTINGS FUNCTIONS ---------- */
