@@ -617,7 +617,29 @@ body {
     animation: blink 0.5s infinite;
 }
 
+#coinWarning {
+    position: fixed;
+    bottom: 120px;
+    left: 50%;
+    transform: translateX(-50%) scale(0.8);
+    background: rgba(255, 0, 80, 0.9);
+    color: white;
+    padding: 12px 25px;
+    border-radius: 30px;
+    font-family: Orbitron, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(255, 0, 80, 0.7);
+}
 
+#coinWarning.show {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+}
 
 /* =========================
       LEVEL COMPLETE
