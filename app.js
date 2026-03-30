@@ -1126,12 +1126,12 @@ function updateEnemies(){
 /* ---------- ENEMY BULLETS ---------- */
 
 function updateEnemyBullets(){
-    if(playerHitCooldown > 0) continue;
-    
+    if(!gameRunning) return;
+
     for(let i = enemyBullets.length - 1; i >= 0; i--){
         let b = enemyBullets[i];
         b.y += 10;
-        
+
         // Draw bullet
         ctx.save();
         ctx.fillStyle = "rgba(255, 0, 0, 0.3)";
@@ -1145,41 +1145,43 @@ function updateEnemyBullets(){
         ctx.shadowColor = "#ffffff";
         ctx.fillRect(b.x + 2, b.y + 2, b.w - 4, b.h - 4);
         ctx.restore();
-        
+
         // Collision with player
-        if(b.x < player.x + player.width &&
-           b.x + b.w > player.x &&
-           b.y < player.y + player.height &&
-           b.y + b.h > player.y){
-            
+        if(
+            b.x < player.x + player.width &&
+            b.x + b.w > player.x &&
+            b.y < player.y + player.height &&
+            b.y + b.h > player.y
+        ){
             enemyBullets.splice(i, 1);
-            
+
+            // ✅ ONLY apply damage if cooldown is over
             if(!shieldActive && playerHitCooldown <= 0){
-                health = Math.max(0, health - 1); // never go negative
+
+                health = Math.max(0, health - 1);
 
                 hitFlash = 10;
                 screenShake = 10;
 
-                playerHitCooldown = 20; // 🔥 slightly shorter = more responsive
+                playerHitCooldown = 15; // set AFTER hit
 
                 updateHeartsUI();
                 updateHUD();
 
-                console.log("Player hit! Health:", health); // debug
+                console.log("Player hit! Health:", health);
 
                 if(health <= 0){
-                    gameOver();
-                    return;
+                    setTimeout(() => gameOver(), 0);
                 }
+
             } else {
-                // Shield hit effect - minimal feedback
+                // Shield or cooldown active
                 hitFlash = 3;
             }
-            
-            updateHUD();
+
             continue;
         }
-        
+
         // Remove off-screen bullets
         if(b.y > canvas.height + 50){
             enemyBullets.splice(i, 1);
@@ -1635,11 +1637,37 @@ function nextLevel(){
 }
 
 function gameOver(){
+    console.log("GAME OVER TRIGGERED");
+
     gameRunning = false;
-    document.getElementById("gameOverScreen").style.display = "flex";
-    document.getElementById("hud").style.display = "none";
-    gameMusic.pause();
-    menuMusic.play().catch(e => console.log("Menu music failed"));
+    paused = false;
+
+    // Stop all audio safely
+    if(gameMusic) gameMusic.pause();
+
+    // 🔥 FORCE HIDE GAME ELEMENTS
+    const canvas = document.getElementById("gameCanvas");
+    const hud = document.getElementById("hud");
+
+    if(canvas) canvas.style.display = "none";
+    if(hud) hud.style.display = "none";
+
+    // 🔥 CLEAR ARRAYS (prevents ghost updates)
+    bullets = [];
+    enemyBullets = [];
+    enemies = [];
+
+    // 🔥 SHOW GAME OVER UI CLEANLY
+    const go = document.getElementById("gameOverScreen");
+    if(go){
+        go.style.display = "flex";
+    }
+
+    // Play menu music again
+    if(soundOn){
+        menuMusic.currentTime = 0;
+        menuMusic.play().catch(()=>{});
+    }
 }
 
 function restartGame(){
