@@ -370,13 +370,17 @@ function togglePause(){
     if(paused){
         console.log("Pausing game");
         if(pauseMenu) pauseMenu.style.display = "flex";
+        } else {
+            console.error("pauseMenu NOT FOUND"); // 👈 debug
+        }
         if(gameMusic) gameMusic.pause();
     } else {
-        console.log("Resuming game");
         if(pauseMenu) pauseMenu.style.display = "none";
-        if(soundOn && gameMusic) {
-            gameMusic.play().catch(e => console.log("Resume music failed"));
+
+        if(soundOn && gameMusic){
+            gameMusic.play().catch(()=>{});
         }
+
         lastTime = 0;
         requestAnimationFrame(gameLoop);
     }
