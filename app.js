@@ -1502,7 +1502,7 @@ function updateShopUI(){
 
 function openShop(){
     console.log("Opening shop...");
-    const shop = document.getElementById("shop");
+    const shop = document.getElementById("shop").style.display = "flex";
     const mainMenu = document.getElementById("main-menu");
     
     if(!shop){
@@ -1521,7 +1521,7 @@ function openShop(){
 
 function closeShop(){
     console.log("Closing shop...");
-    const shop = document.getElementById("shop");
+    const shop = document.getElementById("shop").style.display = "none";
     const mainMenu = document.getElementById("main-menu");
     
     if(shop) shop.style.display = "none";
