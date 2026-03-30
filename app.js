@@ -41,10 +41,10 @@ coinImg.src = "assets/ui/coin-icon.png";
 let currentSkin = 0;
 
 const skins = [
-    "assets/skins/skin1.png",
-    "assets/skins/skin2.png",
-    "assets/skins/skin3.png",
-    "assets/skins/skin4.png"
+    "assets/player.png",
+    "assets/player2.png",
+    "assets/player3.png",
+    "assets/player4.png"
 ];
 
 function updateSkin(){
