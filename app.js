@@ -1848,17 +1848,6 @@ function checkDailyReward(){
     }
 }
 
-function showCoinWarning(){
-    const warn = document.getElementById("coinWarning");
-    if(!warn) return;
-
-    warn.classList.add("show");
-
-    setTimeout(() => {
-        warn.classList.remove("show");
-    }, 1200);
-}
-
 /* ---------- INITIALIZATION ---------- */
 
 window.addEventListener("load", () => {
