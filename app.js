@@ -1321,11 +1321,19 @@ function updatePowerups(){
                 rapidTimer = 300;
             }
             else if(p.type === 2){
-                rapidFire = true;
-                rapidTimer = 300;
+                shieldActive = true;
 
-                // 🔥 instant feedback
+                // duration scales with upgrade
+                shieldTimer = 300 + (shieldLevel * 150);
+
+                // visual feedback
                 screenShake = 5;
+                hitFlash = 3;
+
+                if(soundOn){
+                    powerupSound.currentTime = 0;
+                    powerupSound.play().catch(()=>{});
+                }
             }
         }
         
@@ -1346,6 +1354,15 @@ function updateTimers(){
         if(rapidTimer <= 0){
             rapidFire = false;
             fireRate = Math.max(80, 300 - level * 10);
+        }
+    }
+
+    // SHIELD TIMER
+    if(shieldActive){
+        shieldTimer--;
+
+        if(shieldTimer <= 0){
+            shieldActive = false;
         }
     }
 
