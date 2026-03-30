@@ -13,13 +13,13 @@ const enemyImg = new Image();
 enemyImg.src = "assets/enemy.png";
 
 const enemyFastImg = new Image();
-enemyFastImg.src = "assets/enemy-fast.png";
+enemyFastImg.src = "assets/enemies/enemy-fast.png";
 
 const enemyTankImg = new Image();
-enemyTankImg.src = "assets/enemy-tank.png";
+enemyTankImg.src = "assets/enemies/enemy-tank.png";
 
 const enemyShooterImg = new Image();
-enemyShooterImg.src = "assets/enemy-shooter.png";
+enemyShooterImg.src = "assets/enemies/enemy-shooter.png";
 
 const bossImg = new Image();
 bossImg.src = "assets/boss.png";
@@ -33,7 +33,7 @@ bgImg.onerror = function() {
 };
 
 const explosionImg = new Image();
-explosionImg.src = "assets/explosion.png";
+explosionImg.src = "assets/effects/explosion.png";
 
 const coinImg = new Image();
 coinImg.src = "assets/ui/coin-icon.png";
@@ -41,10 +41,10 @@ coinImg.src = "assets/ui/coin-icon.png";
 let currentSkin = 0;
 
 const skins = [
-    "assets/player.png",
-    "assets/player2.png",
-    "assets/player3.png",
-    "assets/player4.png"
+    "assets/skins/skin1.png",
+    "assets/skins/skin2.png",
+    "assets/skins/skin3.png",
+    "assets/skins/skin4.png"
 ];
 
 function updateSkin(){
@@ -72,12 +72,13 @@ const ENEMY_SHOOTER = 3;
 
 const shootSound = new Audio("assets/sounds/shoot.wav");
 const explosionSound = new Audio("assets/sounds/explosion.wav");
+const powerupSound = new Audio("assets/sounds/powerup.wav");
 
-let menuMusic = new Audio("assets/menu.mp3");
+let menuMusic = new Audio("assets/sounds/menu.mp3");
 menuMusic.loop = true;
 menuMusic.volume = 0.7;
 
-let gameMusic = new Audio("assets/music.mp3");
+let gameMusic = new Audio("assets/sounds/music.mp3");
 gameMusic.loop = true;
 gameMusic.volume = 0.7;
 
@@ -214,6 +215,7 @@ let enemyBullets = [];
 let powerups = [];
 
 let boss = null;
+let bossMaxHP = 0;
 
 let fireRate = 300;
 let lastShot = 0;
@@ -598,13 +600,14 @@ function createBullet(x, y, dx, dy){
 
 function getDifficultySettings(){
     return {
-        speed: 2 + (level - 1) * 0.3,
-        spawnRate: Math.max(400, 1500 - (level - 1) * 100),
-        hpBase: 2 + Math.floor((level - 1) / 2),
-        maxEnemies: 10 + level,
-        waveSize: 3 + Math.floor(level / 2),
-        troopMode: level >= 5,
-        bossChance: level >= 2 ? 0.3 : 0
+        speed: 2 + level * 0.3,
+        spawnRate: Math.max(300, 1200 - level * 80),
+        hpBase: 2 + Math.floor(level / 2),
+
+        // ✅ CORE CHANGE
+        waveSize: 7 + (waveNumber * 5),
+
+        troopMode: level >= 5
     };
 }
 
@@ -717,7 +720,7 @@ function endWave(){
     }
 
     // Boss chance
-    if(level >= 2 && Math.random() < 0.3){
+    if(level >= 5 && waveNumber % 3 === 0){
         setTimeout(() => spawnBoss(), 1500);
         return;
     }
@@ -995,7 +998,7 @@ function updateBullets(){
         if(hit) continue;
         
         // Boss collision (ONLY when visible)
-        if(boss && boss.y >= 40){
+        if(boss && boss.y >= 80){
             if(
                 b.x < boss.x + boss.w &&
                 b.x + b.w > boss.x &&
@@ -1073,7 +1076,7 @@ function updateBoss(){
     if(!boss) return;
 
     // Smooth entry
-    if(boss.y < 80){
+    if(boss.y < 120){
         boss.y += boss.speed + 1; // slightly faster entry
         return; // ⛔ don't allow shooting/damage yet
     }
@@ -1096,7 +1099,7 @@ function updateBossBar(){
 
     const hp = document.getElementById("bossHealth");
     if(hp){
-        hp.style.width = (boss.hp / (100 + level * 25) * 100) + "%";
+        hp.style.width = (boss.hp / bossMaxHP * 100) + "%";
     }
 }
 
@@ -1163,6 +1166,10 @@ function updateEnemies(){
             });
             e.lastShotTime = performance.now();
         }
+       // FORCE CLEANUP (prevents stuck waves)
+       if(enemies.length === 0 && enemiesInWave <= 0 && waveInProgress){
+           endWave();
+       }
     }
 }
 
@@ -1221,7 +1228,7 @@ function updateEnemyBullets(){
                 }
 
                 // ✅ IMPORTANT: set cooldown AFTER hit
-                playerHitCooldown = 30;
+                playerHitCooldown = 10;
             }
 
             continue;
@@ -1644,6 +1651,7 @@ function nextLevel(){
     }
     
     level++;
+    if(level > 50) level = 50;
     if(level > highestLevel){
         highestLevel = level;
     }
