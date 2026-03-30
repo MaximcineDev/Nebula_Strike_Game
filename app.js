@@ -892,6 +892,8 @@ function drawPlayer(){
     ctx.fillRect(player.x + player.width/2 - 3, player.y + player.height, 6, 10);
 
     if(shieldActive){
+        ctx.save();
+        ctx.globalAlpha = 0.6;
         ctx.beginPath();
         ctx.arc(
             player.x + player.width/2,
@@ -900,9 +902,12 @@ function drawPlayer(){
             0,
             Math.PI * 2
         );
-        ctx.strokeStyle = "cyan";
-        ctx.lineWidth = 3;
+        ctx.strokeStyle = "#00ffff";
+        ctx.lineWidth = 4;
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = "#00ffff";
         ctx.stroke();
+        ctx.restore();
     }
 }
 
@@ -1243,11 +1248,42 @@ function updateEnemyBullets(){
         ){
             enemyBullets.splice(i, 1);
 
-            // ✅ ALWAYS register hit if cooldown expired
-            if(playerHitCooldown <= 0){
+            // 🛡️ SHIELD TAKES PRIORITY
+            if(shieldActive){
+                screenShake = 3;
+                hitFlash = 3;
 
-                if(!shieldActive){
-                    health--;
+                shieldTimer -= 20;
+
+                if(shieldTimer <= 0){
+                    shieldActive = false;
+                }
+
+                continue; // 🚫 NO DAMAGE
+            }
+
+            // ❤️ NORMAL DAMAGE
+            if(playerHitCooldown <= 0){
+                health--;
+
+                hitFlash = 10;
+                screenShake = 6;
+
+                updateHeartsUI();
+                updateHUD();
+
+                console.log("PLAYER HIT! Health:", health);
+
+                if(health <= 0){
+                    gameOver();
+                    return;
+                }
+
+                playerHitCooldown = 10;
+            }
+
+            continue;
+        }
 
                     hitFlash = 10;
                     screenShake = 6;
@@ -1322,9 +1358,8 @@ function updatePowerups(){
 /* ---------- TIMERS ---------- */
 
 function updateTimers(){
-    if(rapidFire){
+    if(fireRate !== 100) fireRate = 100;
         rapidTimer--;
-        fireRate = 100;
         if(rapidTimer <= 0){
             rapidFire = false;
             fireRate = Math.max(80, 300 - level * 10);
@@ -1336,14 +1371,6 @@ function updateTimers(){
     }else{
         combo = 0;
     }
-    
-    if(shieldActive){
-        shieldTimer--;
-        if(shieldTimer <= 0){
-            shieldActive = false;
-        }
-    }
-    
     playerHitCooldown--;
     if(playerHitCooldown < 0) playerHitCooldown = 0;
 }
