@@ -1213,7 +1213,7 @@ function updateEnemyBullets(){
         let b = enemyBullets[i];
         b.y += 10;
 
-        // Draw bullet
+        // DRAW BULLET
         ctx.save();
         ctx.fillStyle = "rgba(255, 0, 0, 0.3)";
         ctx.fillRect(b.x - 4, b.y - 4, b.w + 8, b.h + 8);
@@ -1229,17 +1229,17 @@ function updateEnemyBullets(){
         ctx.fillRect(b.x + 2, b.y + 2, b.w - 4, b.h - 4);
         ctx.restore();
 
+        // NEAR MISS EFFECT
         let dx = (b.x + b.w/2) - (player.x + player.width/2);
         let dy = (b.y + b.h/2) - (player.y + player.height/2);
         let dist = Math.sqrt(dx*dx + dy*dy);
 
         if(dist < 80 && dist > 40){
-            // near miss glow
             ctx.shadowBlur = 20;
             ctx.shadowColor = "orange";
         }
 
-        // Collision
+        // COLLISION WITH PLAYER
         if(
             b.x < player.x + player.width &&
             b.x + b.w > player.x &&
@@ -1248,9 +1248,9 @@ function updateEnemyBullets(){
         ){
             enemyBullets.splice(i, 1);
 
-            // 🛡️ SHIELD TAKES PRIORITY
+            // 🛡️ SHIELD HANDLING
             if(shieldActive){
-                screenShake = 3;
+                screenShake = 5;
                 hitFlash = 3;
 
                 shieldTimer -= 20;
@@ -1262,7 +1262,7 @@ function updateEnemyBullets(){
                 continue; // 🚫 NO DAMAGE
             }
 
-            // ❤️ NORMAL DAMAGE
+            // ❤️ DAMAGE (with cooldown)
             if(playerHitCooldown <= 0){
                 health--;
 
@@ -1285,27 +1285,7 @@ function updateEnemyBullets(){
             continue;
         }
 
-                    hitFlash = 10;
-                    screenShake = 6;
-
-                    updateHeartsUI();
-                    updateHUD();
-
-                    console.log("PLAYER HIT! Health:", health);
-
-                    if(health <= 0){
-                        gameOver();
-                        return;
-                    }
-                }
-
-                // ✅ IMPORTANT: set cooldown AFTER hit
-                playerHitCooldown = 10;
-            }
-
-            continue;
-        }
-        // Remove off screen
+        // REMOVE OFF SCREEN
         if(b.y > canvas.height + 50){
             enemyBullets.splice(i, 1);
         }
@@ -1340,7 +1320,7 @@ function updatePowerups(){
                 rapidFire = true;
                 rapidTimer = 300;
             }
-            else if(p.type === 1){
+            else if(p.type === 2){
                 rapidFire = true;
                 rapidTimer = 300;
 
@@ -1358,19 +1338,25 @@ function updatePowerups(){
 /* ---------- TIMERS ---------- */
 
 function updateTimers(){
-    if(fireRate !== 100) fireRate = 100;
+    // RAPID FIRE
+    if(rapidFire){
+        fireRate = 100;
         rapidTimer--;
+
         if(rapidTimer <= 0){
             rapidFire = false;
             fireRate = Math.max(80, 300 - level * 10);
         }
     }
 
+    // COMBO
     if(comboTimer > 0){
         comboTimer--;
-    }else{
+    } else {
         combo = 0;
     }
+
+    // HIT COOLDOWN
     playerHitCooldown--;
     if(playerHitCooldown < 0) playerHitCooldown = 0;
 }
