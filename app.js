@@ -1543,7 +1543,7 @@ function buyShield(){
 
 function buyWeapon(){
     if(coins < 150){
-        alert("Not enough coins!");
+        showCoinWarning();
         return;
     }
 
@@ -1559,7 +1559,7 @@ function buyWeapon(){
 
 function buyHearts(){
     if(coins < 50){
-        alert("Not enough coins!");
+        showCoinWarning();
         return;
     }
 
@@ -1846,6 +1846,17 @@ function checkDailyReward(){
         localStorage.setItem("dailyReward", today);
         console.log("Daily reward given");
     }
+}
+
+function showCoinWarning(){
+    const warn = document.getElementById("coinWarning");
+    if(!warn) return;
+
+    warn.classList.add("show");
+
+    setTimeout(() => {
+        warn.classList.remove("show");
+    }, 1200);
 }
 
 /* ---------- INITIALIZATION ---------- */
