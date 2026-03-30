@@ -132,7 +132,8 @@
 
 <!-- ================= SHOP ================= -->
 <div id="shop" style="display: none;">
-    <!-- BUY SKINS -->
+    
+    <!-- BUY SKINS SECTION -->
     <div class="shopSection">
         <h2>Buy Skins</h2>
         <div id="skins">
@@ -170,30 +171,30 @@
                 <div class="skinPrice">750 🪙</div>
             </div>
         </div>
+    </div>
 
-        <!-- UPGRADES -->
-        <div class="shopSection">
-            <h2>Upgrades</h2>
-            <div class="shopControls">
-                <div class="shopBtn" onclick="buyWeapon()">
-                    <span>Upgrade Weapon (150 🪙)</span>
-                </div>
-                
-                <div class="shopBtn" onclick="buyHearts()">
-                    <span>Buy Hearts (50 🪙)</span>
-                </div>
-                
-                <div class="shopBtn" onclick="buyShield()">
-                    <span>Buy Shield (50 🪙)</span>
-                </div>
+    <!-- UPGRADES SECTION -->
+    <div class="shopSection">
+        <h2>Upgrades</h2>
+        <div class="shopControls">
+            <div class="shopBtn" onclick="buyWeapon()">
+                <span>Upgrade Weapon (150 🪙)</span>
             </div>
             
-            <button class="backBtn" onclick="closeShop()">Back</button>
+            <div class="shopBtn" onclick="buyHearts()">
+                <span>Buy Hearts (50 🪙)</span>
+            </div>
             
-            <!-- Coin display in shop -->
-            <div id="shopCoins">Coins: <span id="shopCoinText">0</span></div>
+            <div class="shopBtn" onclick="buyShield()">
+                <span>Buy Shield (50 🪙)</span>
+            </div>
         </div>
     </div>
+
+    <button class="backBtn" onclick="closeShop()">Back</button>
+    
+    <div id="shopCoins">Coins: <span id="shopCoinText">0</span></div>
+    
 </div>
 
 
