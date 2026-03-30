@@ -590,7 +590,8 @@ function createBullet(x, y, dx, dy){
         h: 12,
         dx: dx,
         dy: dy || -10,
-        active: true
+        active: true,
+        skin: currentSkin   // ✅ lock skin at fire time
     });
 }
 
@@ -758,23 +759,24 @@ function showWaveNotification(waveNum){
 
 function spawnBoss(){
     if(boss) return;
-    
+
     boss = {
         x: canvas.width / 2 - 80,
-        y: -120,
+        y: -200,   // ✅ start higher so entry is visible
         w: 160,
         h: 160,
-        speed: 1.5 + (level * 0.2)
+        speed: 2,
+        hp: 100 + level * 25   // ✅ attach HP directly
     };
-    
-    bossMaxHP = 100 + level * 25;
-    bossHP = bossMaxHP;
+
+    bossMaxHP = boss.hp;
 
     const bossBar = document.getElementById("bossBar");
     const bossWarning = document.getElementById("bossWarning");
-    
+
     if(bossBar) bossBar.style.display = "block";
-    if(bossWarning) {
+
+    if(bossWarning){
         bossWarning.style.display = "block";
         setTimeout(()=>{
             bossWarning.style.display = "none";
@@ -806,10 +808,14 @@ function gameLoop(currentTime = 0){
 
     // Screen shake
     if(screenShake > 0){
-        ctx.save();
-        const shakeX = (Math.random() - 0.5) * screenShake;
-        const shakeY = (Math.random() - 0.5) * screenShake;
-        ctx.translate(shakeX, shakeY);
+        ctx.restore();
+        screenShake *= 0.7;   // ✅ faster decay (was 0.85)
+        if(screenShake < 0.3) screenShake = 0;
+    }
+
+    if(boss && boss.y > canvas.height){
+        boss = null;
+        document.getElementById("bossBar").style.display = "none";
     }
 
     // Draw background
@@ -889,18 +895,27 @@ function updateBullets(){
         
         ctx.save();
         ctx.shadowBlur = 10;
-        if(weaponLevel === 1){
-            ctx.fillStyle = "cyan";
-            ctx.shadowColor = "cyan";
-        } else if(weaponLevel === 2){
-            ctx.fillStyle = "lime";
-            ctx.shadowColor = "lime";
-        } else if(weaponLevel === 3){
-            ctx.fillStyle = "yellow";
-            ctx.shadowColor = "yellow";
-        } else {
-            ctx.fillStyle = "orange";
-            ctx.shadowColor = "orange";
+        // ✅ BULLET COLOR BASED ON SKIN (NOT weaponLevel)
+        switch(b.skin){
+            case 0:
+                ctx.fillStyle = "cyan";
+                ctx.shadowColor = "cyan";
+                break;
+            case 1:
+                ctx.fillStyle = "lime";
+                ctx.shadowColor = "lime";
+                break;
+            case 2:
+                ctx.fillStyle = "yellow";
+                ctx.shadowColor = "yellow";
+                break;
+            case 3:
+                ctx.fillStyle = "orange";
+                ctx.shadowColor = "orange";
+                break;
+            default:
+                ctx.fillStyle = "white";
+                ctx.shadowColor = "white";
         }
         
         ctx.fillRect(b.x - b.w/2, b.y, b.w, b.h);
@@ -982,17 +997,19 @@ function updateBullets(){
         if(hit) continue;
         
         // Boss collision
-        if(boss && boss.hp > 0){
+        if(boss){
             if(b.x < boss.x + boss.w && b.x + b.w > boss.x &&
                b.y < boss.y + boss.h && b.y + b.h > boss.y){
-                
+        
                 bullets.splice(i, 1);
+
                 boss.hp -= damage;
-                updateBossBar();
-                
+
                 if(boss.hp <= 0){
                     bossDefeated();
                 }
+
+                updateBossBar();
                 continue;
             }
         }
@@ -1054,15 +1071,14 @@ function updateExplosions(){
 function updateBoss(){
     if(!boss) return;
 
-    // Move boss into screen
-    if(boss.y < 50){
+    // ✅ Smooth entry
+    if(boss.y < 60){
         boss.y += boss.speed;
     }
 
-    // Draw boss
     ctx.drawImage(bossImg, boss.x, boss.y, boss.w, boss.h);
 
-    // Basic shooting (optional but good)
+    // ✅ Shooting
     if(Math.random() < 0.02){
         enemyBullets.push({
             x: boss.x + boss.w / 2 - 5,
@@ -1071,6 +1087,9 @@ function updateBoss(){
             h: 25
         });
     }
+
+    // ✅ ALWAYS update HP bar
+    updateBossBar();
 }
 
 function updateBossBar(){
@@ -1183,24 +1202,27 @@ function updateEnemyBullets(){
         ){
             enemyBullets.splice(i, 1);
 
-            if(playerHitCooldown === 0){   // ✅ STRICT check
+            if(playerHitCooldown <= 0){
 
                 if(!shieldActive){
-                    health = Math.max(0, health - 1);
+                    health--;
 
-                    hitFlash = 8;
-                    screenShake = Math.min(6, screenShake + 4);
+                    hitFlash = 6;
+
+                    // ✅ MUCH SMOOTHER SHAKE
+                    screenShake = 4;
 
                     updateHeartsUI();
                     updateHUD();
 
                     if(health <= 0){
-                        setTimeout(() => gameOver(), 0);
+                        gameOver();
+                        return;
                     }
                 }
 
-                // ✅ cooldown ALWAYS applied ONCE
-                playerHitCooldown = 25;
+                // ✅ STRONGER COOLDOWN
+                playerHitCooldown = 40;
             }
 
             continue;
