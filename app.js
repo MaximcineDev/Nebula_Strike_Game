@@ -200,6 +200,9 @@ window.addEventListener("orientationchange", () => {
 
 /* ---------- GAME STATE ---------- */
 
+let combo = 0;
+let comboTimer = 0;
+
 let gameRunning = false;
 let paused = false;
 
@@ -292,6 +295,10 @@ function updateHUD(){
     const coinText = document.getElementById("coinText");
     const levelText = document.getElementById("levelText");
     const scoreText = document.getElementById("scoreText");
+    const comboText = document.getElementById("comboText");
+    if(comboText){
+        comboText.innerText = combo > 1 ? "x" + combo : "";
+    }
 
     // Force update with multiple methods
     if(coinText) {
@@ -597,12 +604,11 @@ function createBullet(x, y, dx, dy){
 
 function getDifficultySettings(){
     return {
-        speed: 2 + level * 0.3,
-        spawnRate: Math.max(300, 1200 - level * 80),
+        speed: 2 + level * 0.25,
         hpBase: 2 + Math.floor(level / 2),
 
-        // ✅ CORE CHANGE
-        waveSize: 7 + (waveNumber * 5),
+        // 🔥 better scaling
+        waveSize: 7 + (waveNumber * 5) + level,
 
         troopMode: level >= 5
     };
@@ -721,6 +727,10 @@ function endWave(){
         setTimeout(() => spawnBoss(), 1500);
         return;
     }
+
+    coins += 20 + level * 5;
+    updateHUD();
+    coinPulse();
 
     // ✅ GUARANTEED next wave
     setTimeout(() => {
@@ -944,6 +954,7 @@ function updateBullets(){
                 bullets.splice(i, 1);
                 hit = true;
                 e.hp--;
+                screenShake = 3;
                 
                 if(e.hp <= 0){
                     enemies.splice(j, 1);
@@ -969,6 +980,8 @@ function updateBullets(){
                     
                     // UPDATE SCORE AND COINS
                     coins += reward;
+                    combo++;
+                    comboTimer = 60;
                     score += reward * 2;
                     totalKills++;
                     
@@ -1019,6 +1032,8 @@ function updateBullets(){
                 bullets.splice(i, 1);
 
                 boss.hp -= damage;
+                screenShake = 8;
+                hitFlash = 5;
                 updateBossBar();
 
                 if(boss.hp <= 0){
@@ -1209,6 +1224,16 @@ function updateEnemyBullets(){
         ctx.fillRect(b.x + 2, b.y + 2, b.w - 4, b.h - 4);
         ctx.restore();
 
+        let dx = (b.x + b.w/2) - (player.x + player.width/2);
+        let dy = (b.y + b.h/2) - (player.y + player.height/2);
+        let dist = Math.sqrt(dx*dx + dy*dy);
+
+        if(dist < 80 && dist > 40){
+            // near miss glow
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = "orange";
+        }
+
         // Collision
         if(
             b.x < player.x + player.width &&
@@ -1304,6 +1329,12 @@ function updateTimers(){
             rapidFire = false;
             fireRate = Math.max(80, 300 - level * 10);
         }
+    }
+
+    if(comboTimer > 0){
+        comboTimer--;
+    }else{
+        combo = 0;
     }
     
     if(shieldActive){
