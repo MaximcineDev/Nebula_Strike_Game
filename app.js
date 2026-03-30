@@ -419,10 +419,10 @@ function quitGame(){
     
     const menu = document.getElementById("main-menu");
     if(menu){
-        menu.style.display = "none";
-        menu.style.visibility = "hidden";
-        menu.style.opacity = "0";
-        menu.classList.remove("show");
+        menu.style.display = "flex";
+        menu.style.visibility = "visible";
+        menu.style.opacity = "1";
+        menu.classList.add("show");
     }
     
     enemies = [];
@@ -707,24 +707,25 @@ function updateSpawning(currentTime){
 function endWave(){
     waveInProgress = false;
     waveSpawnTimer = 0;
-    spawnTimer = 0;
-    
-    console.log("Wave ended. Wave number:", waveNumber);
-    
-    // Every 3 waves, complete the level
+
+    console.log("Wave ended:", waveNumber);
+
+    // ✅ ALWAYS reset enemies array safety
+    if(enemies.length === 0){
+        enemies = [];
+    }
+
     if(waveNumber >= 3 && waveNumber % 3 === 0){
-        console.log("Level complete! Triggering level complete screen.");
         setTimeout(() => levelComplete(), 1000);
         return;
     }
-    
-    // Maybe spawn boss (30% chance after level 2)
+
     if(level >= 2 && Math.random() < 0.3){
-        console.log("Spawning boss after wave!");
         setTimeout(() => spawnBoss(), 1500);
     } else {
-        // Continue to next wave
-        setTimeout(() => startWave(), 2000);
+        setTimeout(() => {
+            startWave();   // ✅ force next wave
+        }, 1500);
     }
 }
 
@@ -785,34 +786,36 @@ function spawnBoss(){
 
 function gameLoop(currentTime = 0){
     if(!gameRunning) return;
-    
+
     if(!paused){
         requestAnimationFrame(gameLoop);
     }
-    
+
     const deltaTime = currentTime - lastTime;
     if(deltaTime < frameInterval) return;
-    
+
     lastTime = currentTime - (deltaTime % frameInterval);
-    
+
     if(!gameRunning || paused) return;
-    
-    // Clear entire canvas
+
+    // ✅ CRITICAL FIX: Reset ALL canvas transforms every frame
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+    // Clear canvas AFTER reset
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Screen shake effect
+
+    // Screen shake
     if(screenShake > 0){
         ctx.save();
-        let shakeX = (Math.random() - 0.5) * screenShake;
-        let shakeY = (Math.random() - 0.5) * screenShake;
+        const shakeX = (Math.random() - 0.5) * screenShake;
+        const shakeY = (Math.random() - 0.5) * screenShake;
         ctx.translate(shakeX, shakeY);
     }
-    
+
     // Draw background
     if(bgImg && bgImg.complete && bgImg.naturalWidth > 0){
         ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
     } else {
-        // Create a space-like gradient fallback
         const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
         gradient.addColorStop(0, "#000022");
         gradient.addColorStop(0.5, "#000044");
@@ -820,11 +823,11 @@ function gameLoop(currentTime = 0){
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
-    
-    // Draw stars
+
+    // Stars
     drawStars();
-    
-    // Update all systems in proper order
+
+    // Systems
     updateSpawning(currentTime);
     updatePlayer();
     drawPlayer();
@@ -836,14 +839,14 @@ function gameLoop(currentTime = 0){
     updatePowerups();
     updateBoss();
     updateTimers();
-    
-    // Restore from shake
+
+    // Restore after shake
     if(screenShake > 0){
         ctx.restore();
         screenShake = Math.max(0, screenShake - 1);
     }
-    
-    // Hit flash effect
+
+    // Hit flash overlay (draw LAST)
     if(hitFlash > 0){
         ctx.fillStyle = `rgba(255, 0, 0, ${hitFlash * 0.1})`;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -1136,17 +1139,19 @@ function updateEnemyBullets(){
         ctx.save();
         ctx.fillStyle = "rgba(255, 0, 0, 0.3)";
         ctx.fillRect(b.x - 4, b.y - 4, b.w + 8, b.h + 8);
+
         ctx.fillStyle = "#ff0044";
         ctx.shadowBlur = 30;
         ctx.shadowColor = "#ff0044";
         ctx.fillRect(b.x, b.y, b.w, b.h);
+
         ctx.fillStyle = "#ffffff";
         ctx.shadowBlur = 10;
         ctx.shadowColor = "#ffffff";
         ctx.fillRect(b.x + 2, b.y + 2, b.w - 4, b.h - 4);
         ctx.restore();
 
-        // Collision with player
+        // Collision
         if(
             b.x < player.x + player.width &&
             b.x + b.w > player.x &&
@@ -1155,34 +1160,33 @@ function updateEnemyBullets(){
         ){
             enemyBullets.splice(i, 1);
 
-            // ✅ ONLY apply damage if cooldown is over
-            if(!shieldActive && playerHitCooldown <= 0){
+            // ✅ ONLY block damage, NOT collision
+            if(playerHitCooldown <= 0){
 
-                health = Math.max(0, health - 1);
+                if(!shieldActive){
+                    health = Math.max(0, health - 1);
 
-                hitFlash = 10;
-                screenShake = 10;
+                    hitFlash = 10;
+                    screenShake = 10;
 
-                playerHitCooldown = 15; // set AFTER hit
+                    updateHeartsUI();
+                    updateHUD();
 
-                updateHeartsUI();
-                updateHUD();
+                    console.log("Player hit! Health:", health);
 
-                console.log("Player hit! Health:", health);
-
-                if(health <= 0){
-                    setTimeout(() => gameOver(), 0);
+                    if(health <= 0){
+                        setTimeout(() => gameOver(), 0);
+                    }
                 }
 
-            } else {
-                // Shield or cooldown active
-                hitFlash = 3;
+                // ✅ cooldown ALWAYS applied after hit
+                playerHitCooldown = 20;
             }
 
             continue;
         }
 
-        // Remove off-screen bullets
+        // Remove off screen
         if(b.y > canvas.height + 50){
             enemyBullets.splice(i, 1);
         }
