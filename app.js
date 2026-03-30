@@ -843,7 +843,8 @@ function gameLoop(currentTime = 0){
     // Restore after shake
     if(screenShake > 0){
         ctx.restore();
-        screenShake = Math.max(0, screenShake - 1);
+        screenShake *= 0.85;
+        if(screenShake < 0.5) screenShake = 0;
     }
 
     // Hit flash overlay (draw LAST)
@@ -1050,6 +1051,28 @@ function updateExplosions(){
     }
 }
 
+function updateBoss(){
+    if(!boss) return;
+
+    // Move boss into screen
+    if(boss.y < 50){
+        boss.y += boss.speed;
+    }
+
+    // Draw boss
+    ctx.drawImage(bossImg, boss.x, boss.y, boss.w, boss.h);
+
+    // Basic shooting (optional but good)
+    if(Math.random() < 0.02){
+        enemyBullets.push({
+            x: boss.x + boss.w / 2 - 5,
+            y: boss.y + boss.h,
+            w: 10,
+            h: 25
+        });
+    }
+}
+
 function updateBossBar(){
     if(!boss) return;
     const bar = document.getElementById("bossBar");
@@ -1160,27 +1183,24 @@ function updateEnemyBullets(){
         ){
             enemyBullets.splice(i, 1);
 
-            // ✅ ONLY block damage, NOT collision
-            if(playerHitCooldown <= 0){
+            if(playerHitCooldown === 0){   // ✅ STRICT check
 
                 if(!shieldActive){
                     health = Math.max(0, health - 1);
 
-                    hitFlash = 10;
-                    screenShake = 10;
+                    hitFlash = 8;
+                    screenShake = Math.min(6, screenShake + 4);
 
                     updateHeartsUI();
                     updateHUD();
-
-                    console.log("Player hit! Health:", health);
 
                     if(health <= 0){
                         setTimeout(() => gameOver(), 0);
                     }
                 }
 
-                // ✅ cooldown ALWAYS applied after hit
-                playerHitCooldown = 20;
+                // ✅ cooldown ALWAYS applied ONCE
+                playerHitCooldown = 25;
             }
 
             continue;
@@ -1252,9 +1272,7 @@ function updateTimers(){
         }
     }
     
-    if(playerHitCooldown > 0){
-        playerHitCooldown--;
-    }
+    playerHitCooldown = Math.max(0, playerHitCooldown - 1);
 }
 
 /* ---------- SAVE/LOAD ---------- */
