@@ -721,17 +721,17 @@ function endWave(){
     // Safety cleanup
     enemies = [];
 
-    // LEVEL COMPLETE every 3 waves
-    if(waveNumber % 3 === 0){
-        setTimeout(() => levelComplete(), 1000);
-        return;
-    }
-
-    // Boss chance
-    if(level >= 5 && waveNumber % 3 === 0){
-        setTimeout(() => spawnBoss(), 1500);
-        return;
-    }
+   // Boss FIRST
+   if(level >= 5 && waveNumber % 3 === 0){
+      setTimeout(() => spawnBoss(), 1500);
+      return;
+   }
+   
+   // Then level complete
+   if(waveNumber % 3 === 0){
+      setTimeout(() => levelComplete(), 1000);
+      return;
+   }
 
     coins += 20 + level * 5;
     updateHUD();
@@ -795,6 +795,10 @@ function spawnBoss(){
             bossWarning.style.display = "none";
         }, 2000);
     }
+   if(!document.getElementById("bossBar")){
+      console.error("bossBar missing!");
+      return;
+   }
 }
 
 /* ---------- MAIN GAME LOOP ---------- */
@@ -861,7 +865,6 @@ function gameLoop(currentTime = 0){
 
     // Restore after shake
     if(screenShake > 0){
-        ctx.restore();
         screenShake *= 0.85;
         if(screenShake < 0.5) screenShake = 0;
     }
