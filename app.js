@@ -1529,6 +1529,11 @@ function buyShield(){
     if(coins >= 50){
         coins -= 50;
         shieldLevel++;
+
+        // ✅ ACTIVATE SHIELD IMMEDIATELY
+        shieldActive = true;
+        shieldTimer = 300 + (shieldLevel * 150);
+
         updateHUD();
         saveGame();
     }
