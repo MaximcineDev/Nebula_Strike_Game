@@ -528,24 +528,21 @@ function closeApp(){
 
 /* ---------- AUTO SHOOT ---------- */
 
-let autoShootInterval = null;
-let autoShootStarted = false;
+let autoShootTimeout = null;
 
 function startAutoShoot(){
-    if(autoShootStarted) return;
-    autoShootStarted = true;
-    
-    console.log("Auto-shoot started");
-    
-    if(autoShootInterval){
-        clearInterval(autoShootInterval);
-    }
-    
-    autoShootInterval = setInterval(() => {
+    if(autoShootTimeout) return;
+
+    function shootLoop(){
         if(gameRunning && !paused){
             playerShoot();
         }
-    }, fireRate);
+
+        // ✅ dynamic fire rate (this was missing)
+        autoShootTimeout = setTimeout(shootLoop, fireRate);
+    }
+
+    shootLoop();
 }
 
 function playerShoot(){
@@ -883,6 +880,20 @@ function drawPlayer(){
     ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
     ctx.fillStyle = "cyan";
     ctx.fillRect(player.x + player.width/2 - 3, player.y + player.height, 6, 10);
+
+    if(shieldActive){
+        ctx.beginPath();
+        ctx.arc(
+            player.x + player.width/2,
+            player.y + player.height/2,
+            player.width,
+            0,
+            Math.PI * 2
+        );
+        ctx.strokeStyle = "cyan";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+    }
 }
 
 /* ---------- BULLETS ---------- */
@@ -1268,9 +1279,12 @@ function updatePowerups(){
                 rapidFire = true;
                 rapidTimer = 300;
             }
-            else if(p.type === 2){
-                shieldActive = true;
-                shieldTimer = 300;
+            else if(p.type === 1){
+                rapidFire = true;
+                rapidTimer = 300;
+
+                // 🔥 instant feedback
+                screenShake = 5;
             }
         }
         
@@ -1643,6 +1657,7 @@ function levelComplete(){
 }
 
 function nextLevel(){
+    level++;
     const levelCompleteScreen = document.getElementById("levelComplete");
     if(levelCompleteScreen) {
         levelCompleteScreen.style.display = "none";
@@ -1650,7 +1665,6 @@ function nextLevel(){
         levelCompleteScreen.innerHTML = '';
     }
     
-    level++;
     if(level > 50) level = 50;
     if(level > highestLevel){
         highestLevel = level;
