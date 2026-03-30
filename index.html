@@ -132,8 +132,9 @@
 
 <!-- ================= SHOP ================= -->
 <div id="shop" style="display: none;">
-    <div id="shopPanel">
-        <!-- SKINS CONTAINER -->
+    <!-- BUY SKINS -->
+    <div class="shopSection">
+        <h2>Buy Skins</h2>
         <div id="skins">
             <!-- Default -->
             <div class="skinBtn unlocked" onclick="selectSkin(0)">
@@ -143,54 +144,56 @@
             
             <!-- Skin 1 - Locked -->
             <div class="skinBtn locked" id="skin1" onclick="tryBuySkin(1, 100)">
-                <img src="assets/skins/skin1.png" alt="Ship 2" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><rect fill=%22%23444%22 width=%2280%22 height=%2280%22/><text fill=%22%23999%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>LOCKED</text></svg>'">
+                <img src="assets/skins/skin1.png" alt="Ship 1" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><rect fill=%22%23444%22 width=%2280%22 height=%2280%22/><text fill=%22%23999%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>LOCKED</text></svg>'">
                 <img class="lockIcon" src="assets/ui/locked-level.png" onerror="this.style.display='none'">
                 <div class="skinPrice">100 🪙</div>
             </div>
             
             <!-- Skin 2 - Locked -->
             <div class="skinBtn locked" id="skin2" onclick="tryBuySkin(2, 250)">
-                <img src="assets/skins/skin2.png" alt="Ship 3" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><rect fill=%22%23444%22 width=%2280%22 height=%2280%22/><text fill=%22%23999%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>LOCKED</text></svg>'">
+                <img src="assets/skins/skin2.png" alt="Ship 2" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><rect fill=%22%23444%22 width=%2280%22 height=%2280%22/><text fill=%22%23999%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>LOCKED</text></svg>'">
                 <img class="lockIcon" src="assets/ui/locked-level.png" onerror="this.style.display='none'">
                 <div class="skinPrice">250 🪙</div>
             </div>
             
             <!-- Skin 3 - Locked -->
             <div class="skinBtn locked" id="skin3" onclick="tryBuySkin(3, 500)">
-                <img src="assets/skins/skin3.png" alt="Ship 4" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><rect fill=%22%23444%22 width=%2280%22 height=%2280%22/><text fill=%22%23999%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>LOCKED</text></svg>'">
+                <img src="assets/skins/skin3.png" alt="Ship 3" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><rect fill=%22%23444%22 width=%2280%22 height=%2280%22/><text fill=%22%23999%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>LOCKED</text></svg>'">
                 <img class="lockIcon" src="assets/ui/locked-level.png" onerror="this.style.display='none'">
                 <div class="skinPrice">500 🪙</div>
             </div>
 
             <!-- Skin 4 - Locked -->
-            <div class="skinBtn locked" id="skin3" onclick="tryBuySkin(3, 500)">
+            <div class="skinBtn locked" id="skin4" onclick="tryBuySkin(4, 750)">
                 <img src="assets/skins/skin4.png" alt="Ship 4" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><rect fill=%22%23444%22 width=%2280%22 height=%2280%22/><text fill=%22%23999%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>LOCKED</text></svg>'">
                 <img class="lockIcon" src="assets/ui/locked-level.png" onerror="this.style.display='none'">
                 <div class="skinPrice">750 🪙</div>
             </div>
         </div>
 
-        <!-- SHOP BUTTONS -->
-        <div class="shopControls">
-            <div class="shopBtn" onclick="buyWeapon()">
-                <span>Upgrade Weapon (150 🪙)</span>
+        <!-- UPGRADES -->
+        <div class="shopSection">
+            <h2>Upgrades</h2>
+            <div class="shopControls">
+                <div class="shopBtn" onclick="buyWeapon()">
+                    <span>Upgrade Weapon (150 🪙)</span>
+                </div>
+                
+                <div class="shopBtn" onclick="buyHearts()">
+                    <span>Buy Hearts (50 🪙)</span>
+                </div>
+                
+                <div class="shopBtn" onclick="buyShield()">
+                    <span>Buy Shield (50 🪙)</span>
+                </div>
             </div>
             
-            <div class="shopBtn" onclick="buyHearts()">
-                <span>Buy Hearts (50 🪙)</span>
-            </div>
+            <button class="backBtn" onclick="closeShop()">Back</button>
             
-            <div class="shopBtn" onclick="buyShield()">
-                <span>Buy Shield (50 🪙)</span>
-            </div>
+            <!-- Coin display in shop -->
+            <div id="shopCoins">Coins: <span id="shopCoinText">0</span></div>
         </div>
-
-        <button class="backBtn" onclick="closeShop()">Back</button>
-        
-        <!-- Coin display in shop -->
-        <div id="shopCoins">Coins: <span id="shopCoinText">0</span></div>
     </div>
-</div>
 
 
 <!-- ================= PAUSE MENU ================= -->
