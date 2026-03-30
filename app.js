@@ -1926,19 +1926,27 @@ window.addEventListener("load", () => {
             tapOverlay.remove();
         }
 
-        if(splash) splash.style.display = "none";
+        if(splash){
+           splash.style.opacity = "0";
+           splash.style.pointerEvents = "none";
+           setTimeout(() => {
+              splash.style.display = "none";
+           }, 500);
+        }
 
         if(menu){
-            menu.style.display = "flex";
-            menu.classList.add("show");
+           menu.style.display = "flex";
+           menu.style.visibility = "visible";
+           menu.style.opacity = "1";
+           menu.classList.add("show");
         }
 
         console.log("Game ready");
     };
 
-    tapOverlay.addEventListener("click", handleStart, { once: true });
-    tapOverlay.addEventListener("touchstart", handleStart, { once: true, passive: false });
-
+    ["click", "touchstart"].forEach(evt => {
+       tapOverlay.addEventListener(evt, handleStart, { once: true, passive: false });
+    });
     /* ---------- FALLBACK ---------- */
 
     setTimeout(() => {
