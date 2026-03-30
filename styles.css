@@ -674,8 +674,10 @@ body {
     position: fixed;
     inset: 0;
     background: #000;
+    color: white;
+    font-family: 'Orbitron', Arial, sans-serif;
 
-    display: none; /* ✅ ONLY THIS */
+    display: none;
 
     flex-direction: column;
     align-items: center;
@@ -685,6 +687,7 @@ body {
     gap: 20px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    z-index: 9999;
 }
 
 .shopSection {
@@ -698,6 +701,12 @@ body {
     border-radius: 15px;
 
     padding: 15px;
+}
+.shopSection h2 {
+    color: #ffffff;
+    font-family: 'Orbitron', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 /* SKINS GRID */
@@ -753,13 +762,27 @@ body {
     opacity: 0.9;
 }
 
-.skinLabel, .skinPrice {
+.skinLabel {
     position: absolute;
     bottom: 5px;
     left: 0;
     right: 0;
     text-align: center;
-    color: white;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: bold;
+    text-shadow: 0 0 4px black;
+    padding: 2px;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.skinPrice {
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: #ffd700;
     font-size: 12px;
     font-weight: bold;
     text-shadow: 0 0 4px black;
@@ -786,6 +809,10 @@ body {
     cursor: pointer;
     background: rgba(0,255,255,0.1);
     transition: 0.2s;
+    font-family: 'Orbitron', sans-serif;
+    color: white;
+    font-weight: bold;
+    letter-spacing: 1px;
 }
 
 .shopBtn:active {
@@ -797,6 +824,10 @@ body {
     background: rgba(0,255,255,0.3);
 }
 
+.shopBtn span {
+    color: #ffffff;
+}
+
 .backBtn {
     margin-top: auto;
     padding: 12px 25px;
@@ -806,7 +837,8 @@ body {
 #shopCoins {
     margin-top: 5px;
     font-size: 18px;
-    color: gold;
+    font-weight: bold;
+    color: #ffd700;
     position: sticky;
     bottom: 10px;
 }
