@@ -214,8 +214,6 @@ let enemyBullets = [];
 let powerups = [];
 
 let boss = null;
-let bossHP = 0;
-let bossMaxHP = 0;
 
 let fireRate = 300;
 let lastShot = 0;
@@ -698,10 +696,8 @@ function updateSpawning(currentTime){
             spawnSingleEnemy();
             lastEnemySpawnTime = currentTime;
         }
-    } else if(enemies.length === 0){
-        // All enemies cleared, end wave
-        endWave();
-        lastWaveTime = currentTime;
+    } else if(enemiesInWave <= 0 && enemies.length === 0){
+         endWave();
     }
 }
 
@@ -711,23 +707,25 @@ function endWave(){
 
     console.log("Wave ended:", waveNumber);
 
-    // ✅ ALWAYS reset enemies array safety
-    if(enemies.length === 0){
-        enemies = [];
-    }
+    // Safety cleanup
+    enemies = [];
 
-    if(waveNumber >= 3 && waveNumber % 3 === 0){
+    // LEVEL COMPLETE every 3 waves
+    if(waveNumber % 3 === 0){
         setTimeout(() => levelComplete(), 1000);
         return;
     }
 
+    // Boss chance
     if(level >= 2 && Math.random() < 0.3){
         setTimeout(() => spawnBoss(), 1500);
-    } else {
-        setTimeout(() => {
-            startWave();   // ✅ force next wave
-        }, 1500);
+        return;
     }
+
+    // ✅ GUARANTEED next wave
+    setTimeout(() => {
+        startWave();
+    }, 1500);
 }
 
 function showWaveNotification(waveNum){
@@ -762,11 +760,11 @@ function spawnBoss(){
 
     boss = {
         x: canvas.width / 2 - 80,
-        y: -200,   // ✅ start higher so entry is visible
+        y: -150, // start higher so you SEE entry
         w: 160,
         h: 160,
         speed: 2,
-        hp: 100 + level * 25   // ✅ attach HP directly
+        hp: 100 + level * 25   // ✅ attach HP directly to boss
     };
 
     bossMaxHP = boss.hp;
@@ -996,20 +994,23 @@ function updateBullets(){
         
         if(hit) continue;
         
-        // Boss collision
-        if(boss){
-            if(b.x < boss.x + boss.w && b.x + b.w > boss.x &&
-               b.y < boss.y + boss.h && b.y + b.h > boss.y){
-        
+        // Boss collision (ONLY when visible)
+        if(boss && boss.y >= 40){
+            if(
+                b.x < boss.x + boss.w &&
+                b.x + b.w > boss.x &&
+                b.y < boss.y + boss.h &&
+                b.y + b.h > boss.y
+            ){
                 bullets.splice(i, 1);
 
                 boss.hp -= damage;
+                updateBossBar();
 
                 if(boss.hp <= 0){
                     bossDefeated();
                 }
 
-                updateBossBar();
                 continue;
             }
         }
@@ -1071,14 +1072,15 @@ function updateExplosions(){
 function updateBoss(){
     if(!boss) return;
 
-    // ✅ Smooth entry
-    if(boss.y < 60){
-        boss.y += boss.speed;
+    // Smooth entry
+    if(boss.y < 80){
+        boss.y += boss.speed + 1; // slightly faster entry
+        return; // ⛔ don't allow shooting/damage yet
     }
 
     ctx.drawImage(bossImg, boss.x, boss.y, boss.w, boss.h);
 
-    // ✅ Shooting
+    // Shooting
     if(Math.random() < 0.02){
         enemyBullets.push({
             x: boss.x + boss.w / 2 - 5,
@@ -1087,19 +1089,15 @@ function updateBoss(){
             h: 25
         });
     }
-
-    // ✅ ALWAYS update HP bar
-    updateBossBar();
 }
 
 function updateBossBar(){
     if(!boss) return;
-    const bar = document.getElementById("bossBar");
+
     const hp = document.getElementById("bossHealth");
-    
-    if(!bar || !hp) return;
-    bar.style.display = "block";
-    hp.style.width = (boss.hp / bossMaxHP * 100) + "%";
+    if(hp){
+        hp.style.width = (boss.hp / (100 + level * 25) * 100) + "%";
+    }
 }
 
 function drawStars(){
@@ -1202,18 +1200,19 @@ function updateEnemyBullets(){
         ){
             enemyBullets.splice(i, 1);
 
+            // ✅ ALWAYS register hit if cooldown expired
             if(playerHitCooldown <= 0){
 
                 if(!shieldActive){
                     health--;
 
-                    hitFlash = 6;
-
-                    // ✅ MUCH SMOOTHER SHAKE
-                    screenShake = 4;
+                    hitFlash = 10;
+                    screenShake = 6;
 
                     updateHeartsUI();
                     updateHUD();
+
+                    console.log("PLAYER HIT! Health:", health);
 
                     if(health <= 0){
                         gameOver();
@@ -1221,13 +1220,12 @@ function updateEnemyBullets(){
                     }
                 }
 
-                // ✅ STRONGER COOLDOWN
-                playerHitCooldown = 40;
+                // ✅ IMPORTANT: set cooldown AFTER hit
+                playerHitCooldown = 30;
             }
 
             continue;
         }
-
         // Remove off screen
         if(b.y > canvas.height + 50){
             enemyBullets.splice(i, 1);
@@ -1294,7 +1292,8 @@ function updateTimers(){
         }
     }
     
-    playerHitCooldown = Math.max(0, playerHitCooldown - 1);
+    playerHitCooldown--;
+    if(playerHitCooldown < 0) playerHitCooldown = 0;
 }
 
 /* ---------- SAVE/LOAD ---------- */
