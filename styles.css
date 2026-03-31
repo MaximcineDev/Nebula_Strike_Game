@@ -847,6 +847,83 @@ body {
     bottom: 10px;
 }
 
+/* =========================
+        COIN PACKS
+========================= */
+
+.coinPacks {
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.coinCard {
+    flex: 1;
+    min-width: 90px;
+
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border: 2px solid #00ffff;
+    border-radius: 15px;
+
+    padding: 15px 10px;
+    text-align: center;
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    position: relative;
+}
+
+/* Hover / Tap feel */
+.coinCard:active {
+    transform: scale(0.95);
+    box-shadow: 0 0 20px cyan;
+}
+
+/* Amount */
+.coinAmount {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffd700;
+}
+
+/* Label */
+.coinLabel {
+    font-size: 12px;
+    color: white;
+}
+
+/* Price */
+.coinPrice {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #00ffcc;
+    font-weight: bold;
+}
+
+/* BEST DEAL highlight */
+.coinCard.popular {
+    border-color: #00ff88;
+    box-shadow: 0 0 15px rgba(0,255,136,0.5);
+}
+
+/* Badge */
+.badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+
+    background: #00ff88;
+    color: black;
+
+    font-size: 10px;
+    font-weight: bold;
+
+    padding: 3px 6px;
+    border-radius: 6px;
+}
+
 
 /* =========================
         PAUSE MENU
