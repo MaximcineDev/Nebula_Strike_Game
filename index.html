@@ -191,29 +191,32 @@
         </div>
     </div> <!-- Close shopSection for Upgrades -->
     
+    <!-- COIN PACKS -->
     <div class="shopSection">
-    <h2>Coin Packs</h2>
-    <div class="shopControls">
-        <div class="shopBtn" onclick="buyCoins(500)">
-            <span>500 Coins ($0.99)</span>
-        </div>
+        <h2>Coin Packs</h2>
 
-        <div class="shopBtn" onclick="buyCoins(1000)">
-            <span>1000 Coins ($1.99)</span>
-        </div>
+        <div class="coinPacks">
 
-        <div class="shopBtn" onclick="buyCoins(2000)">
-            <span>2000 Coins ($2.99)</span>
+            <div class="coinCard" onclick="buyCoins(500)">
+                <div class="coinAmount">500</div>
+                <div class="coinLabel">Coins</div>
+                <div class="coinPrice">$0.99</div>
+            </div>
+
+            <div class="coinCard popular" onclick="buyCoins(1000)">
+                <div class="badge">BEST</div>
+                <div class="coinAmount">1000</div>
+                <div class="coinLabel">Coins</div>
+                <div class="coinPrice">$1.99</div>
+            </div>
+
+            <div class="coinCard" onclick="buyCoins(2000)">
+                <div class="coinAmount">2000</div>
+                <div class="coinLabel">Coins</div>
+                <div class="coinPrice">$2.99</div>
+            </div>
         </div>
     </div>
-
-    <!-- Back button and coin display (outside both sections) -->
-    <button class="menu-btn" onclick="closeShop()">
-        <span class="btn-text">Back</span>
-        <div class="btn-shine"></div>
-    </button>
-    
-    <div id="shopCoins">Coins: <span id="shopCoinText">0</span></div>
     
 </div> <!-- Close shop -->
 
