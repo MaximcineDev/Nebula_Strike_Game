@@ -1245,7 +1245,11 @@ function updateBullets(){
                 updateBossBar();
 
                 if(boss.hp <= 0){
-                    bossDefeated();
+                   boss = null;
+                   
+                   document.getElementById("bossBar").style.display = "none";
+                   
+                   giveBossReward();
                 }
 
                 continue;
