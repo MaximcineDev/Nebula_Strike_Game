@@ -511,6 +511,67 @@ function startGame(){
     requestAnimationFrame(gameLoop);
 }
 
+function checkDailyReward() {
+
+    loadDailyData();
+
+    const today = new Date().toDateString();
+
+    if (dailyData.lastLogin === today) return;
+
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (dailyData.lastLogin === yesterday.toDateString()) {
+        dailyData.streak++;
+    } else {
+        dailyData.streak = 1;
+    }
+
+    if (dailyData.streak > 7) dailyData.streak = 1;
+
+    dailyData.lastLogin = today;
+
+    saveDailyData();
+
+    showDailyRewardUI();
+}
+
+function showDailyRewardUI() {
+
+    document.getElementById("dailyReward").style.display = "flex";
+
+    for (let i = 1; i <= 7; i++) {
+
+        const el = document.getElementById("day" + i);
+
+        el.classList.remove("active", "claimed");
+
+        if (i < dailyData.streak) {
+            el.classList.add("claimed");
+        } 
+        else if (i === dailyData.streak) {
+            el.classList.add("active");
+        }
+    }
+}
+
+function claimDailyReward() {
+
+    const rewards = [50, 100, 150, 200, 300, 400, 500];
+
+    const reward = rewards[dailyData.streak - 1];
+
+    coins += reward;
+
+    document.getElementById("shopCoinText").innerText = coins;
+
+    showCoinGain(reward);
+
+    document.getElementById("dailyReward").style.display = "none";
+}
+
+
 /* ---------- CLOSE APP ---------- */
 function closeApp(){
     gameRunning = false;
@@ -1670,6 +1731,25 @@ function showCoinWarning(){
         warn.classList.remove("show");
     }, 1200);
 }
+
+
+let dailyData = {
+    lastLogin: null,
+    streak: 0
+};
+
+function loadDailyData() {
+    const saved = localStorage.getItem("dailyReward");
+
+    if (saved) {
+        dailyData = JSON.parse(saved);
+    }
+}
+
+function saveDailyData() {
+    localStorage.setItem("dailyReward", JSON.stringify(dailyData));
+}
+
 
 /* ---------- SETTINGS FUNCTIONS ---------- */
 
