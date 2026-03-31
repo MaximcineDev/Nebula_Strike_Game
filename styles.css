@@ -546,6 +546,19 @@ body {
     color: black;
 }
 
+/* CHEST */
+#rewardChest {
+    font-size: 60px;
+    margin: 15px auto;
+    cursor: pointer;
+    animation: chestBounce 1.2s infinite;
+}
+
+@keyframes chestBounce {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
 
 /* =========================
    HUD - MOBILE POSITIONING
