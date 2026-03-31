@@ -1500,36 +1500,26 @@ function updateShopUI(){
     });
 }
 
-function openShop(){
-    console.log("Opening shop...");
-    const shop = document.getElementById("shop").style.display = "flex";
-    const mainMenu = document.getElementById("main-menu");
-    
-    if(!shop){
-        console.error("Shop element not found!");
-        return;
-    }
+function openShop() {
+    const shop = document.getElementById("shop");
+    const menu = document.getElementById("main-menu");
 
-    if(mainMenu) mainMenu.style.display = "none";
-    
-    updateShopCoins();
+    menu.classList.remove("show");
+    menu.style.display = "none";
+
     shop.style.display = "flex";
-    updateShopUI();
-    
-    console.log("Shop opened");
 }
 
-function closeShop(){
-    console.log("Closing shop...");
-    const shop = document.getElementById("shop").style.display = "none";
-    const mainMenu = document.getElementById("main-menu");
-    
-    if(shop) shop.style.display = "none";
-    
-    if(mainMenu){
-        mainMenu.style.display = "flex";
-        mainMenu.classList.add("show");
-    }
+function closeShop() {
+    const shop = document.getElementById("shop");
+    const menu = document.getElementById("main-menu");
+
+    shop.style.display = "none";
+
+    menu.style.display = "flex";
+    setTimeout(() => {
+        menu.classList.add("show");
+    }, 10);
 }
 
 function buyShield(){
