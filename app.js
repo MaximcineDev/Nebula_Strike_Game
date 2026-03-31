@@ -2172,22 +2172,6 @@ function backToMenu(){
     document.getElementById("main-menu").style.display = "flex";
 }
 
-function checkDailyReward() {
-    let lastClaim = localStorage.getItem("lastDailyReward");
-    let now = Date.now();
-
-    if (!lastClaim) {
-        showDailyReward();
-        return;
-    }
-
-    let diff = now - parseInt(lastClaim);
-
-    // 24 hours = 86400000 ms
-    if (diff >= 86400000) {
-        showDailyReward();
-    }
-}
 
 /* ---------- INITIALIZATION ---------- */
 
