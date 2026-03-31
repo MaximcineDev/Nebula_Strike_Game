@@ -293,7 +293,10 @@ canvas.addEventListener("touchend", e => {
 }, {passive:false});
 
 function updateHUD(){
-    const coinText = document.getElementById("coinText");
+    document.getElementById("coinText").innerText = coins;
+    const shopText = document.getElementById("shopCoinText");
+    if (shopText) shopText.innerText = coins;
+   
     const levelText = document.getElementById("levelText");
     const scoreText = document.getElementById("scoreText");
     const comboText = document.getElementById("comboText");
@@ -555,7 +558,13 @@ function showDailyReward() {
 }
 
 function claimDailyReward(amount) {
+    console.log("Before:", coins);
     coins += amount;
+
+    console.log("After:", coins);
+
+    saveRewardProgress(streak);
+    closeReward();
 
     localStorage.setItem("lastDailyReward", Date.now());
 
@@ -676,27 +685,42 @@ function createBullet(x, y, dx, dy){
 
 function getDifficultySettings(){
 
-    // 🟢 EARLY GAME (Level 1–4)
     if(level < 5){
         return {
             speed: 2,
             hpBase: 2,
-            waveSize: 6 + waveNumber * 2, // slow growth
+            waveSize: 6 + waveNumber * 2,
             troopMode: false
         };
     }
 
-    // 🔴 MID → LATE GAME (Level 5+)
-    let difficultyLevel = level - 4; // starts scaling from 1 at level 5
+    let difficultyLevel = level - 4;
+    let dynamic = getDynamicMultiplier();
 
     return {
-        speed: 2 + difficultyLevel * 0.3,
-        hpBase: 2 + Math.floor(difficultyLevel / 2),
-
-        waveSize: 10 + (waveNumber * 4) + difficultyLevel * 2,
-
+        speed: (2 + difficultyLevel * 0.3) * dynamic,
+        hpBase: Math.floor((2 + difficultyLevel / 2) * dynamic),
+        waveSize: Math.floor((10 + waveNumber * 4 + difficultyLevel * 2) * dynamic),
         troopMode: true
     };
+}
+
+function getDynamicMultiplier(){
+    let accuracy = playerPerformance.shotsHit / (playerPerformance.shotsFired || 1);
+
+    let multiplier = 1;
+
+    // Player is strong → increase difficulty
+    if(accuracy > 0.6 && playerPerformance.damageTaken < 3){
+        multiplier = 1.3;
+    }
+
+    // Player struggling → reduce difficulty
+    if(playerPerformance.damageTaken > 5){
+        multiplier = 0.8;
+    }
+
+    return multiplier;
 }
 
 function startWave(){
@@ -850,21 +874,24 @@ function showWaveNotification(waveNum){
     }, 1500);
 }
 
+function isBossLevel(){
+    return level % 5 === 0;
+}
+
 function spawnBoss(){
     if(boss) return;
 
     boss = {
-        x: canvas.width / 2 - 80,
-        y: -150, // start higher so you SEE entry
-        w: 160,
-        h: 160,
-        speed: 2,
-        hp: 100 + level * 25   // ✅ attach HP directly to boss
+        x: canvas.width / 2,
+        y: 100,
+        hp: 100 + level * 20,
+        maxHp: 100 + level * 20,
+        pattern: getBossPattern()
     };
 
     bossMaxHP = boss.hp;
 
-    const bossBar = document.getElementById("bossBar");
+    document.getElementById("bossBar").style.display = "block";
     const bossWarning = document.getElementById("bossWarning");
 
     if(bossBar) bossBar.style.display = "block";
@@ -879,6 +906,94 @@ function spawnBoss(){
       console.error("bossBar missing!");
       return;
    }
+}
+
+function getBossPattern(){
+
+    const patterns = ["spray", "burst", "laser"];
+
+    return patterns[(level / 5 - 1) % patterns.length];
+}
+
+function bossAttack(){
+
+    if(!boss) return;
+
+    switch(boss.pattern){
+
+        case "spray":
+            // spread bullets
+            shootSpread();
+            break;
+
+        case "burst":
+            // rapid fire
+            shootBurst();
+            break;
+
+        case "laser":
+            // single powerful shot
+            shootLaser();
+            break;
+    }
+}
+
+function giveBossReward(){
+    let baseReward = 200 + (level * 50);
+
+    // Bonus scaling (makes late game worth it)
+    let reward = Math.floor(baseReward * 1.2);
+
+    coins += reward;
+
+    showBossRewardPopup(reward);
+
+    updateHUD();
+    saveGame();
+}
+
+function showBossRewardPopup(amount){
+
+    const popup = document.createElement("div");
+    popup.id = "bossRewardPopup";
+
+    popup.innerHTML = `
+        <div class="rewardBox">
+            <h2>BOSS DEFEATED!</h2>
+
+            <p style="color: gold; font-size: 22px;">
+                +${amount} 🪙
+            </p>
+
+            <button onclick="closeBossReward()">
+                CLAIM
+            </button>
+
+            <button class="doubleBtn" onclick="doubleBossReward(${amount})">
+                📺 DOUBLE REWARD
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(popup);
+}
+
+function doubleBossReward(amount){
+
+    // 🔥 FUTURE: AdMob Rewarded Ad here
+    // showRewardedAd().then(() => { ... });
+
+    coins += amount; // already got base, so just add same again
+
+    closeBossReward();
+
+    updateHUD();
+    saveGame();
+}
+
+function closeBossReward(){
+    const popup = document.getElementById("bossRewardPopup");
+    if(popup) popup.remove();
 }
 
 /* ---------- MAIN GAME LOOP ---------- */
@@ -1476,11 +1591,12 @@ function saveGame() {
         dailyData
     };
 
+    localStorage.setItem("coins", coins);
     localStorage.setItem("nebulaSave", JSON.stringify(data));
 }
 
 function loadGame() {
-
+    localStorage.setItem("coins", coins);
     const save = localStorage.getItem("nebulaSave");
 
     if (!save) return;
