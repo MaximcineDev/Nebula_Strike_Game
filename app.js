@@ -1569,6 +1569,14 @@ function buyHearts(){
     saveGame();
 }
 
+function buyCoins(amount) {
+    coins += amount;
+}
+
+function watchAdReward() {
+    coins += 100;
+}
+
 function showCoinWarning(){
     const warn = document.getElementById("coinWarning");
     if(!warn) return;
