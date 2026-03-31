@@ -537,38 +537,32 @@ function checkDailyReward() {
     showDailyRewardUI();
 }
 
-function showDailyRewardUI() {
+function showDailyReward() {
+    const reward = 100;
 
-    document.getElementById("dailyReward").style.display = "flex";
+    const popup = document.createElement("div");
+    popup.id = "dailyRewardPopup";
 
-    for (let i = 1; i <= 7; i++) {
+    popup.innerHTML = `
+        <div class="rewardBox">
+            <h2>DAILY REWARD</h2>
+            <p>+${reward} 🪙</p>
+            <button onclick="claimDailyReward(${reward})">CLAIM</button>
+        </div>
+    `;
 
-        const el = document.getElementById("day" + i);
-
-        el.classList.remove("active", "claimed");
-
-        if (i < dailyData.streak) {
-            el.classList.add("claimed");
-        } 
-        else if (i === dailyData.streak) {
-            el.classList.add("active");
-        }
-    }
+    document.body.appendChild(popup);
 }
 
-function claimDailyReward(double = false) {
+function claimDailyReward(amount) {
+    coins += amount;
 
-    const rewards = [50, 100, 150, 200, 300, 400, 500];
+    localStorage.setItem("lastDailyReward", Date.now());
 
-    let reward = rewards[dailyData.streak - 1];
+    document.getElementById("dailyRewardPopup").remove();
 
-    if (double) {
-        showFakeAd(() => {
-            giveReward(reward * 2);
-        });
-    } else {
-        giveReward(reward);
-    }
+    updateHUD();
+    saveGame();
 }
 
 function giveReward(amount) {
@@ -2043,14 +2037,20 @@ function backToMenu(){
     document.getElementById("main-menu").style.display = "flex";
 }
 
-function checkDailyReward(){
-    let last = localStorage.getItem("dailyReward");
-    let today = new Date().toDateString();
-    
-    if(last !== today){
-        coins += 20;
-        localStorage.setItem("dailyReward", today);
-        console.log("Daily reward given");
+function checkDailyReward() {
+    let lastClaim = localStorage.getItem("lastDailyReward");
+    let now = Date.now();
+
+    if (!lastClaim) {
+        showDailyReward();
+        return;
+    }
+
+    let diff = now - parseInt(lastClaim);
+
+    // 24 hours = 86400000 ms
+    if (diff >= 86400000) {
+        showDailyReward();
     }
 }
 
