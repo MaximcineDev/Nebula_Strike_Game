@@ -1579,8 +1579,68 @@ function buyCoins(amount) {
     showCoinGain(amount);
 }
 
+let adCooldown = false;
+
 function watchAdReward() {
-    coins += 100;
+
+    if (adCooldown) {
+        showCoinWarning("Ad not ready yet!");
+        return;
+    }
+
+    // simulate watching ad
+    showFakeAd(() => {
+
+        coins += 100;
+        document.getElementById("shopCoinText").innerText = coins;
+
+        showCoinGain(100);
+
+        // cooldown (prevents spam)
+        adCooldown = true;
+
+        setTimeout(() => {
+            adCooldown = false;
+        }, 30000); // 30 sec cooldown
+    });
+}
+
+function showFakeAd(callback) {
+
+    const ad = document.createElement("div");
+
+    ad.style.position = "fixed";
+    ad.style.top = "0";
+    ad.style.left = "0";
+    ad.style.width = "100vw";
+    ad.style.height = "100vh";
+    ad.style.background = "black";
+    ad.style.color = "white";
+    ad.style.display = "flex";
+    ad.style.justifyContent = "center";
+    ad.style.alignItems = "center";
+    ad.style.flexDirection = "column";
+    ad.style.zIndex = "99999";
+
+    ad.innerHTML = `
+        <h2>Ad Playing...</h2>
+        <p id="adTimer">3</p>
+    `;
+
+    document.body.appendChild(ad);
+
+    let time = 3;
+
+    const interval = setInterval(() => {
+        time--;
+        ad.querySelector("#adTimer").innerText = time;
+
+        if (time <= 0) {
+            clearInterval(interval);
+            ad.remove();
+            callback();
+        }
+    }, 1000);
 }
 
 function showCoinGain(amount) {
