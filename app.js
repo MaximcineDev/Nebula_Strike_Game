@@ -293,16 +293,11 @@ canvas.addEventListener("touchend", e => {
 }, {passive:false});
 
 function updateHUD(){
-    document.getElementById("coinText").innerText = coins;
+    const coinText = document.getElementById("coinText");
     const shopText = document.getElementById("shopCoinText");
-    if (shopText) shopText.innerText = coins;
-   
     const levelText = document.getElementById("levelText");
     const scoreText = document.getElementById("scoreText");
     const comboText = document.getElementById("comboText");
-    if(comboText){
-        comboText.innerText = combo > 1 ? "x" + combo : "";
-    }
 
     // Force update with multiple methods
     if(coinText) {
@@ -958,6 +953,7 @@ function spawnBoss(){
     document.getElementById("bossBar").style.display = "block";
     const bossWarning = document.getElementById("bossWarning");
 
+    const bossBar = document.getElementById("bossBar");
     if(bossBar) bossBar.style.display = "block";
 
     if(bossWarning){
@@ -1793,7 +1789,7 @@ function buyWeapon() {
 
         weaponLevel++;
 
-        bulletDamage += 2;
+        Damage += 2;
         fireRate += 0.1;
 
         saveGame();
@@ -1811,7 +1807,7 @@ function buyHearts() {
 
         coins -= heartCost;
 
-        hearts++;
+        health++;
 
         saveGame();
 
