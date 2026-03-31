@@ -1571,10 +1571,33 @@ function buyHearts(){
 
 function buyCoins(amount) {
     coins += amount;
+
+    // update UI
+    document.getElementById("shopCoinText").innerText = coins;
+
+    // feedback
+    showCoinGain(amount);
 }
 
 function watchAdReward() {
     coins += 100;
+}
+
+function showCoinGain(amount) {
+    const popup = document.createElement("div");
+    popup.innerText = "+" + amount + " 🪙";
+
+    popup.style.position = "fixed";
+    popup.style.top = "50%";
+    popup.style.left = "50%";
+    popup.style.transform = "translate(-50%, -50%)";
+    popup.style.color = "gold";
+    popup.style.fontSize = "24px";
+    popup.style.zIndex = "9999";
+
+    document.body.appendChild(popup);
+
+    setTimeout(() => popup.remove(), 1000);
 }
 
 function showCoinWarning(){
