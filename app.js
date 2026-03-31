@@ -557,7 +557,7 @@ function showDailyReward() {
     document.body.appendChild(popup);
 }
 
-function claimDailyReward(amount, streak) {
+function claimDailyReward(amount) {
     console.log("Before:", coins);
 
     coins += amount;
@@ -566,11 +566,12 @@ function claimDailyReward(amount, streak) {
 
     showCoinGain(amount);
 
-    saveRewardProgress(streak);
-
+    // save last claim time
     localStorage.setItem("lastDailyReward", Date.now());
 
-    closeReward();
+    // remove popup safely
+    const popup = document.getElementById("dailyRewardPopup");
+    if(popup) popup.remove();
 
     updateHUD();
     saveGame();
