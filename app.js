@@ -564,8 +564,16 @@ function claimDailyReward(amount, streak) {
 
     console.log("After:", coins);
 
-    saveRewardProgress(streak); // handles saving + HUD
-    closeReward(); // removes popup
+    showCoinGain(amount);
+
+    saveRewardProgress(streak);
+
+    localStorage.setItem("lastDailyReward", Date.now());
+
+    closeReward();
+
+    updateHUD();
+    saveGame();
 }
 
 function giveReward(amount) {
