@@ -268,6 +268,12 @@ let lastTime = 0;
 const targetFPS = 60;
 const frameInterval = 1000 / targetFPS;
 
+let playerPerformance = {
+    shotsFired: 0,
+    shotsHit: 0,
+    damageTaken: 0
+};
+
 /* ---------- TOUCH ---------- */
 
 let touchX = null;
