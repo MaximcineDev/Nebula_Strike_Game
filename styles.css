@@ -486,6 +486,68 @@ body {
 
 
 /* =========================
+      DAILY REWARD
+========================= */
+
+#dailyReward {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 6000;
+}
+
+.dailyBox {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border: 2px solid #00ffff;
+    border-radius: 20px;
+
+    padding: 25px;
+    text-align: center;
+
+    width: 90%;
+    max-width: 400px;
+}
+
+.dailyBox h2 {
+    color: white;
+    margin-bottom: 15px;
+}
+
+/* Grid */
+.dailyGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+/* Each day */
+.day {
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid #555;
+    color: white;
+    font-size: 12px;
+}
+
+/* States */
+.day.active {
+    border-color: #00ffff;
+    box-shadow: 0 0 10px cyan;
+}
+
+.day.claimed {
+    background: #00ff88;
+    color: black;
+}
+
+
+/* =========================
    HUD - MOBILE POSITIONING
 ========================= */
 
