@@ -1090,6 +1090,40 @@ body {
     z-index: 9999;
 }
 
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    margin: 15px 0;
+}
+
+.day {
+    background: #111;
+    border: 1px solid #555;
+    border-radius: 8px;
+    padding: 5px;
+    font-size: 10px;
+    text-align: center;
+    color: white;
+}
+
+.day b {
+    display: block;
+    color: gold;
+    font-size: 12px;
+}
+
+.day.claimed {
+    background: #00aa55;
+    border-color: #00ff88;
+}
+
+.day.today {
+    background: #0044aa;
+    border-color: #00ffff;
+    transform: scale(1.1);
+}
+
 /* =========================
         PAUSE MENU
 ========================= */
