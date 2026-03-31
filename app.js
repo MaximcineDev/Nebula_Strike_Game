@@ -556,17 +556,28 @@ function showDailyRewardUI() {
     }
 }
 
-function claimDailyReward() {
+function claimDailyReward(double = false) {
 
     const rewards = [50, 100, 150, 200, 300, 400, 500];
 
-    const reward = rewards[dailyData.streak - 1];
+    let reward = rewards[dailyData.streak - 1];
 
-    coins += reward;
+    if (double) {
+        showFakeAd(() => {
+            giveReward(reward * 2);
+        });
+    } else {
+        giveReward(reward);
+    }
+}
+
+function giveReward(amount) {
+
+    coins += amount;
 
     document.getElementById("shopCoinText").innerText = coins;
 
-    showCoinGain(reward);
+    showCoinGain(amount);
 
     document.getElementById("dailyReward").style.display = "none";
 }
