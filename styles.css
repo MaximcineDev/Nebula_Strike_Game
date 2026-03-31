@@ -690,6 +690,10 @@ body {
     z-index: 9999;
 }
 
+#shop .menu-btn {
+    margin-top: auto;
+}
+
 .shopSection {
     width: 100%;
     max-width: 500px;
