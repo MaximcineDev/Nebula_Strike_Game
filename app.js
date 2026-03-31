@@ -675,14 +675,27 @@ function createBullet(x, y, dx, dy){
 /* ---------- WAVE & SPAWN SYSTEM ---------- */
 
 function getDifficultySettings(){
+
+    // 🟢 EARLY GAME (Level 1–4)
+    if(level < 5){
+        return {
+            speed: 2,
+            hpBase: 2,
+            waveSize: 6 + waveNumber * 2, // slow growth
+            troopMode: false
+        };
+    }
+
+    // 🔴 MID → LATE GAME (Level 5+)
+    let difficultyLevel = level - 4; // starts scaling from 1 at level 5
+
     return {
-        speed: 2 + level * 0.25,
-        hpBase: 2 + Math.floor(level / 2),
+        speed: 2 + difficultyLevel * 0.3,
+        hpBase: 2 + Math.floor(difficultyLevel / 2),
 
-        // 🔥 better scaling
-        waveSize: 7 + (waveNumber * 5) + level,
+        waveSize: 10 + (waveNumber * 4) + difficultyLevel * 2,
 
-        troopMode: level >= 5
+        troopMode: true
     };
 }
 
