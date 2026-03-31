@@ -577,6 +577,8 @@ function giveReward(amount) {
 
     document.getElementById("shopCoinText").innerText = coins;
 
+    updateHUD();
+
     showCoinGain(amount);
 
     document.getElementById("dailyReward").style.display = "none";
@@ -1459,50 +1461,31 @@ function updateTimers(){
 
 /* ---------- SAVE/LOAD ---------- */
 
-function saveGame(){
-    const saveData = {
-        coins: coins,
-        weaponLevel: weaponLevel,
-        maxHearts: maxHearts,
-        shieldLevel: shieldLevel,
-        highestLevel: highestLevel,
-        premium: premium,
-        soundOn: soundOn,
-        skin: currentSkin,
-        lastReward: lastReward,
-        achievements: achievements,
-        totalKills: totalKills,
-        unlockedSkins: unlockedSkins || [0]
+function saveGame() {
+    const data = {
+        coins,
+        weaponLevel,
+        skin,
+        dailyData
     };
-    localStorage.setItem("nebulaSave", JSON.stringify(saveData));
+
+    localStorage.setItem("nebulaSave", JSON.stringify(data));
 }
 
-function loadGame(){
-    try{
-        const data = localStorage.getItem("nebulaSave");
-        if(!data) return;
-        
-        const save = JSON.parse(data);
-        
-        coins = save.coins || 0;
-        weaponLevel = save.weaponLevel || 1;
-        maxHearts = save.maxHearts || 5;
-        shieldLevel = save.shieldLevel || 0;
-        highestLevel = save.highestLevel || 1;
-        premium = save.premium || false;
-        soundOn = save.soundOn ?? true;
-        achievements = save.achievements || [];
-        totalKills = save.totalKills || 0;
-        currentSkin = save.skin || 0;
-        unlockedSkins = save.unlockedSkins || [0];
-        
-        updateSkin();
-        lastReward = save.lastReward || 0;
-        
-    }catch(e){
-        console.log("Save load error", e);
-    }
+function loadGame() {
+
+    const save = localStorage.getItem("nebulaSave");
+
+    if (!save) return;
+
+    const data = JSON.parse(save);
+
+    coins = data.coins || 0;
+    weaponLevel = data.weaponLevel || 1;
+    skin = data.skin || 0;
+    dailyData = data.dailyData || dailyData;
 }
+
 
 /* ---------- SHOP FUNCTIONS ---------- */
 
@@ -1609,36 +1592,41 @@ function buyShield(){
     }
 }
 
-function buyWeapon(){
-    if(coins < 150){
-        showCoinWarning();
-        return;
+function buyWeapon() {
+
+    let weaponCost = 150 * weaponLevel;
+
+    if (coins >= weaponCost) {
+
+        coins -= weaponCost;
+
+        weaponLevel++;
+
+        bulletDamage += 2;
+        fireRate += 0.1;
+
+        saveGame();
+
+    } else {
+        showCoinWarning("Not enough coins!");
     }
-
-    coins -= 150;
-    weaponLevel++;
-
-    if(weaponLevel > 5) weaponLevel = 5;
-
-    updateHUD();
-    updateShopCoins(); // ✅ ADD THIS
-    saveGame();
 }
 
-function buyHearts(){
-    if(coins < 50){
-        showCoinWarning();
-        return;
+function buyHearts() {
+
+    let heartCost = 50 + (level * 5);
+
+    if (coins >= heartCost) {
+
+        coins -= heartCost;
+
+        hearts++;
+
+        saveGame();
+
+    } else {
+        showCoinWarning("Not enough coins!");
     }
-
-    coins -= 50;
-    maxHearts++;
-    health = maxHearts;
-
-    updateHUD();
-    updateHeartsUI();
-    updateShopCoins(); // ✅ ADD THIS
-    saveGame();
 }
 
 function buyCoins(amount) {
@@ -1762,6 +1750,25 @@ function saveDailyData() {
 }
 
 
+let chestOpened = false;
+
+function openChest() {
+
+    if (chestOpened) return;
+
+    chestOpened = true;
+
+    const chest = document.getElementById("rewardChest");
+
+    chest.innerText = "✨";
+
+    chest.style.transform = "scale(1.5)";
+
+    setTimeout(() => {
+        chest.style.display = "none";
+    }, 500);
+}
+
 /* ---------- SETTINGS FUNCTIONS ---------- */
 
 function openSettings(){
@@ -1860,15 +1867,17 @@ function setSFXVolume(val){
 /* ---------- LEVEL & GAME OVER ---------- */
 
 function levelComplete(){
+
     gameRunning = false;
     paused = false;
     
-    // Stop game music
     if(gameMusic) gameMusic.pause();
-    
+
+    let reward = 50 + (level * 10); // 🔥 better scaling
+
     const levelCompleteScreen = document.getElementById("levelComplete");
+
     if(levelCompleteScreen) {
-        // Clear previous content and create popup style
         levelCompleteScreen.innerHTML = `
             <div style="
                 background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
@@ -1887,42 +1896,50 @@ function levelComplete(){
                     text-shadow: 0 0 20px rgba(0, 255, 128, 0.8);
                 ">LEVEL ${level} COMPLETE!</h1>
                 
-                <p style="
-                    color: white;
-                    font-size: 18px;
-                    margin: 10px 0;
-                ">Score: ${score}</p>
+                <p style="color:white;font-size:18px;">Score: ${score}</p>
                 
-                <p style="
-                    color: #ffd700;
-                    font-size: 20px;
-                    margin: 10px 0 30px 0;
-                ">Bonus: +${50 * level} 🪙</p>
-                
-                <button onclick="nextLevel()" style="
-                    padding: 15px 40px;
-                    font-family: 'Orbitron', sans-serif;
-                    font-size: 20px;
-                    font-weight: bold;
-                    background: linear-gradient(135deg, rgba(0, 255, 128, 0.2) 0%, rgba(0, 200, 100, 0.2) 100%);
-                    border: 2px solid #00ff80;
-                    border-radius: 50px;
-                    color: #00ff80;
-                    cursor: pointer;
-                    box-shadow: 0 0 20px rgba(0, 255, 128, 0.3);
-                    transition: all 0.2s;
-                ">NEXT LEVEL →</button>
+                <p style="color:#ffd700;font-size:20px;margin:20px 0;">
+                    Reward: +${reward} 🪙
+                </p>
+
+                <!-- 🔥 ADD THIS -->
+                <button onclick="doubleLevelReward(${reward})" class="menu-btn rewardBtn">
+                    🎥 DOUBLE REWARD
+                </button>
+
+                <br><br>
+
+                <button onclick="nextLevel()" class="menu-btn">
+                    NEXT LEVEL →
+                </button>
             </div>
         `;
+
         levelCompleteScreen.style.display = "flex";
         levelCompleteScreen.style.justifyContent = "center";
         levelCompleteScreen.style.alignItems = "center";
     }
-    
-    // Bonus coins
-    coins += 50 * level;
-    updateHUD();
+
+    // Give base reward
+    giveReward(reward);
+
     saveGame();
+}
+
+function doubleLevelReward(baseReward){
+
+    showFakeAd(() => {
+
+        let extra = baseReward; // give same amount again
+
+        coins += extra;
+
+        showCoinGain(extra);
+
+        updateHUD();
+
+        saveGame();
+    });
 }
 
 function nextLevel(){
