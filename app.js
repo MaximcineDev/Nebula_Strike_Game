@@ -572,8 +572,8 @@ function checkDailyReward() {
     showDailyRewardUI();
 }
 
-function showDailyReward() {
-    const reward = 100;
+function showDailyReward(streak) {
+    const reward = getDailyReward(streak);
 
     const popup = document.createElement("div");
     popup.id = "dailyRewardPopup";
@@ -581,32 +581,61 @@ function showDailyReward() {
     popup.innerHTML = `
         <div class="rewardBox">
             <h2>DAILY REWARD</h2>
-            <p>+${reward} 🪙</p>
-            <button onclick="claimDailyReward(${reward})">CLAIM</button>
+
+            <div class="calendar">
+                ${generateCalendar(streak)}
+            </div>
+
+            <div class="chest" onclick="openChest(${reward}, ${streak})">
+                🎁
+            </div>
+
+            <p>Day ${streak + 1} → ${reward} 🪙</p>
+
+            <button onclick="claimDailyReward(${reward}, ${streak})">
+                CLAIM
+            </button>
+
+            <button class="doubleBtn" onclick="doubleReward(${reward}, ${streak})">
+                📺 DOUBLE
+            </button>
         </div>
     `;
 
     document.body.appendChild(popup);
 }
 
-function claimDailyReward(amount) {
-    console.log("Before:", coins);
+function generateCalendar(streak){
+    let html = "";
 
-    coins += amount;
+    const rewards = [50, 75, 100, 150, 200, 300, 500];
 
-    console.log("After:", coins);
+    for(let i = 0; i < 7; i++){
+        let state = "";
 
-    showCoinGain(amount);
+        if(i < streak) state = "claimed";
+        else if(i === streak) state = "today";
 
-    // save last claim time
-    localStorage.setItem("lastDailyReward", Date.now());
+        html += `
+            <div class="day ${state}">
+                <span>Day ${i+1}</span>
+                <b>${rewards[i]}</b>
+            </div>
+        `;
+    }
 
-    // remove popup safely
-    const popup = document.getElementById("dailyRewardPopup");
-    if(popup) popup.remove();
+    return html;
+}
 
-    updateHUD();
-    saveGame();
+function claimDailyReward(amount, streak) {
+
+    animateCoinsToHUD(amount); // ✨ animation first
+
+    setTimeout(() => {
+        coins += amount;
+        saveRewardProgress(streak);
+        closeReward();
+    }, 600);
 }
 
 function giveReward(amount) {
