@@ -327,6 +327,38 @@ function coinPulse(){
     },150);
 }
 
+function animateCoinsToHUD(amount) {
+    const hud = document.getElementById("coinBox");
+    if (!hud) return;
+
+    const hudRect = hud.getBoundingClientRect();
+
+    for (let i = 0; i < 8; i++) {
+        const coin = document.createElement("div");
+        coin.className = "flyingCoin";
+        coin.innerText = "🪙";
+
+        document.body.appendChild(coin);
+
+        // Start position (center of screen)
+        coin.style.left = "50%";
+        coin.style.top = "50%";
+
+        // Random spread before going to HUD
+        const offsetX = (Math.random() - 0.5) * 150;
+        const offsetY = (Math.random() - 0.5) * 150;
+
+        setTimeout(() => {
+            coin.style.transform = `translate(${hudRect.left + offsetX - window.innerWidth/2}px, ${hudRect.top + offsetY - window.innerHeight/2}px) scale(0.5)`;
+            coin.style.opacity = "0";
+        }, 50);
+
+        setTimeout(() => {
+            coin.remove();
+        }, 800);
+    }
+}
+
 function updateHeartsUI(){
     const hearts = document.querySelectorAll("#hearts img");
     for(let i=0;i<hearts.length;i++){
