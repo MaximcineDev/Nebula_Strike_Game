@@ -490,15 +490,15 @@ function quitGame(){
 /* ---------- START GAME ---------- */
 
 function startGame(){
+
     unlockAudio();
     resizeGame();
-    
     setTimeout(() => resizeGame(), 100);
 
+    // RESET GAME STATE
     health = maxHearts;
     score = 0;
     level = 1;
-    coins = 0; // Reset coins or keep from save? Your choice
 
     gameRunning = true;
     paused = false;
@@ -511,51 +511,57 @@ function startGame(){
     waveInProgress = false;
     waveNumber = 0;
     enemiesInWave = 0;
-    
-    // RESET TIMERS
+
     lastWaveTime = 0;
     lastEnemySpawnTime = 0;
 
     updateHUD();
     updateHeartsUI();
 
+    // GET ELEMENTS (ONLY ONCE)
     const splash = document.getElementById("splashScreen");
-    if(splash){
-        splash.style.display = "none";
-        splash.style.opacity = "0";
-        splash.style.visibility = "hidden";
-        splash.style.pointerEvents = "none";
-     }
-
     const menu = document.getElementById("main-menu");
-   
-    if(menu){
-        menu.style.display = "none";
-        menu.style.pointerEvents = "none";
+    const canvas = document.getElementById("gameCanvas");
+    const hud = document.getElementById("hud");
+    const pauseMenu = document.getElementById("pauseMenu");
+    const gameOver = document.getElementById("gameOverScreen");
+
+    // HIDE ALL SCREENS
+    [splash, menu, pauseMenu, gameOver].forEach(el => {
+        if(el){
+            el.style.display = "none";
+            el.style.visibility = "hidden";
+            el.style.pointerEvents = "none";
+        }
+    });
+
+    // SHOW GAME
+    if(canvas){
+        canvas.style.display = "block";
+        canvas.style.visibility = "visible";
     }
 
-    const gameCanvas = document.getElementById("gameCanvas");
-    const hud = document.getElementById("hud");
-    
-    if(gameCanvas) gameCanvas.style.display = "block";
-    if(hud) hud.style.display = "flex";
+    if(hud){
+        hud.style.display = "flex";
+        hud.style.visibility = "visible";
+    }
 
-    menuMusic.pause();
+    // AUDIO
+    if(menuMusic) menuMusic.pause();
 
-    if(soundOn){
+    if(soundOn && gameMusic){
         gameMusic.currentTime = 0;
         gameMusic.play().catch(()=>{});
     }
 
-    // REMOVE force spawn - let wave system handle it
-    
+    // START GAME SYSTEMS
     startAutoShoot();
     startWave();
 
     lastTime = 0;
-    lastWaveTime = performance.now(); // Initialize wave timer
-    lastEnemySpawnTime = performance.now(); // Initialize spawn timer
-    
+    lastWaveTime = performance.now();
+    lastEnemySpawnTime = performance.now();
+
     requestAnimationFrame(gameLoop);
 }
 
