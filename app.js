@@ -276,21 +276,23 @@ let touchY = null;
 canvas.addEventListener("touchstart", e => {
     e.preventDefault();
     const t = e.touches[0];
-    player.x = t.clientX;
-    player.y = t.clientY;
-}, { passive:false });
+
+    touchX = t.clientX;
+    touchY = t.clientY;
+}, { passive: false });
 
 canvas.addEventListener("touchmove", e => {
     e.preventDefault();
     const t = e.touches[0];
-    player.x += (t.clientX - player.x) * 0.4;
-    player.y += (t.clientY - player.y) * 0.4;
-}, { passive:false });
 
-canvas.addEventListener("touchend", e => {
+    touchX = t.clientX;
+    touchY = t.clientY;
+}, { passive: false });
+
+canvas.addEventListener("touchend", () => {
     touchX = null;
     touchY = null;
-}, {passive:false});
+});
 
 function updateHUD(){
     document.getElementById("coinText").innerText = coins;
@@ -1101,8 +1103,8 @@ function updatePlayer(){
     if(moveDown) player.y += player.speed;
 
     if(touchX !== null){
-        player.x += (touchX - player.x - player.width/2) * 0.2;
-        player.y += (touchY - player.y - player.height/2) * 0.2;
+        player.x += (touchX - player.x - player.width/2) * 0.15;
+        player.y += (touchY - player.y - player.height/2) * 0.15;
     }
     
     player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
@@ -2289,7 +2291,7 @@ window.addEventListener("load", () => {
     // Hide game at start
     if(canvas){
         canvas.style.display = "none";
-        canvas.style.pointerEvents = "none"; // 🔥 IMPORTANT FIX
+        canvas.style.pointerEvents = "auto"; // 🔥 IMPORTANT FIX
     }
 
     if(hud) hud.style.display = "none";
