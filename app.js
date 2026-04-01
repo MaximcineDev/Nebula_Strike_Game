@@ -539,6 +539,7 @@ function startGame(){
     if(canvas){
         canvas.style.display = "block";
         canvas.style.visibility = "visible";
+        canvas.style.pointerEvents = "auto";
     }
 
     if(hud){
