@@ -2276,81 +2276,40 @@ window.addEventListener("load", () => {
     if(canvas) canvas.style.display = "none";
     if(hud) hud.style.display = "none";
 
-    /* ---------- TAP TO START OVERLAY ---------- */
+ window.addEventListener("load", () => {
+    console.log("Window loaded");
 
-    const tapOverlay = document.createElement("div");
-    tapOverlay.id = "tapToStart";
-    tapOverlay.style.cssText = `
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.85);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-        color: #00ffff;
-        font-family: Orbitron, sans-serif;
-        text-align: center;
-        cursor: pointer;
-        flex-direction: column;
-    `;
+    loadGame();
+    resizeGame();
+    checkDailyReward();
 
-    tapOverlay.innerHTML = `
-        <div style="font-size: 30px; margin-bottom: 20px;">⚡ NEBULA STRIKE ⚡</div>
-        <div style="font-size: 18px; color: #ffffff;">TAP TO START</div>
-    `;
+    const splash = document.getElementById("splashScreen");
+    const menu = document.getElementById("main-menu");
+    const canvas = document.getElementById("gameCanvas");
+    const hud = document.getElementById("hud");
 
-    document.body.appendChild(tapOverlay);
+    if(canvas) canvas.style.display = "none";
+    if(hud) hud.style.display = "none";
 
-    /* ---------- SAFE START HANDLER ---------- */
+    // TAP TO START (CLEAN VERSION)
+    if(splash){
+        splash.addEventListener("click", () => {
 
-    let started = false; // ✅ prevents double trigger
+            unlockAudio(); // ONLY unlock here
 
-    const handleStart = (e) => {
-        if(started) return;
-        started = true;
+            splash.style.display = "none";
 
-        if(e && e.preventDefault) e.preventDefault();
+            if(menu){
+                menu.style.display = "flex";
+                menu.style.visibility = "visible";
+                menu.style.pointerEvents = "auto";
+            }
 
-        console.log("User interaction detected → unlocking audio");
-
-        // ✅ CRITICAL: Resume AudioContext
-        if(audioContext && audioContext.state === "suspended"){
-            audioContext.resume();
-        }
-
-        unlockAudio();
-
-        if(soundOn){
-            menuMusic.currentTime = 0;
-            menuMusic.play().catch(() => {});
-        }
-
-        if(tapOverlay && tapOverlay.parentNode){
-            tapOverlay.remove();
-        }
-
-        if(splash){
-           splash.style.opacity = "0";
-           splash.style.pointerEvents = "none";
-           setTimeout(() => {
-              splash.style.display = "none";
-           }, 500);
-        }
-
-        if(menu){
-           menu.style.display = "flex";
-           menu.style.visibility = "visible";
-           menu.style.opacity = "1";
-           menu.classList.add("show");
-        }
-
-        console.log("Game ready");
-    };
-
-    ["click", "touchstart"].forEach(evt => {
-       tapOverlay.addEventListener(evt, handleStart, { once: true, passive: false });
-    });
+            console.log("Moved to menu");
+        });
+    }
+});
+   
     /* ---------- FALLBACK ---------- */
 
     setTimeout(() => {
