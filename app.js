@@ -2208,9 +2208,6 @@ window.addEventListener("load", () => {
     resizeGame();
     checkDailyReward();
 
-    const canvas = document.getElementById("gameCanvas");
-    canvas.style.pointerEvents = "none";
-
     const splash = document.getElementById("splashScreen");
     const menu = document.getElementById("main-menu");
     const canvas = document.getElementById("gameCanvas");
