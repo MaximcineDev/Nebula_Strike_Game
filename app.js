@@ -1935,7 +1935,6 @@ let dailyData = {
 
 function loadDailyData() {
     const saved = localStorage.getItem("dailyReward");
-
     if (saved) {
         dailyData = JSON.parse(saved);
     }
