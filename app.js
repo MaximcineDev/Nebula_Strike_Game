@@ -1626,11 +1626,6 @@ function loadGame() {
     dailyData = data.dailyData || dailyData;
 }
 
-const canvas = document.getElementById("gameCanvas");
-
-// Disable canvas blocking UI clicks
-canvas.style.pointerEvents = "none";
-
 /* ---------- SHOP FUNCTIONS ---------- */
 
 let unlockedSkins = [0];
