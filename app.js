@@ -917,9 +917,17 @@ function spawnBoss(){
         y: -150,
         w: 200,
         h: 200,
-        hp: 100 + level * 20,
-        maxHp: 100 + level * 20,
-        speed: 2,
+
+        hp: 100 + level * 25,
+        maxHp: 100 + level * 25,
+
+        speed: 2 + level * 0.1,
+
+        // ✅ AI SYSTEM
+        vx: 2,
+        attackCooldown: 0,
+        attackRate: 60, // frames between attacks
+
         pattern: getBossPattern()
     };
 
@@ -943,31 +951,56 @@ function spawnBoss(){
 }
 
 function getBossPattern(){
-
-    const patterns = ["spray", "burst", "laser"];
-
-    return patterns[(level / 5 - 1) % patterns.length];
+    if(level < 5) return "spray";
+    if(level < 10) return Math.random() < 0.5 ? "spray" : "burst";
+    return ["spray", "burst", "laser"][Math.floor(Math.random()*3)];
 }
 
 function bossAttack(){
-
     if(!boss) return;
+
+    const centerX = boss.x + boss.w / 2;
+    const y = boss.y + boss.h;
 
     switch(boss.pattern){
 
+        // 🔵 SPRAY (fan spread)
         case "spray":
-            // spread bullets
-            shootSpread();
+            for(let i = -3; i <= 3; i++){
+                enemyBullets.push({
+                    x: centerX,
+                    y: y,
+                    w: 6,
+                    h: 20,
+                    dx: i * 1.5,
+                    dy: 6
+                });
+            }
             break;
 
+        // 🔴 BURST (rapid straight shots)
         case "burst":
-            // rapid fire
-            shootBurst();
+            for(let i = 0; i < 5; i++){
+                setTimeout(() => {
+                    enemyBullets.push({
+                        x: centerX - 4,
+                        y: y,
+                        w: 8,
+                        h: 25
+                    });
+                }, i * 120);
+            }
             break;
 
+        // 🟣 LASER (heavy shot)
         case "laser":
-            // single powerful shot
-            shootLaser();
+            enemyBullets.push({
+                x: centerX - 6,
+                y: y,
+                w: 12,
+                h: 40,
+                dy: 14
+            });
             break;
     }
 }
@@ -1349,23 +1382,33 @@ function updateExplosions(){
 function updateBoss(){
     if(!boss) return;
 
-    // Smooth entry
+    // ENTRY PHASE (unchanged logic)
     if(boss.y < 120){
-        boss.y += boss.speed + 1; // slightly faster entry
-        return; // ⛔ don't allow shooting/damage yet
+        boss.y += boss.speed + 1;
+        return;
     }
+
+    /* ---------- MOVEMENT AI ---------- */
+
+    // Side-to-side movement
+    boss.x += boss.vx;
+
+    if(boss.x <= 0 || boss.x + boss.w >= canvas.width){
+        boss.vx *= -1; // bounce
+    }
+
+    /* ---------- ATTACK TIMER ---------- */
+
+    boss.attackCooldown--;
+
+    if(boss.attackCooldown <= 0){
+        bossAttack();
+        boss.attackCooldown = boss.attackRate;
+    }
+
+    /* ---------- DRAW ---------- */
 
     ctx.drawImage(bossImg, boss.x, boss.y, boss.w, boss.h);
-
-    // Shooting
-    if(Math.random() < 0.02){
-        enemyBullets.push({
-            x: boss.x + boss.w / 2 - 5,
-            y: boss.y + boss.h,
-            w: 10,
-            h: 25
-        });
-    }
 }
 
 function updateBossBar(){
@@ -1454,7 +1497,8 @@ function updateEnemyBullets(){
 
     for(let i = enemyBullets.length - 1; i >= 0; i--){
         let b = enemyBullets[i];
-        b.y += 10;
+        b.y += b.dy || 10;
+        if(b.dx) b.x += b.dx;
 
         // DRAW BULLET
         ctx.save();
