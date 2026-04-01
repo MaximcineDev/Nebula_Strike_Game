@@ -159,13 +159,10 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 // FIXED: Proper pause button handler
-const pauseBtn = document.getElementById("pauseBtn");
-if(pauseBtn){
-    pauseBtn.onclick = () => {
-        if(!gameRunning) return;
-        togglePause();
-    };
-}
+document.getElementById("pauseBtn").onclick = () => {
+    if(!gameRunning) return;
+    togglePause();
+};
 
 /* ---------- PLAYER ---------- */
 
@@ -271,12 +268,6 @@ let lastTime = 0;
 const targetFPS = 60;
 const frameInterval = 1000 / targetFPS;
 
-let playerPerformance = {
-    shotsFired: 0,
-    shotsHit: 0,
-    damageTaken: 0
-};
-
 /* ---------- TOUCH ---------- */
 
 let touchX = null;
@@ -302,11 +293,16 @@ canvas.addEventListener("touchend", e => {
 }, {passive:false});
 
 function updateHUD(){
-    const coinText = document.getElementById("coinText");
+    document.getElementById("coinText").innerText = coins;
     const shopText = document.getElementById("shopCoinText");
+    if (shopText) shopText.innerText = coins;
+   
     const levelText = document.getElementById("levelText");
     const scoreText = document.getElementById("scoreText");
     const comboText = document.getElementById("comboText");
+    if(comboText){
+        comboText.innerText = combo > 1 ? "x" + combo : "";
+    }
 
     // Force update with multiple methods
     if(coinText) {
@@ -329,38 +325,6 @@ function coinPulse(){
     setTimeout(()=>{
         coinBox.style.transform = "scale(1)";
     },150);
-}
-
-function animateCoinsToHUD(amount) {
-    const hud = document.getElementById("coinBox");
-    if (!hud) return;
-
-    const hudRect = hud.getBoundingClientRect();
-
-    for (let i = 0; i < 8; i++) {
-        const coin = document.createElement("div");
-        coin.className = "flyingCoin";
-        coin.innerText = "🪙";
-
-        document.body.appendChild(coin);
-
-        // Start position (center of screen)
-        coin.style.left = "50%";
-        coin.style.top = "50%";
-
-        // Random spread before going to HUD
-        const offsetX = (Math.random() - 0.5) * 150;
-        const offsetY = (Math.random() - 0.5) * 150;
-
-        setTimeout(() => {
-            coin.style.transform = `translate(${hudRect.left + offsetX - window.innerWidth/2}px, ${hudRect.top + offsetY - window.innerHeight/2}px) scale(0.5)`;
-            coin.style.opacity = "0";
-        }, 50);
-
-        setTimeout(() => {
-            coin.remove();
-        }, 800);
-    }
 }
 
 function updateHeartsUI(){
@@ -490,15 +454,15 @@ function quitGame(){
 /* ---------- START GAME ---------- */
 
 function startGame(){
-
     unlockAudio();
     resizeGame();
+    
     setTimeout(() => resizeGame(), 100);
 
-    // RESET GAME STATE
     health = maxHearts;
     score = 0;
     level = 1;
+    coins = 0; // Reset coins or keep from save? Your choice
 
     gameRunning = true;
     paused = false;
@@ -511,58 +475,42 @@ function startGame(){
     waveInProgress = false;
     waveNumber = 0;
     enemiesInWave = 0;
-
+    
+    // RESET TIMERS
     lastWaveTime = 0;
     lastEnemySpawnTime = 0;
 
     updateHUD();
     updateHeartsUI();
 
-    // GET ELEMENTS (ONLY ONCE)
-    const splash = document.getElementById("splashScreen");
     const menu = document.getElementById("main-menu");
-    const canvas = document.getElementById("gameCanvas");
+    if(menu) {
+        menu.style.display = "none";
+        menu.classList.remove("show");
+    }
+
+    const gameCanvas = document.getElementById("gameCanvas");
     const hud = document.getElementById("hud");
-    const pauseMenu = document.getElementById("pauseMenu");
-    const gameOver = document.getElementById("gameOverScreen");
+    
+    if(gameCanvas) gameCanvas.style.display = "block";
+    if(hud) hud.style.display = "flex";
 
-    // HIDE ALL SCREENS
-    [splash, menu, pauseMenu, gameOver].forEach(el => {
-        if(el){
-            el.style.display = "none";
-            el.style.visibility = "hidden";
-            el.style.pointerEvents = "none";
-        }
-    });
+    menuMusic.pause();
 
-    // SHOW GAME
-    if(canvas){
-        canvas.style.display = "block";
-        canvas.style.visibility = "visible";
-        canvas.style.pointerEvents = "auto";
-    }
-
-    if(hud){
-        hud.style.display = "flex";
-        hud.style.visibility = "visible";
-    }
-
-    // AUDIO
-    if(menuMusic) menuMusic.pause();
-
-    if(soundOn && gameMusic){
+    if(soundOn){
         gameMusic.currentTime = 0;
         gameMusic.play().catch(()=>{});
     }
 
-    // START GAME SYSTEMS
+    // REMOVE force spawn - let wave system handle it
+    
     startAutoShoot();
     startWave();
 
     lastTime = 0;
-    lastWaveTime = performance.now();
-    lastEnemySpawnTime = performance.now();
-
+    lastWaveTime = performance.now(); // Initialize wave timer
+    lastEnemySpawnTime = performance.now(); // Initialize spawn timer
+    
     requestAnimationFrame(gameLoop);
 }
 
@@ -592,13 +540,8 @@ function checkDailyReward() {
     showDailyRewardUI();
 }
 
-function getDailyReward(streak) {
-    const rewards = [50, 75, 100, 150, 200, 300, 500];
-    return rewards[Math.min(streak, 6)];
-}
-
-function showDailyReward(streak) {
-    const reward = getDailyReward(streak);
+function showDailyReward() {
+    const reward = 100;
 
     const popup = document.createElement("div");
     popup.id = "dailyRewardPopup";
@@ -606,61 +549,31 @@ function showDailyReward(streak) {
     popup.innerHTML = `
         <div class="rewardBox">
             <h2>DAILY REWARD</h2>
-
-            <div class="calendar">
-                ${generateCalendar(streak)}
-            </div>
-
-            <div class="chest" onclick="openChest(${reward}, ${streak})">
-                🎁
-            </div>
-
-            <p>Day ${streak + 1} → ${reward} 🪙</p>
-
-            <button onclick="claimDailyReward(${reward}, ${streak})">
-                CLAIM
-            </button>
-
-            <button class="doubleBtn" onclick="doubleReward(${reward}, ${streak})">
-                📺 DOUBLE
-            </button>
+            <p>+${reward} 🪙</p>
+            <button onclick="claimDailyReward(${reward})">CLAIM</button>
         </div>
     `;
 
     document.body.appendChild(popup);
 }
 
-function generateCalendar(streak){
-    let html = "";
-
-    const rewards = [50, 75, 100, 150, 200, 300, 500];
-
-    for(let i = 0; i < 7; i++){
-        let state = "";
-
-        if(i < streak) state = "claimed";
-        else if(i === streak) state = "today";
-
-        html += `
-            <div class="day ${state}">
-                <span>Day ${i+1}</span>
-                <b>${rewards[i]}</b>
-            </div>
-        `;
-    }
-
-    return html;
-}
-
 function claimDailyReward(amount, streak) {
+    console.log("Before:", coins);
 
-    animateCoinsToHUD(amount); // ✨ animation first
+    coins += amount;
 
-    setTimeout(() => {
-        coins += amount;
-        saveRewardProgress(streak);
-        closeReward();
-    }, 600);
+    console.log("After:", coins);
+
+    showCoinGain(amount);
+
+    saveRewardProgress(streak);
+
+    localStorage.setItem("lastDailyReward", Date.now());
+
+    closeReward();
+
+    updateHUD();
+    saveGame();
 }
 
 function giveReward(amount) {
@@ -983,7 +896,6 @@ function spawnBoss(){
     document.getElementById("bossBar").style.display = "block";
     const bossWarning = document.getElementById("bossWarning");
 
-    const bossBar = document.getElementById("bossBar");
     if(bossBar) bossBar.style.display = "block";
 
     if(bossWarning){
@@ -1819,8 +1731,8 @@ function buyWeapon() {
 
         weaponLevel++;
 
-        Damage += 2;
-        fireRate *= 0.9;
+        bulletDamage += 2;
+        fireRate += 0.1;
 
         saveGame();
 
@@ -1837,7 +1749,7 @@ function buyHearts() {
 
         coins -= heartCost;
 
-        health++;
+        hearts++;
 
         saveGame();
 
@@ -1956,6 +1868,7 @@ let dailyData = {
 
 function loadDailyData() {
     const saved = localStorage.getItem("dailyReward");
+
     if (saved) {
         dailyData = JSON.parse(saved);
     }
@@ -2259,26 +2172,24 @@ function backToMenu(){
     document.getElementById("main-menu").style.display = "flex";
 }
 
+function checkDailyReward() {
+    let lastClaim = localStorage.getItem("lastDailyReward");
+    let now = Date.now();
 
-/* ---------- INITIALIZATION ---------- */
+    if (!lastClaim) {
+        showDailyReward();
+        return;
+    }
 
-let started = false;  // ✅ BUG FIX #2: Declare the missing variable
+    let diff = now - parseInt(lastClaim);
 
-function handleStart() {  // ✅ BUG FIX #3: Create missing function
-    started = true;
-    const splash = document.getElementById("splashScreen");
-    const menu = document.getElementById("main-menu");
-    
-    unlockAudio();
-    
-    if(splash) splash.style.display = "none";
-    if(menu){
-        menu.style.display = "flex";
-        menu.style.visibility = "visible";
-        menu.style.pointerEvents = "auto";
-        menu.classList.add("show");
+    // 24 hours = 86400000 ms
+    if (diff >= 86400000) {
+        showDailyReward();
     }
 }
+
+/* ---------- INITIALIZATION ---------- */
 
 window.addEventListener("load", () => {
     console.log("Window loaded, initializing...");
@@ -2295,37 +2206,86 @@ window.addEventListener("load", () => {
     if(canvas) canvas.style.display = "none";
     if(hud) hud.style.display = "none";
 
-    // ✅ BUG FIX #1: Moved splash click handler OUTSIDE of nested load event
-    if(splash){
-        splash.addEventListener("click", () => {
-            console.log("Splash clicked - starting game");
-            handleStart();  // Use the proper handler function
-        });
-        
-        // Also handle touch for mobile
-        splash.addEventListener("touchstart", (e) => {
-            e.preventDefault();
-            handleStart();
-        }, {passive: false});
-    }
+    /* ---------- TAP TO START OVERLAY ---------- */
 
-    if(menu){
-        menu.style.display = "none";
-        menu.style.pointerEvents = "none";
-    }
-   
-    if(canvas){
-        canvas.style.display = "none";
-    }
-   
-    if(hud){
-        hud.style.display = "none";
-    }
+    const tapOverlay = document.createElement("div");
+    tapOverlay.id = "tapToStart";
+    tapOverlay.style.cssText = `
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.85);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        color: #00ffff;
+        font-family: Orbitron, sans-serif;
+        text-align: center;
+        cursor: pointer;
+        flex-direction: column;
+    `;
 
-    // Fallback: Auto-start after 4 seconds if user hasn't clicked
+    tapOverlay.innerHTML = `
+        <div style="font-size: 30px; margin-bottom: 20px;">⚡ NEBULA STRIKE ⚡</div>
+        <div style="font-size: 18px; color: #ffffff;">TAP TO START</div>
+    `;
+
+    document.body.appendChild(tapOverlay);
+
+    /* ---------- SAFE START HANDLER ---------- */
+
+    let started = false; // ✅ prevents double trigger
+
+    const handleStart = (e) => {
+        if(started) return;
+        started = true;
+
+        if(e && e.preventDefault) e.preventDefault();
+
+        console.log("User interaction detected → unlocking audio");
+
+        // ✅ CRITICAL: Resume AudioContext
+        if(audioContext && audioContext.state === "suspended"){
+            audioContext.resume();
+        }
+
+        unlockAudio();
+
+        if(soundOn){
+            menuMusic.currentTime = 0;
+            menuMusic.play().catch(() => {});
+        }
+
+        if(tapOverlay && tapOverlay.parentNode){
+            tapOverlay.remove();
+        }
+
+        if(splash){
+           splash.style.opacity = "0";
+           splash.style.pointerEvents = "none";
+           setTimeout(() => {
+              splash.style.display = "none";
+           }, 500);
+        }
+
+        if(menu){
+           menu.style.display = "flex";
+           menu.style.visibility = "visible";
+           menu.style.opacity = "1";
+           menu.classList.add("show");
+        }
+
+        console.log("Game ready");
+    };
+
+    ["click", "touchstart"].forEach(evt => {
+       tapOverlay.addEventListener(evt, handleStart, { once: true, passive: false });
+    });
+    /* ---------- FALLBACK ---------- */
+
     setTimeout(() => {
         if(!started && document.getElementById("tapToStart")){
-            console.log("Fallback trigger - auto starting");
+            console.log("Fallback trigger");
             handleStart();
         }
     }, 4000);
