@@ -514,6 +514,17 @@ function startGame(){
     requestAnimationFrame(gameLoop);
 }
 
+function setupDailyReward(){
+    const claimBtn = document.getElementById("claimRewardBtn");
+
+    if (!claimBtn) {
+        console.error("Claim button not found");
+        return;
+    }
+
+    claimBtn.addEventListener("click", claimDailyReward);
+}
+
 function checkDailyReward() {
 
     loadDailyData();
@@ -1615,6 +1626,10 @@ function loadGame() {
     dailyData = data.dailyData || dailyData;
 }
 
+const canvas = document.getElementById("gameCanvas");
+
+// Disable canvas blocking UI clicks
+canvas.style.pointerEvents = "none";
 
 /* ---------- SHOP FUNCTIONS ---------- */
 
