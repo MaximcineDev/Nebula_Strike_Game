@@ -1723,23 +1723,57 @@ function closeShop() {
 }
 
 function buyShield(){
-    if(coins >= 50){
-        coins -= 50;
-        shieldLevel++;
 
-        // ✅ ACTIVATE SHIELD IMMEDIATELY
-        shieldActive = true;
-        shieldTimer = 300 + (shieldLevel * 150);
+    const shieldCost = 50;
 
-        updateHUD();
-        updateShopCoins(); // ✅ ADD THIS
-        saveGame();
+    // ✅ Optional cap (prevents OP stacking)
+    const maxShieldLevel = 5;
+
+    if (shieldLevel >= maxShieldLevel) {
+        showCoinWarning("Shield is max level!");
+        return;
     }
+
+    if (coins < shieldCost) {
+        showCoinWarning("Not enough coins!");
+        return;
+    }
+
+    // ✅ Deduct coins
+    coins -= shieldCost;
+
+    // ✅ Upgrade shield
+    shieldLevel++;
+
+    // ✅ Activate / refresh shield
+    shieldActive = true;
+
+    // If already active → refresh instead of stacking infinitely
+    shieldTimer = Math.max(shieldTimer, 300 + (shieldLevel * 150));
+
+    // ✅ UI updates
+    updateHUD();
+    updateShopCoins();
+
+    // ✅ Save
+    saveGame();
+
+    // ✅ Feedback
+    coinPulse();
+    showCoinGain(0); // just visual
+
+    console.log("Shield upgraded:", shieldLevel);
 }
 
 function buyWeapon() {
 
-    let weaponCost = 150 * weaponLevel;
+    const weaponCost = 150 * weaponLevel;
+
+    // ✅ Optional cap
+    if (weaponLevel >= 5) {
+        showCoinWarning("Weapon is max level!");
+        return;
+    }
 
     if (coins >= weaponCost) {
 
@@ -1747,10 +1781,19 @@ function buyWeapon() {
 
         weaponLevel++;
 
-        bulletDamage += 2;
-        fireRate += 0.1;
+        // ✅ Correct damage system
+        damage += 1;
 
+        // ✅ Faster shooting (lower = faster)
+        fireRate = Math.max(80, fireRate - 40);
+
+        updateHUD();
         saveGame();
+        coinPulse();
+
+        showCoinGain(0); // optional effect only
+
+        console.log("Weapon upgraded:", weaponLevel);
 
     } else {
         showCoinWarning("Not enough coins!");
@@ -1759,15 +1802,26 @@ function buyWeapon() {
 
 function buyHearts() {
 
-    let heartCost = 50 + (level * 5);
+    const heartCost = 50 + (level * 5);
+
+    // ✅ Prevent overflow
+    if (health >= maxHearts) {
+        showCoinWarning("Health is already full!");
+        return;
+    }
 
     if (coins >= heartCost) {
 
         coins -= heartCost;
 
-        hearts++;
+        health++; // ✅ correct variable
+
+        updateHeartsUI();
+        updateHUD();
 
         saveGame();
+
+        showCoinGain(1); // optional feedback
 
     } else {
         showCoinWarning("Not enough coins!");
@@ -1776,13 +1830,34 @@ function buyHearts() {
 
 
 function buyCoins(amount) {
+
+    // ✅ Validate amount
+    if (typeof amount !== "number" || amount <= 0) {
+        console.warn("Invalid coin amount:", amount);
+        showCoinWarning("Invalid amount");
+        return;
+    }
+
+    // ✅ Add coins
     coins += amount;
 
-    // update UI
-    document.getElementById("shopCoinText").innerText = coins;
+    // ✅ Save
+    localStorage.setItem("coins", coins);
 
-    // feedback
+    // ✅ Update UI safely
+    const shopText = document.getElementById("shopCoinText");
+    if (shopText) {
+        shopText.innerText = coins;
+    }
+
+    // ✅ Update full HUD (important for consistency)
+    updateHUD();
+    coinPulse();
+
+    // ✅ Feedback animation
     showCoinGain(amount);
+
+    console.log(`Coins added: +${amount} | Total: ${coins}`);
 }
 
 let adCooldown = false;
@@ -1866,10 +1941,11 @@ function showCoinGain(amount) {
     setTimeout(() => popup.remove(), 1000);
 }
 
-function showCoinWarning(){
+function showCoinWarning(message = "Something went wrong"){
     const warn = document.getElementById("coinWarning");
     if(!warn) return;
 
+    warn.innerText = message; // 🔥 dynamic message
     warn.classList.add("show");
 
     setTimeout(() => {
