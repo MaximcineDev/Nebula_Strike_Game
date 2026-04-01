@@ -2213,26 +2213,6 @@ window.addEventListener("load", () => {
     resizeGame();
     checkDailyReward();
 
-    const claimBtn = document.getElementById("claimRewardBtn");
-
-    if (claimBtn) {
-        claimBtn.addEventListener("click", () => {
-            console.log("Reward button clicked");
-
-            coins += 100; // reward
-
-            localStorage.setItem("coins", coins);
-
-            updateHUD();
-
-            // 👇 CLOSE SCREEN HERE
-            const dailyRewardScreen = document.getElementById("dailyRewardScreen");
-            dailyRewardScreen.style.display = "none";
-        });
-    } else {
-        console.error("claimRewardBtn not found");
-    }
-
     const splash = document.getElementById("splashScreen");
     const menu = document.getElementById("main-menu");
     const canvas = document.getElementById("gameCanvas");
