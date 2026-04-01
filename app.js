@@ -2308,6 +2308,19 @@ window.addEventListener("load", () => {
         }, {passive: false});
     }
 
+    if(menu){
+        menu.style.display = "none";
+        menu.style.pointerEvents = "none";
+    }
+   
+    if(canvas){
+        canvas.style.display = "none";
+    }
+   
+    if(hud){
+        hud.style.display = "none";
+    }
+
     // Fallback: Auto-start after 4 seconds if user hasn't clicked
     setTimeout(() => {
         if(!started && document.getElementById("tapToStart")){
