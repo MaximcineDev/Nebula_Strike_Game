@@ -520,8 +520,12 @@ function startGame(){
     updateHeartsUI();
 
     const menu = document.getElementById("main-menu");
-    if(menu) {
+   
+    if(menu){
         menu.style.display = "none";
+        menu.style.visibility = "hidden";
+        menu.style.opacity = "0";
+        menu.style.pointerEvents = "none";
         menu.classList.remove("show");
     }
 
