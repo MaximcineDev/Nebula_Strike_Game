@@ -535,6 +535,11 @@ body {
     z-index: 6000;
 }
 
+#dailyRewardScreen {
+    z-index: 9999;
+    pointer-events: auto;
+}
+
 .dailyBox {
     background: linear-gradient(135deg, #1a1a2e, #16213e);
     border: 2px solid #00ffff;
