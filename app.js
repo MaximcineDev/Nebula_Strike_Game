@@ -557,7 +557,11 @@ function checkDailyReward() {
         dailyData.streak = 1;
 
         saveDailyData();
-        showDailyRewardUI();
+        if (typeof showDailyRewardUI === "function") {
+            showDailyRewardUI();
+        } else {
+            console.warn("showDailyRewardUI not found");
+        }
         return;
     }
 
@@ -588,42 +592,6 @@ function checkDailyReward() {
     saveDailyData();
 
     showDailyRewardUI();
-}
-
-function showDailyReward() {
-    const reward = 100;
-
-    const popup = document.createElement("div");
-    popup.id = "dailyRewardPopup";
-
-    popup.innerHTML = `
-        <div class="rewardBox">
-            <h2>DAILY REWARD</h2>
-            <p>+${reward} 🪙</p>
-            <button onclick="claimDailyReward(${reward})">CLAIM</button>
-        </div>
-    `;
-
-    document.body.appendChild(popup);
-}
-
-function claimDailyReward(amount, streak) {
-    console.log("Before:", coins);
-
-    coins += amount;
-
-    console.log("After:", coins);
-
-    showCoinGain(amount);
-
-    saveRewardProgress(streak);
-
-    localStorage.setItem("lastDailyReward", Date.now());
-
-    closeReward();
-
-    updateHUD();
-    saveGame();
 }
 
 function giveReward(amount) {
@@ -1652,7 +1620,6 @@ function saveGame() {
 }
 
 function loadGame() {
-    localStorage.setItem("coins", coins);
     const save = localStorage.getItem("nebulaSave");
 
     if (!save) return;
@@ -2230,14 +2197,23 @@ window.addEventListener("load", () => {
 
     loadGame();
     resizeGame();
-    checkDailyReward();
+
+    // Optional: re-enable later after stable
+    // checkDailyReward();
+
+    setupDailyReward();
 
     const splash = document.getElementById("splashScreen");
     const menu = document.getElementById("main-menu");
     const canvas = document.getElementById("gameCanvas");
     const hud = document.getElementById("hud");
 
-    if(canvas) canvas.style.display = "none";
+    // Hide game at start
+    if(canvas){
+        canvas.style.display = "none";
+        canvas.style.pointerEvents = "none"; // 🔥 IMPORTANT FIX
+    }
+
     if(hud) hud.style.display = "none";
 
     /* ---------- TAP TO START OVERLAY ---------- */
@@ -2266,9 +2242,9 @@ window.addEventListener("load", () => {
 
     document.body.appendChild(tapOverlay);
 
-    /* ---------- SAFE START HANDLER ---------- */
+    /* ---------- START HANDLER ---------- */
 
-    let started = false; // ✅ prevents double trigger
+    let started = false;
 
     const handleStart = (e) => {
         if(started) return;
@@ -2276,9 +2252,9 @@ window.addEventListener("load", () => {
 
         if(e && e.preventDefault) e.preventDefault();
 
-        console.log("User interaction detected → unlocking audio");
+        console.log("User tapped → starting game");
 
-        // ✅ CRITICAL: Resume AudioContext
+        // Unlock audio
         if(audioContext && audioContext.state === "suspended"){
             audioContext.resume();
         }
@@ -2287,39 +2263,42 @@ window.addEventListener("load", () => {
 
         if(soundOn){
             menuMusic.currentTime = 0;
-            menuMusic.play().catch(() => {});
+            menuMusic.play().catch(()=>{});
         }
 
-        if(tapOverlay && tapOverlay.parentNode){
-            tapOverlay.remove();
-        }
+        // Remove overlay
+        tapOverlay.remove();
 
+        // Hide splash
         if(splash){
-           splash.style.opacity = "0";
-           splash.style.pointerEvents = "none";
-           setTimeout(() => {
-              splash.style.display = "none";
-           }, 500);
+            splash.style.opacity = "0";
+            splash.style.pointerEvents = "none";
+            setTimeout(() => {
+                splash.style.display = "none";
+            }, 500);
         }
 
+        // Show menu
         if(menu){
-           menu.style.display = "flex";
-           menu.style.visibility = "visible";
-           menu.style.opacity = "1";
-           menu.classList.add("show");
+            menu.style.display = "flex";
+            menu.style.visibility = "visible";
+            menu.style.opacity = "1";
+            menu.classList.add("show");
         }
 
         console.log("Game ready");
     };
 
+    // Click + touch support
     ["click", "touchstart"].forEach(evt => {
-       tapOverlay.addEventListener(evt, handleStart, { once: true, passive: false });
+        tapOverlay.addEventListener(evt, handleStart, { once: true, passive: false });
     });
-    /* ---------- FALLBACK ---------- */
+
+    /* ---------- FALLBACK (AUTO START IF NO CLICK) ---------- */
 
     setTimeout(() => {
         if(!started && document.getElementById("tapToStart")){
-            console.log("Fallback trigger");
+            console.log("Fallback start triggered");
             handleStart();
         }
     }, 4000);
