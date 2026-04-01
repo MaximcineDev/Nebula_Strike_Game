@@ -1768,6 +1768,7 @@ function buyHearts() {
     }
 }
 
+
 function buyCoins(amount) {
     coins += amount;
 
