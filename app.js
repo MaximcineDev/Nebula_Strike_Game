@@ -522,17 +522,52 @@ function setupDailyReward(){
         return;
     }
 
-    claimBtn.addEventListener("click", claimDailyReward);
+    claimBtn.addEventListener("click", () => {
+       coins += 50;
+       
+       const today = new Date().toDateString();
+       dailyData.lastLogin = today;
+       
+       saveDailyData();
+       
+       localStorage.setItem("coins", coins);
+       
+       updateHUD();
+       
+       document.getElementById("dailyRewardScreen").style.display = "none";
+    });
 }
 
 function checkDailyReward() {
+
+    // Ensure dailyData exists
+    if (!dailyData || typeof dailyData !== "object") {
+        dailyData = {
+            lastLogin: null,
+            streak: 0
+        };
+    }
 
     loadDailyData();
 
     const today = new Date().toDateString();
 
-    if (dailyData.lastLogin === today) return;
+    // First time login → give reward
+    if (!dailyData.lastLogin) {
+        dailyData.streak = 1;
 
+        saveDailyData();
+        showDailyRewardUI();
+        return;
+    }
+
+    // Already claimed today → do nothing
+    if (dailyData.lastLogin === today) {
+        console.log("Daily reward already claimed today");
+        return;
+    }
+
+    // Check yesterday
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
 
@@ -542,9 +577,13 @@ function checkDailyReward() {
         dailyData.streak = 1;
     }
 
-    if (dailyData.streak > 7) dailyData.streak = 1;
+    // Limit streak
+    if (dailyData.streak > 7) {
+        dailyData.streak = 1;
+    }
 
-    dailyData.lastLogin = today;
+    // DO NOT update lastLogin yet
+    // Wait until player clicks "Claim"
 
     saveDailyData();
 
@@ -1878,15 +1917,16 @@ let dailyData = {
 };
 
 function loadDailyData() {
-    const saved = localStorage.getItem("dailyReward");
+    try {
+        const data = JSON.parse(localStorage.getItem("dailyData"));
 
-    if (saved) {
-        dailyData = JSON.parse(saved);
+        if (data && typeof data === "object") {
+            dailyData = data;
+        }
+    } catch (e) {
+        console.error("Daily data corrupted, resetting...");
+        dailyData = { lastLogin: null, streak: 0 };
     }
-}
-
-function saveDailyData() {
-    localStorage.setItem("dailyReward", JSON.stringify(dailyData));
 }
 
 
