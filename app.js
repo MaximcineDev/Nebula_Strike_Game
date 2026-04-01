@@ -2276,22 +2276,11 @@ window.addEventListener("load", () => {
     if(canvas) canvas.style.display = "none";
     if(hud) hud.style.display = "none";
 
- window.addEventListener("load", () => {
-    console.log("Window loaded");
-
-    loadGame();
-    resizeGame();
-    checkDailyReward();
+window.addEventListener("load", () => {
 
     const splash = document.getElementById("splashScreen");
     const menu = document.getElementById("main-menu");
-    const canvas = document.getElementById("gameCanvas");
-    const hud = document.getElementById("hud");
 
-    if(canvas) canvas.style.display = "none";
-    if(hud) hud.style.display = "none";
-
-    // TAP TO START (CLEAN VERSION)
     if(splash){
         splash.addEventListener("click", () => {
 
@@ -2305,7 +2294,6 @@ window.addEventListener("load", () => {
                 menu.style.pointerEvents = "auto";
             }
 
-            console.log("Moved to menu");
         });
     }
 });
