@@ -268,6 +268,12 @@ let lastTime = 0;
 const targetFPS = 60;
 const frameInterval = 1000 / targetFPS;
 
+let playerPerformance = {
+    shotsFired: 0,
+    shotsHit: 0,
+    damageTaken: 0
+};
+
 /* ---------- TOUCH ---------- */
 
 let touchX = null;
@@ -1069,13 +1075,13 @@ function gameLoop(currentTime = 0){
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
     
+    // Draw player safely
     if(playerImg.complete){
-    ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
+        ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
+    }
 
-    // Stars
+    // Always run game logic
     drawStars();
-
-    // Systems
     updateSpawning(currentTime);
     updatePlayer();
     drawPlayer();
