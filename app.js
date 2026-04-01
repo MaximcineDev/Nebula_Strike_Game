@@ -576,6 +576,11 @@ function checkDailyReward() {
     showDailyRewardUI();
 }
 
+function getDailyReward(streak) {
+    const rewards = [50, 75, 100, 150, 200, 300, 500];
+    return rewards[Math.min(streak, 6)];
+}
+
 function showDailyReward(streak) {
     const reward = getDailyReward(streak);
 
