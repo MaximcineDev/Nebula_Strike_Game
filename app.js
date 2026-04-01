@@ -457,14 +457,21 @@ function quitGame(){
 
 function startGame(){
     unlockAudio();
+
     resizeGame();
-    
+
+    // 🔥 FORCE correct player position (FIXES invisible/off-screen player)
+    player.x = canvas.width / 2 - player.width / 2;
+    player.y = canvas.height - 150;
+
     setTimeout(() => resizeGame(), 100);
 
     health = maxHearts;
     score = 0;
     level = 1;
-    coins = 0; // Reset coins or keep from save? Your choice
+
+    // 👉 Your choice: reset coins or keep saved
+    // coins = 0;
 
     gameRunning = true;
     paused = false;
@@ -477,23 +484,23 @@ function startGame(){
     waveInProgress = false;
     waveNumber = 0;
     enemiesInWave = 0;
-    
+
     // RESET TIMERS
-    lastWaveTime = 0;
-    lastEnemySpawnTime = 0;
+    lastWaveTime = performance.now();
+    lastEnemySpawnTime = performance.now();
 
     updateHUD();
     updateHeartsUI();
 
     const menu = document.getElementById("main-menu");
-    if(menu) {
+    if(menu){
         menu.style.display = "none";
         menu.classList.remove("show");
     }
 
     const gameCanvas = document.getElementById("gameCanvas");
     const hud = document.getElementById("hud");
-    
+
     if(gameCanvas) gameCanvas.style.display = "block";
     if(hud) hud.style.display = "flex";
 
@@ -504,15 +511,11 @@ function startGame(){
         gameMusic.play().catch(()=>{});
     }
 
-    // REMOVE force spawn - let wave system handle it
-    
     startAutoShoot();
     startWave();
 
     lastTime = 0;
-    lastWaveTime = performance.now(); // Initialize wave timer
-    lastEnemySpawnTime = performance.now(); // Initialize spawn timer
-    
+
     requestAnimationFrame(gameLoop);
 }
 
@@ -904,10 +907,13 @@ function spawnBoss(){
     if(boss) return;
 
     boss = {
-        x: canvas.width / 2,
-        y: 100,
+        x: canvas.width / 2 - 100,
+        y: -150,
+        w: 200,
+        h: 200,
         hp: 100 + level * 20,
         maxHp: 100 + level * 20,
+        speed: 2,
         pattern: getBossPattern()
     };
 
@@ -1042,7 +1048,6 @@ function gameLoop(currentTime = 0){
 
     // Screen shake
     if(screenShake > 0){
-        ctx.restore();
         screenShake *= 0.7;   // ✅ faster decay (was 0.85)
         if(screenShake < 0.3) screenShake = 0;
     }
@@ -1063,6 +1068,9 @@ function gameLoop(currentTime = 0){
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
+    
+    if(playerImg.complete){
+    ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
 
     // Stars
     drawStars();
