@@ -1751,6 +1751,9 @@ function buyShield(){
     // If already active → refresh instead of stacking infinitely
     shieldTimer = Math.max(shieldTimer, 300 + (shieldLevel * 150));
 
+    hitFlash = 3;
+    screenShake = 4;
+
     // ✅ UI updates
     updateHUD();
     updateShopCoins();
@@ -1761,7 +1764,6 @@ function buyShield(){
     // ✅ Feedback
     coinPulse();
     showCoinGain(0); // just visual
-
     console.log("Shield upgraded:", shieldLevel);
 }
 
