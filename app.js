@@ -2261,6 +2261,24 @@ function backToMenu(){
 
 /* ---------- INITIALIZATION ---------- */
 
+let started = false;  // ✅ BUG FIX #2: Declare the missing variable
+
+function handleStart() {  // ✅ BUG FIX #3: Create missing function
+    started = true;
+    const splash = document.getElementById("splashScreen");
+    const menu = document.getElementById("main-menu");
+    
+    unlockAudio();
+    
+    if(splash) splash.style.display = "none";
+    if(menu){
+        menu.style.display = "flex";
+        menu.style.visibility = "visible";
+        menu.style.pointerEvents = "auto";
+        menu.classList.add("show");
+    }
+}
+
 window.addEventListener("load", () => {
     console.log("Window loaded, initializing...");
 
@@ -2276,33 +2294,24 @@ window.addEventListener("load", () => {
     if(canvas) canvas.style.display = "none";
     if(hud) hud.style.display = "none";
 
-window.addEventListener("load", () => {
-
-    const splash = document.getElementById("splashScreen");
-    const menu = document.getElementById("main-menu");
-
+    // ✅ BUG FIX #1: Moved splash click handler OUTSIDE of nested load event
     if(splash){
         splash.addEventListener("click", () => {
-
-            unlockAudio(); // ONLY unlock here
-
-            splash.style.display = "none";
-
-            if(menu){
-                menu.style.display = "flex";
-                menu.style.visibility = "visible";
-                menu.style.pointerEvents = "auto";
-            }
-
+            console.log("Splash clicked - starting game");
+            handleStart();  // Use the proper handler function
         });
+        
+        // Also handle touch for mobile
+        splash.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            handleStart();
+        }, {passive: false});
     }
-});
-   
-    /* ---------- FALLBACK ---------- */
 
+    // Fallback: Auto-start after 4 seconds if user hasn't clicked
     setTimeout(() => {
         if(!started && document.getElementById("tapToStart")){
-            console.log("Fallback trigger");
+            console.log("Fallback trigger - auto starting");
             handleStart();
         }
     }, 4000);
