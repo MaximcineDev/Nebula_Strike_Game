@@ -519,14 +519,19 @@ function startGame(){
     updateHUD();
     updateHeartsUI();
 
+    const splash = document.getElementById("splashScreen");
+    if(splash){
+        splash.style.display = "none";
+        splash.style.opacity = "0";
+        splash.style.visibility = "hidden";
+        splash.style.pointerEvents = "none";
+     }
+
     const menu = document.getElementById("main-menu");
    
     if(menu){
         menu.style.display = "none";
-        menu.style.visibility = "hidden";
-        menu.style.opacity = "0";
         menu.style.pointerEvents = "none";
-        menu.classList.remove("show");
     }
 
     const gameCanvas = document.getElementById("gameCanvas");
