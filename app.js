@@ -159,10 +159,13 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 // FIXED: Proper pause button handler
-document.getElementById("pauseBtn").onclick = () => {
-    if(!gameRunning) return;
-    togglePause();
-};
+const pauseBtn = document.getElementById("pauseBtn");
+if(pauseBtn){
+    pauseBtn.onclick = () => {
+        if(!gameRunning) return;
+        togglePause();
+    };
+}
 
 /* ---------- PLAYER ---------- */
 
@@ -1796,7 +1799,7 @@ function buyWeapon() {
         weaponLevel++;
 
         Damage += 2;
-        fireRate += 0.1;
+        fireRate *= 0.9;
 
         saveGame();
 
