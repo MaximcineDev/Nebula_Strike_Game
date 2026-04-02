@@ -1781,8 +1781,8 @@ function tryBuySkin(id, price){
     updateShopCoins();
     saveGame();
 
-    const skinBtn = document.getElementById('skin' + (id-1));
-
+    const skinBtn = document.getElementById('skin' + id);
+   
     if(skinBtn){
 
         // 🔥 POP ANIMATION
