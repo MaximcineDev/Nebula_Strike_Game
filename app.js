@@ -1700,14 +1700,51 @@ function loadGame() {
 let unlockedSkins = [0];
 
 function selectSkin(id){
+
     if(!unlockedSkins.includes(id)) return;
+
     currentSkin = id;
     updateSkin();
     saveGame();
-    
+
+    // 🔥 REMOVE ALL EQUIPPED BADGES FIRST
+    document.querySelectorAll('.equippedBadge').forEach(b => b.remove());
+
     document.querySelectorAll('.skinBtn').forEach((btn, idx) => {
-        btn.style.borderColor = (idx === id) ? '#00ff88' : '#444';
+
+        if(idx === id){
+
+            // ✅ HIGHLIGHT SELECTED
+            btn.style.borderColor = '#00ff88';
+            btn.style.boxShadow = '0 0 15px #00ff88';
+
+            // 🟢 ADD EQUIPPED BADGE
+            const badge = document.createElement("div");
+            badge.className = "equippedBadge";
+            badge.innerText = "EQUIPPED";
+
+            badge.style.position = "absolute";
+            badge.style.bottom = "5px";
+            badge.style.left = "50%";
+            badge.style.transform = "translateX(-50%)";
+            badge.style.background = "#00ff88";
+            badge.style.color = "black";
+            badge.style.fontSize = "12px";
+            badge.style.padding = "2px 6px";
+            badge.style.borderRadius = "6px";
+            badge.style.fontWeight = "bold";
+            badge.style.boxShadow = "0 0 10px #00ff88";
+
+            btn.appendChild(badge);
+
+        } else {
+            // ❌ REMOVE HIGHLIGHT FROM OTHERS
+            btn.style.borderColor = '#444';
+            btn.style.boxShadow = 'none';
+        }
     });
+
+    console.log("Skin equipped:", id);
 }
 
 function tryBuySkin(id, price){
