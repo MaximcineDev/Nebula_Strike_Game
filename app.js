@@ -1848,6 +1848,10 @@ function openShop() {
     menu.style.display = "none";
 
     shop.style.display = "flex";
+
+    // ✅ ADD THIS
+    updateShopUI();
+    updateShopCoins();
 }
 
 function closeShop() {
