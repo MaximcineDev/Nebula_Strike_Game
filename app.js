@@ -2434,7 +2434,12 @@ window.addEventListener("load", () => {
     console.log("Window loaded, initializing...");
 
     loadGame();
-    //selectSkin(currentSkin);
+    setTimeout(() => {
+        if(document.querySelectorAll('.skinBtn').length){
+            selectSkin(currentSkin);
+        }
+    }, 100);
+   
     resizeGame();
 
     // Optional: re-enable later after stable
