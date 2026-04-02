@@ -837,7 +837,7 @@ body {
     position: relative;
     aspect-ratio: 1;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-    border: 3px solid #444;
+    border: 2px solid #444;
     border-radius: 12px;
     overflow: hidden;
     cursor: pointer;
