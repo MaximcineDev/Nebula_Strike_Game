@@ -2434,7 +2434,7 @@ window.addEventListener("load", () => {
     console.log("Window loaded, initializing...");
 
     loadGame();
-    selectSkin(currentSkin);
+    //selectSkin(currentSkin);
     resizeGame();
 
     // Optional: re-enable later after stable
