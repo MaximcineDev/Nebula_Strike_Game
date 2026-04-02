@@ -1945,35 +1945,6 @@ function buyWeapon() {
     }
 }
 
-function buyHearts() {
-
-    const heartCost = 50 + (level * 5);
-
-    // ✅ Prevent overflow
-    if (health >= maxHearts) {
-        showCoinWarning("Health is already full!");
-        return;
-    }
-
-    if (coins >= heartCost) {
-
-        coins -= heartCost;
-        showCoinSpend(heartCost);
-        health++;
-
-        updateHeartsUI();
-        updateHUD();
-
-        saveGame();
-
-        showCoinGain(1); // optional feedback
-
-    } else {
-        showCoinWarning("Not enough coins!");
-    }
-}
-
-
 function buyCoins(amount) {
 
     // ✅ Validate amount
