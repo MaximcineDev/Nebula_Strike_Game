@@ -912,6 +912,15 @@ body {
     color: #ffd700;
 }
 
+.equippedBadge {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translate(-50%, 10px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+}
+
 /* SHOP CONTROLS */
 .shopControls {
     display: flex;
