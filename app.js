@@ -1710,28 +1710,28 @@ function selectSkin(id){
     updateSkin();
     saveGame();
 
-    // 🔥 CLEAR ALL STATES FIRST
+    // 🔥 RESET ALL BUTTONS
     document.querySelectorAll('.skinBtn').forEach(btn => {
         btn.style.borderColor = '#444';
         btn.style.boxShadow = 'none';
 
-        const oldBadge = btn.querySelector('.equippedBadge');
-        if(oldBadge) oldBadge.remove();
+        const badge = btn.querySelector('.equippedBadge');
+        if(badge) badge.remove();
     });
 
-    // ✅ GET CORRECT BUTTON
-    const skinBtn = document.getElementById('skin' + (id-1));
+    // ✅ TARGET CORRECT BUTTON
+    const skinBtn = document.getElementById('skin' + id);
 
     if(!skinBtn){
-        console.error("Skin button not found for id:", id);
+        console.error("Skin button NOT FOUND:", 'skin' + id);
         return;
     }
 
-    // 🟢 APPLY EQUIPPED STYLE
-    skinBtn.style.borderColor = '#00ff88';
-    skinBtn.style.boxShadow = '0 0 15px #00ff88';
+    // 🟢 APPLY GREEN BORDER
+    skinBtn.style.borderColor = "#00ff88";
+    skinBtn.style.boxShadow = "0 0 15px #00ff88";
 
-    // 🏷️ ADD BADGE
+    // 🏷️ ADD EQUIPPED BADGE
     const badge = document.createElement("div");
     badge.className = "equippedBadge";
     badge.innerText = "EQUIPPED";
@@ -1746,12 +1746,12 @@ function selectSkin(id){
     badge.style.padding = "3px 8px";
     badge.style.borderRadius = "6px";
     badge.style.fontWeight = "bold";
-    badge.style.boxShadow = "0 0 10px #00ff88";
 
     skinBtn.appendChild(badge);
 
     console.log("Equipped skin:", id);
 }
+
 function tryBuySkin(id, price){
 
     // Already owned
