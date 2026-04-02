@@ -324,14 +324,17 @@ function updateHUD(){
     console.log("HUD Update - Coins:", coins, "Score:", score);
 }
 
-// Also fix coinPulse to ensure it works
 function coinPulse(){
     const coinBox = document.getElementById("coinBox");
     if(!coinBox) return;
-    coinBox.style.transform = "scale(1.3)";
-    coinBox.style.transition = "transform 0.1s";
+
+    coinBox.style.transition = "transform 0.15s, box-shadow 0.15s";
+    coinBox.style.transform = "scale(1.25)";
+    coinBox.style.boxShadow = "0 0 15px gold";
+
     setTimeout(()=>{
         coinBox.style.transform = "scale(1)";
+        coinBox.style.boxShadow = "none";
     },150);
 }
 
@@ -1708,35 +1711,70 @@ function selectSkin(id){
 }
 
 function tryBuySkin(id, price){
+
+    // Already owned → just select
     if(unlockedSkins.includes(id)){
         selectSkin(id);
         return;
     }
-    
-    if(coins >= price){
-        coins -= price;
-        unlockedSkins.push(id);
-        selectSkin(id);
-        updateHUD();
-        updateShopCoins();
-        saveGame();
-        
-        const skinBtn = document.getElementById('skin' + (id-1));
-        if(skinBtn){
-            skinBtn.classList.remove('locked');
-            skinBtn.classList.add('unlocked');
-            const lockIcon = skinBtn.querySelector('.lockIcon');
-            if(lockIcon) lockIcon.style.display = 'none';
-            const priceLabel = skinBtn.querySelector('.skinPrice');
-            if(priceLabel) priceLabel.textContent = 'OWNED';
+
+    // ❌ Not enough coins
+    if(coins < price){
+        showCoinWarning("Not enough coins!");
+        return;
+    }
+
+    // ✅ Deduct coins
+    coins -= price;
+
+    // 💸 SHOW SPEND ANIMATION
+    showCoinSpend(price);
+
+    // ✅ Unlock skin
+    unlockedSkins.push(id);
+    selectSkin(id);
+
+    // ✅ UI updates
+    updateHUD();
+    updateShopCoins();
+    saveGame();
+
+    const skinBtn = document.getElementById('skin' + (id-1));
+
+    if(skinBtn){
+
+        // 🔥 POP ANIMATION
+        skinBtn.style.transition = "all 0.25s ease";
+        skinBtn.style.transform = "scale(1.1)";
+
+        setTimeout(() => {
+            skinBtn.style.transform = "scale(1)";
+        }, 200);
+
+        // 🔓 REMOVE LOCK STATE
+        skinBtn.classList.remove('locked');
+        skinBtn.classList.add('unlocked');
+
+        // 🟢 CHANGE TO GREEN (OWNED LOOK)
+        skinBtn.style.borderColor = "#00ff88";
+        skinBtn.style.boxShadow = "0 0 15px #00ff88";
+
+        // ❌ REMOVE LOCK ICON
+        const lockIcon = skinBtn.querySelector('.lockIcon');
+        if(lockIcon){
+            lockIcon.style.opacity = "0";
+            setTimeout(() => lockIcon.remove(), 300);
         }
-    } else {
-        const btn = document.getElementById('skin' + (id-1));
-        if(btn){
-            btn.style.animation = 'shake 0.5s';
-            setTimeout(() => btn.style.animation = '', 500);
+
+        // ✅ CHANGE TEXT → OWNED
+        const priceLabel = skinBtn.querySelector('.skinPrice');
+        if(priceLabel){
+            priceLabel.textContent = "OWNED";
+            priceLabel.style.color = "#00ff88";
         }
     }
+
+    console.log("Skin unlocked:", id);
 }
 
 function updateShopCoins(){
@@ -1801,8 +1839,7 @@ function buyShield(){
 
     // ✅ Deduct coins
     coins -= shieldCost;
-
-    // ✅ Upgrade shield
+    showCoinSpend(shieldCost);
     shieldLevel++;
 
     // ✅ Activate / refresh shield
@@ -1840,7 +1877,7 @@ function buyWeapon() {
     if (coins >= weaponCost) {
 
         coins -= weaponCost;
-
+        showCoinSpend(weaponCost);
         weaponLevel++;
 
         // ✅ Correct damage system
@@ -1875,8 +1912,8 @@ function buyHearts() {
     if (coins >= heartCost) {
 
         coins -= heartCost;
-
-        health++; // ✅ correct variable
+        showCoinSpend(heartCost);
+        health++;
 
         updateHeartsUI();
         updateHUD();
@@ -2001,6 +2038,32 @@ function showCoinGain(amount) {
     document.body.appendChild(popup);
 
     setTimeout(() => popup.remove(), 1000);
+}
+
+function showCoinSpend(amount){
+    const popup = document.createElement("div");
+    popup.innerText = "-" + amount + " 🪙";
+
+    popup.style.position = "fixed";
+    popup.style.top = "50%";
+    popup.style.left = "50%";
+    popup.style.transform = "translate(-50%, -50%)";
+    popup.style.color = "#ff4444"; // red for spending
+    popup.style.fontSize = "26px";
+    popup.style.fontWeight = "bold";
+    popup.style.zIndex = "9999";
+    popup.style.pointerEvents = "none";
+
+    popup.style.transition = "all 0.6s ease";
+
+    document.body.appendChild(popup);
+
+    setTimeout(() => {
+        popup.style.transform = "translate(-50%, -80%) scale(1.2)";
+        popup.style.opacity = "0";
+    }, 50);
+
+    setTimeout(() => popup.remove(), 700);
 }
 
 function showCoinWarning(message = "Something went wrong"){
