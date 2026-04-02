@@ -1674,11 +1674,11 @@ function saveGame() {
     const data = {
         coins,
         weaponLevel,
-        skin,
+        currentSkin,
+        unlockedSkins,
         dailyData
     };
 
-    localStorage.setItem("coins", coins);
     localStorage.setItem("nebulaSave", JSON.stringify(data));
 }
 
@@ -1691,8 +1691,11 @@ function loadGame() {
 
     coins = data.coins || 0;
     weaponLevel = data.weaponLevel || 1;
-    skin = data.skin || 0;
+    currentSkin = data.currentSkin || 0;
+    unlockedSkins = data.unlockedSkins || [0];
     dailyData = data.dailyData || dailyData;
+
+    updateSkin();
 }
 
 /* ---------- SHOP FUNCTIONS ---------- */
@@ -1818,15 +1821,20 @@ function updateShopCoins(){
 
 function updateShopUI(){
     unlockedSkins.forEach(id => {
-        if(id > 0){
-            const btn = document.getElementById('skin' + (id-1));
-            if(btn){
-                btn.classList.remove('locked');
-                btn.classList.add('unlocked');
-                const lockIcon = btn.querySelector('.lockIcon');
-                if(lockIcon) lockIcon.style.display = 'none';
-                const priceLabel = btn.querySelector('.skinPrice');
-                if(priceLabel) priceLabel.textContent = 'OWNED';
+
+        const btn = document.getElementById('skin' + id);
+
+        if(btn){
+            btn.classList.remove('locked');
+            btn.classList.add('unlocked');
+
+            const lockIcon = btn.querySelector('.lockIcon');
+            if(lockIcon) lockIcon.remove();
+
+            const priceLabel = btn.querySelector('.skinPrice');
+            if(priceLabel){
+                priceLabel.textContent = 'OWNED';
+                priceLabel.style.color = '#00ff88';
             }
         }
     });
