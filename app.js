@@ -2438,7 +2438,7 @@ window.addEventListener("load", () => {
     resizeGame();
 
     // Optional: re-enable later after stable
-    //checkDailyReward();
+    checkDailyReward();
 
     setupDailyReward();
 
