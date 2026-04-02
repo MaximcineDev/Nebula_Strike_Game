@@ -1754,67 +1754,59 @@ function selectSkin(id){
 }
 function tryBuySkin(id, price){
 
-    // Already owned → just select
+    // Already owned
     if(unlockedSkins.includes(id)){
         selectSkin(id);
         return;
     }
 
-    // ❌ Not enough coins
+    // Not enough coins
     if(coins < price){
         showCoinWarning("Not enough coins!");
         return;
     }
 
-    // ✅ Deduct coins
+    // Deduct coins
     coins -= price;
-
-    // 💸 SHOW SPEND ANIMATION
     showCoinSpend(price);
 
-    // ✅ Unlock skin
+    // Unlock
     unlockedSkins.push(id);
-    selectSkin(id);
 
-    // ✅ UI updates
+    // ✅ FORCE UI UPDATE FIRST
     updateHUD();
     updateShopCoins();
     saveGame();
 
+    // ✅ UPDATE BUTTON UI
     const skinBtn = document.getElementById('skin' + id);
-   
+
     if(skinBtn){
 
-        // 🔥 POP ANIMATION
-        skinBtn.style.transition = "all 0.25s ease";
-        skinBtn.style.transform = "scale(1.1)";
-
-        setTimeout(() => {
-            skinBtn.style.transform = "scale(1)";
-        }, 200);
-
-        // 🔓 REMOVE LOCK STATE
+        // Remove lock
         skinBtn.classList.remove('locked');
         skinBtn.classList.add('unlocked');
 
-        // 🟢 CHANGE TO GREEN (OWNED LOOK)
-        skinBtn.style.borderColor = "#00ff88";
-        skinBtn.style.boxShadow = "0 0 15px #00ff88";
-
-        // ❌ REMOVE LOCK ICON
+        // Remove lock icon
         const lockIcon = skinBtn.querySelector('.lockIcon');
-        if(lockIcon){
-            lockIcon.style.opacity = "0";
-            setTimeout(() => lockIcon.remove(), 300);
-        }
+        if(lockIcon) lockIcon.remove();
 
-        // ✅ CHANGE TEXT → OWNED
+        // Change text
         const priceLabel = skinBtn.querySelector('.skinPrice');
         if(priceLabel){
             priceLabel.textContent = "OWNED";
             priceLabel.style.color = "#00ff88";
         }
+
+        // 🔥 Small pop effect
+        skinBtn.style.transform = "scale(1.1)";
+        setTimeout(() => skinBtn.style.transform = "scale(1)", 200);
     }
+
+    // ✅ VERY IMPORTANT → EQUIP AFTER UI UPDATE
+    setTimeout(() => {
+        selectSkin(id);
+    }, 50);
 
     console.log("Skin unlocked:", id);
 }
