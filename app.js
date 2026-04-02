@@ -2550,11 +2550,15 @@ window.addEventListener("load", () => {
     /* ---------- FALLBACK (AUTO START IF NO CLICK) ---------- */
 
     setTimeout(() => {
-        if(!started && document.getElementById("tapToStart")){
-            console.log("Fallback start triggered");
-            handleStart();
-        }
-    }, 4000);
+        const splash = document.getElementById("splashScreen");
+        const menu = document.getElementById("main-menu");
+
+        splash.style.display = "none";
+
+        menu.style.display = "flex";
+        menu.classList.add("show");
+
+    }, 1500);
 
     console.log("Initialization complete - waiting for tap");
 });
