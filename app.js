@@ -2547,7 +2547,7 @@ window.addEventListener("load", () => {
         tapOverlay.addEventListener(evt, handleStart, { once: true, passive: false });
     });
 
-    /* ---------- FALLBACK (AUTO START IF NO CLICK) ---------- */
+    /* ---------- FALLBACK ---------- */
 
     setTimeout(() => {
         const splash = document.getElementById("splashScreen");
