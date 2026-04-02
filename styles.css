@@ -18,12 +18,13 @@ html, body {
     padding: 0;
     width: 100%;
     height: 100%;
-    height: 100vh; /* Fallback */
-    height: 100dvh; /* Dynamic viewport height for mobile */
+    height: 100vh;
+    height: 100dvh;
     overflow: hidden;
     background: black;
-    position: fixed; /* Prevent bounce/scroll on iOS */
+    position: fixed;
     touch-action: none;
+    pointer-events: auto;
 }
 
 body {
@@ -53,7 +54,7 @@ body {
     z-index: 1;
     image-rendering: pixelated;
     image-rendering: -webkit-optimize-contrast;
-    pointer-events: none;
+    pointer-events: auto;
 }
 
 
@@ -119,7 +120,7 @@ body {
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    z-index: 5000;
+    z-index: 6000;
     opacity: 0;
     transition: opacity 1s ease-in;
     overflow: hidden;
@@ -528,7 +529,7 @@ body {
     inset: 0;
     background: rgba(0,0,0,0.9);
 
-    display: flex;
+    display: none;
     justify-content: center;
     align-items: center;
 
