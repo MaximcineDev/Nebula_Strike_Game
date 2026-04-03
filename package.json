@@ -1,0 +1,16 @@
+{
+  "name": "nebula-strike",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@capacitor/core": "^5.0.0"
+  },
+  "devDependencies": {
+    "vite": "^8.0.3"
+  }
+}
