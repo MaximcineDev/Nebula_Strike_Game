@@ -12,7 +12,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: Nebula_Strike
+        working-directory:
 
     steps:
       - name: Checkout repo
