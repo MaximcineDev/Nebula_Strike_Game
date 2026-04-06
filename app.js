@@ -322,6 +322,28 @@ function updateHUD(){
     
     // Debug - remove after testing
     console.log("HUD Update - Coins:", coins, "Score:", score);
+
+     // Update new HUD elements
+    const energyBar = document.getElementById("energyBar");
+    const energyText = document.getElementById("energyText");
+    const missionProgress = document.getElementById("missionProgress");
+    
+    if(energyBar && energyText) {
+        // Calculate health percentage (you can adjust this logic)
+        const maxEnergy = maxHearts * 480; // 480 per heart as example
+        const currentEnergy = health * 480;
+        const percentage = (health / maxHearts) * 100;
+        
+        energyBar.style.width = percentage + "%";
+        energyText.innerText = currentEnergy + " / " + maxEnergy;
+    }
+    
+    if(missionProgress) {
+        // Update with current wave progress
+        const killed = Math.max(0, (waveNumber - 1) * 6 + (6 - enemiesInWave));
+        const total = waveNumber * 6;
+        missionProgress.innerText = killed + " / " + total;
+    }
 }
 
 function coinPulse(){
