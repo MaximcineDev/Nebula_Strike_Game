@@ -715,6 +715,38 @@ body {
     transition: width 0.3s ease;
 }
 
+/* Mission Counter */
+.mission-counter {
+    position: relative;
+    top: 75px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0, 20, 40, 0.8);
+    padding: 8px 20px;
+    border-radius: 20px;
+    border: 1px solid rgba(0, 200, 255, 0.3);
+    backdrop-filter: blur(10px);
+    pointer-events: auto;
+}
+
+.mission-label {
+    font-size: clamp(10px, 3vw, 14px);
+    color: #aaddff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 600;
+}
+
+.mission-progress {
+    font-size: clamp(12px, 3.5vw, 16px);
+    color: #ffffff;
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(0, 200, 255, 0.5);
+}
+
 /* Right section - Coins */
 .hud-right {
     display: flex;
@@ -745,39 +777,7 @@ body {
     text-shadow: 0 0 10px rgba(255, 200, 0, 0.6);
 }
 
-/* Mission Counter */
-.mission-counter {
-    position: absolute;
-    top: 75px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: rgba(0, 20, 40, 0.8);
-    padding: 8px 20px;
-    border-radius: 20px;
-    border: 1px solid rgba(0, 200, 255, 0.3);
-    backdrop-filter: blur(10px);
-    pointer-events: auto;
-}
-
-.mission-label {
-    font-size: clamp(10px, 3vw, 14px);
-    color: #aaddff;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-weight: 600;
-}
-
-.mission-progress {
-    font-size: clamp(12px, 3.5vw, 16px);
-    color: #ffffff;
-    font-weight: 700;
-    text-shadow: 0 0 10px rgba(0, 200, 255, 0.5);
-}
-
-/* Hearts - repositioned to bottom left */
+/* Hearts - repositioned to top right */
 #hearts {
     position: fixed;
     bottom: 20px;
