@@ -971,7 +971,20 @@ body {
 .shopSection {
     width: 100%;
     max-width: 500px;
-    flex-shrink: 0; /* Don't shrink */
+    margin-bottom: 10px;
+    text-align: center;
+
+    background: rgba(255,255,255,0.05);
+    border: 2px solid #00ffff;
+    border-radius: 15px;
+
+    padding: 15px;
+}
+.shopSection h2 {
+    color: #ffffff;
+    font-family: 'Orbitron', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 /* SKINS GRID */
@@ -1103,74 +1116,16 @@ body {
     color: #ffffff;
 }
 
-/* Target the back button specifically */
-#shop > button.menu-btn:last-of-type,
-#shop > .menu-btn[onclick*="closeShop"] {
-    margin-top: auto;        /* Push to bottom */
-    margin-bottom: 20px;   /* Space from bottom */
-    
-    /* Centering */
+#shop > button:last-child,
+#shop > .menu-btn:last-child {
+    margin-top: auto;
+    margin-bottom: 25px;
     align-self: center;
-    
-    /* Pill shape sizing */
-    width: 85%;
-    max-width: 320px;
-    min-width: 200px;
-    
-    /* Visual styling */
-    padding: 16px 40px;
-    font-family: 'Orbitron', sans-serif;
-    font-size: clamp(16px, 4vw, 22px);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 4px;
-    color: #fff;
-    
-    /* Cyan pill border */
-    background: linear-gradient(135deg, rgba(0, 50, 100, 0.4) 0%, rgba(0, 20, 40, 0.6) 100%);
-    border: 3px solid #00ffff;
+    width: 80%;
+    max-width: 300px;
     border-radius: 50px;
-    
-    /* Glow effect */
-    box-shadow: 
-        0 0 20px rgba(0, 255, 255, 0.3),
-        inset 0 0 20px rgba(0, 255, 255, 0.1);
-    
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
-
-/* Hover state */
-#shop > button.menu-btn:last-of-type:hover,
-#shop > .menu-btn[onclick*="closeShop"]:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 
-        0 0 30px rgba(0, 255, 255, 0.6),
-        0 0 60px rgba(0, 200, 255, 0.4),
-        inset 0 0 30px rgba(0, 255, 255, 0.2);
-    border-color: #80ffff;
-    text-shadow: 0 0 10px #fff;
-}
-
-/* Active/press state */
-#shop > button.menu-btn:last-of-type:active,
-#shop > .menu-btn[onclick*="closeShop"]:active {
-    transform: translateY(0) scale(0.98);
-}
-
-/* Keep shine effect if you have it */
-#shop > button.menu-btn:last-of-type .btn-shine,
-#shop > .menu-btn[onclick*="closeShop"] .btn-shine {
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
-    transform: rotate(30deg);
-    animation: shine 3s infinite;
+    border: 3px solid #00ffff;
+    background: rgba(0, 50, 100, 0.3);
 }
 
 #shopCoins {
