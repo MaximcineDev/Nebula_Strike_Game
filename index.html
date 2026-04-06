@@ -74,35 +74,54 @@
 
 <!-- ================= HUD ================= -->
 
+<!-- ================= HUD (Updated Style) ================= -->
+
 <div id="hud">
+    <!-- Top curved bar container -->
+    <div class="hud-top-bar">
+        <!-- Left: Health/Energy -->
+        <div class="hud-left">
+            <div class="ship-icon">
+                <img src="assets/player.png" alt="ship">
+            </div>
+            <div class="energy-section">
+                <div class="energy-text" id="energyText">2160 / 2400</div>
+                <div class="energy-bar-container">
+                    <div class="energy-bar" id="energyBar"></div>
+                </div>
+            </div>
+        </div>
 
-    <div id="levelText">Lv 1</div>
-
-    <div id="scoreText">Score: 0</div>
-
-    <div id="coinBox">
-
-        <img src="assets/ui/coin-icon.png">
-
-        <span id="coinText">0</span>
-
+        <!-- Right: Coins -->
+        <div class="hud-right">
+            <div class="coin-display">
+                <img src="assets/ui/coin-icon.png" alt="coins">
+                <span id="coinText">0</span>
+            </div>
+        </div>
     </div>
 
+    <!-- Mission Counter (centered below top bar) -->
+    <div class="mission-counter">
+        <span class="mission-label">DESTROY ENEMIES</span>
+        <span class="mission-progress" id="missionProgress">0 / 25</span>
+    </div>
+
+    <!-- Hearts (bottom left, floating) -->
+    <div id="hearts">
+        <img class="heart" src="assets/ui/heart-full.png">
+        <img class="heart" src="assets/ui/heart-full.png">
+        <img class="heart" src="assets/ui/heart-full.png">
+        <img class="heart" src="assets/ui/heart-full.png">
+        <img class="heart" src="assets/ui/heart-full.png">
+    </div>
+
+    <!-- Pause Button (bottom right) -->
     <button id="pauseBtn">Pause</button>
 
-
-    <!-- HEARTS -->
-
-    <div id="hearts">
-
-        <img class="heart" src="assets/ui/heart-full.png">
-        <img class="heart" src="assets/ui/heart-full.png">
-        <img class="heart" src="assets/ui/heart-full.png">
-        <img class="heart" src="assets/ui/heart-full.png">
-        <img class="heart" src="assets/ui/heart-full.png">
-
-    </div>
-
+    <!-- Hidden legacy elements (for JS compatibility) -->
+    <div id="levelText" style="display: none;">Lv 1</div>
+    <div id="scoreText" style="display: none;">Score: 0</div>
 </div>
 
 
