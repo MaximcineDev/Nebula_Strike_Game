@@ -602,7 +602,7 @@ body {
 }
 
 /* =========================
-   HUD - MOBILE POSITIONING
+   UPDATED HUD - CURVED TOP BAR
 ========================= */
 
 #hud {
@@ -612,103 +612,262 @@ body {
     width: 100%;
     height: auto;
     color: white;
-    font-family: Arial, sans-serif;
-    text-shadow: 0 0 5px cyan, 0 0 10px blue;
+    font-family: 'Orbitron', Arial, sans-serif;
     z-index: 2000;
-    padding: 10px;
+    pointer-events: none;
+}
+
+/* Curved top bar */
+.hud-top-bar {
+    position: relative;
+    width: 100%;
+    height: 70px;
+    background: linear-gradient(180deg, rgba(10, 20, 40, 0.95) 0%, rgba(5, 10, 25, 0.9) 100%);
+    border-bottom-left-radius: 50% 20px;
+    border-bottom-right-radius: 50% 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
     padding-top: max(10px, env(safe-area-inset-top));
-    padding-right: max(10px, env(safe-area-inset-right));
+    box-shadow: 
+        0 4px 20px rgba(0, 150, 255, 0.3),
+        inset 0 -2px 10px rgba(0, 200, 255, 0.1);
+    pointer-events: auto;
 }
 
-#levelText {
+/* Blue glow border effect */
+.hud-top-bar::after {
+    content: '';
     position: absolute;
-    top: 10px;
-    left: 10px;
-    font-size: clamp(14px, 4vw, 20px);
+    bottom: 0;
+    left: 5%;
+    right: 5%;
+    height: 2px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        #00aaff 20%, 
+        #00ffff 50%, 
+        #00aaff 80%, 
+        transparent 100%
+    );
+    border-radius: 50%;
+    filter: blur(1px);
 }
 
-#scoreText {
-    position: absolute;
-    top: 35px;
-    left: 10px;
-    font-size: clamp(12px, 3.5vw, 18px);
-}
-
-#coinBox {
-    position: absolute;
-    top: 10px;
-    right: 10px;
+/* Left section - Ship icon + Energy */
+.hud-left {
     display: flex;
     align-items: center;
-    font-size: clamp(14px, 4vw, 20px);
+    gap: 12px;
+    flex: 1;
 }
 
-#hearts {
-    position: absolute;
-    top: 40px;
-    right: 10px;
+.ship-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #00aaff;
+    background: rgba(0, 100, 200, 0.3);
     display: flex;
-    gap: 2px;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(0, 170, 255, 0.5);
+}
+
+.ship-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.energy-section {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.energy-text {
+    font-size: clamp(12px, 3.5vw, 16px);
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(0, 170, 255, 0.8);
+    letter-spacing: 1px;
+}
+
+.energy-bar-container {
+    width: clamp(100px, 30vw, 180px);
+    height: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
+    border: 1px solid rgba(0, 170, 255, 0.3);
+    overflow: hidden;
+    position: relative;
+}
+
+.energy-bar {
+    height: 100%;
+    width: 90%; /* Default, update via JS */
+    background: linear-gradient(90deg, #0066cc 0%, #00aaff 50%, #00ffff 100%);
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 200, 255, 0.6);
+    transition: width 0.3s ease;
+}
+
+/* Right section - Coins */
+.hud-right {
+    display: flex;
+    align-items: center;
+}
+
+.coin-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 200, 0, 0.4);
+    box-shadow: 0 0 15px rgba(255, 200, 0, 0.2);
+}
+
+.coin-display img {
+    width: 24px;
+    height: 24px;
+    filter: drop-shadow(0 0 5px rgba(255, 200, 0, 0.8));
+}
+
+.coin-display span {
+    font-size: clamp(14px, 4vw, 18px);
+    font-weight: 700;
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255, 200, 0, 0.6);
+}
+
+/* Mission Counter */
+.mission-counter {
+    position: absolute;
+    top: 75px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0, 20, 40, 0.8);
+    padding: 8px 20px;
+    border-radius: 20px;
+    border: 1px solid rgba(0, 200, 255, 0.3);
+    backdrop-filter: blur(10px);
+    pointer-events: auto;
+}
+
+.mission-label {
+    font-size: clamp(10px, 3vw, 14px);
+    color: #aaddff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 600;
+}
+
+.mission-progress {
+    font-size: clamp(12px, 3.5vw, 16px);
+    color: #ffffff;
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(0, 200, 255, 0.5);
+}
+
+/* Hearts - repositioned to bottom left */
+#hearts {
+    position: fixed;
+    bottom: 20px;
+    left: 15px;
+    display: flex;
+    gap: 6px;
+    pointer-events: none;
+    filter: drop-shadow(0 0 5px rgba(255, 0, 100, 0.5));
 }
 
 .heart {
-    width: clamp(20px, 5vw, 28px);
-    height: clamp(20px, 5vw, 28px);
+    width: clamp(24px, 6vw, 32px);
+    height: clamp(24px, 6vw, 32px);
+    transition: transform 0.2s;
 }
 
+.heart.lost {
+    filter: grayscale(100%) brightness(0.3);
+    transform: scale(0.9);
+}
+
+/* Pause Button - repositioned to bottom right */
 #pauseBtn {
-    position: absolute;
-    top: 70px;
-    right: 10px;
+    position: fixed;
+    bottom: 20px;
+    right: 15px;
     pointer-events: auto;
-    padding: 8px 16px;
-    font-size: clamp(12px, 3vw, 16px);
-    background: rgba(0, 0, 0, 0.7);
-    border: 1px solid cyan;
-    color: cyan;
-    border-radius: 20px;
+    padding: 10px 20px;
+    font-size: clamp(12px, 3vw, 14px);
+    font-family: 'Orbitron', sans-serif;
+    background: rgba(0, 100, 200, 0.3);
+    border: 2px solid #00aaff;
+    color: #00ffff;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 0 15px rgba(0, 170, 255, 0.3);
 }
 
+#pauseBtn:hover {
+    background: rgba(0, 170, 255, 0.4);
+    box-shadow: 0 0 25px rgba(0, 200, 255, 0.6);
+    transform: scale(1.05);
+}
 
-/* =========================
-         BOSS BAR
-========================= */
+#pauseBtn:active {
+    transform: scale(0.95);
+}
 
+/* Boss Bar - adjusted for new layout */
 #bossBar {
-
     position: fixed;
-
-    top: 10px;
+    top: 130px;
     left: 50%;
-
     transform: translateX(-50%);
-
-    width: 60%;
-
-    height: 20px;
-
-    background: #333;
-
-    border: 2px solid white;
-
+    width: 70%;
+    height: 12px;
+    background: rgba(0, 0, 0, 0.6);
+    border: 2px solid #ff4444;
+    border-radius: 6px;
     display: none;
-
     z-index: 400;
+    overflow: hidden;
 }
 
 #bossHealth {
-
     width: 100%;
     height: 100%;
-
-    background: red;
-
-    box-shadow:
-        0 0 10px red,
-        0 0 20px orange;
+    background: linear-gradient(90deg, #ff4444 0%, #ff8844 100%);
+    box-shadow: 0 0 15px rgba(255, 100, 0, 0.6);
+    transition: width 0.2s ease;
 }
 
-
+/* Responsive adjustments */
+@media (max-height: 700px) {
+    .hud-top-bar {
+        height: 60px;
+    }
+    
+    .mission-counter {
+        top: 65px;
+        padding: 6px 15px;
+    }
+    
+    #bossBar {
+        top: 110px;
+    }
+}
 
 /* =========================
           WARNING
