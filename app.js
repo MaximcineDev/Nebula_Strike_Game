@@ -362,7 +362,41 @@ function coinPulse(){
 
 function updateHeartsUI(){
     const hearts = document.querySelectorAll("#hearts img");
-    for(let i=0;i<hearts.length;i++){
+    for(let i=function updateHeartsUI(){
+    // Map health to energy bar (480 HP per heart = 2400 max for 5 hearts)
+    const maxEnergy = maxHearts * 480;
+    const currentEnergy = health * 480;
+    const percentage = (health / maxHearts) * 100;
+    
+    const energyBar = document.getElementById("energyBar");
+    const energyText = document.getElementById("energyText");
+    
+    if(energyBar) {
+        energyBar.style.width = percentage + "%";
+        
+        // Change color based on health level
+        if(percentage > 60) {
+            energyBar.style.background = "linear-gradient(90deg, #0066cc 0%, #00aaff 50%, #00ffff 100%)";
+            energyBar.style.boxShadow = "0 0 10px rgba(0, 200, 255, 0.6)";
+        } else if(percentage > 30) {
+            energyBar.style.background = "linear-gradient(90deg, #cc6600 0%, #ffaa00 50%, #ffcc00 100%)";
+            energyBar.style.boxShadow = "0 0 10px rgba(255, 200, 0, 0.6)";
+        } else {
+            energyBar.style.background = "linear-gradient(90deg, #cc0000 0%, #ff4444 50%, #ff6666 100%)";
+            energyBar.style.boxShadow = "0 0 15px rgba(255, 0, 0, 0.8)";
+        }
+    }
+    
+    if(energyText) {
+        energyText.innerText = currentEnergy + " / " + maxEnergy;
+    }
+    
+    // Optional: Keep hidden hearts for compatibility (don't delete this)
+    const hearts = document.querySelectorAll("#hearts img");
+    for(let i = 0; i < hearts.length; i++){
+        hearts[i].style.display = i < health ? "block" : "none";
+    }
+}0;i<hearts.length;i++){
         if(i < health){
             hearts[i].src = "assets/ui/heart-full.png";
         }else{
