@@ -55,28 +55,29 @@ document.addEventListener('DOMContentLoaded', () => {
             updateHeartsUI();
             hideReviveScreen();
             gameRunning = true;
+            reviveUsed = true; // ← Mark as used
             break;
+            
          case 'doubleBoss':
-            // coins already added in doubleBossReward before showing ad
             closeBossReward();
             updateHUD();
             saveGame();
             break;
+            
          case 'doubleLevel':
-            // coins already added
             showCoinGain(rewardAmount);
             updateHUD();
             saveGame();
             break;
+            
          case 'freeCoins':
-            // coins already added
             document.getElementById("shopCoinText").innerText = coins;
             showCoinGain(100);
             saveGame();
             break;
       }
       
-      pendingRewardAction = null; // Reset
+      pendingRewardAction = null;
    });
 });
 
@@ -136,14 +137,10 @@ const reviveBtn = document.getElementById("reviveBtn");
 const quitBtn = document.getElementById("quitBtn");
 
 reviveBtn.addEventListener("click", () => {
-   showRewardAd();
+  reviveUsed = true; // mark as used
+  showRewardAd();
 });
    
-quitBtn.addEventListener("click", () => {
-   hideReviveScreen();
-   gameOver();
-});
-
 function showReviveScreen() {
    pendingRewardAction = 'revive';
    showRewardAd();
@@ -306,6 +303,8 @@ let comboTimer = 0;
 
 let gameRunning = false;
 let paused = false;
+
+let reviveUsed = false;
 
 let score = 0;
 let level = 1;
@@ -642,6 +641,7 @@ function startGame(){
     waveInProgress = false;
     waveNumber = 0;
     enemiesInWave = 0;
+    reviveUsed = false;
 
     // RESET TIMERS
     lastWaveTime = performance.now();
@@ -1714,11 +1714,13 @@ function updateEnemyBullets(){
                 if (health <= 0) {
                    
                    if (!gameRunning) return;
+                   if (reviveUsed) {
+                      gameOver();
+                      return;
+                   }
                    
-                   gameRunning = false; // pause game
-                   showReviveScreen();  // show UI instead of confirm
-                   
-                   return;
+                   gameRunning = false;
+                   showReviveScreen();
                 }
 
                 playerHitCooldown = 10;
@@ -2496,6 +2498,7 @@ function restartGame(){
     health = maxHearts;
     level = 1;
     score = 0;
+    reviveUsed = false;
     enemies = [];
     enemyBullets = [];
     bullets = [];
