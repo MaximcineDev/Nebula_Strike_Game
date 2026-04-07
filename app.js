@@ -46,13 +46,13 @@ async function showRewardAd() {
 
 document.addEventListener('DOMContentLoaded', () => {
   AdMob.addListener('onRewardedVideoAdReward', () => {
-     console.log("Reward earned!");
-     
-     health = Math.ceil(maxHearts * 0.5);
-     updateHeartsUI();
-     
-     gameRunning = true;
-  });
+  console.log("Reward earned!");
+
+  health = Math.ceil(maxHearts * 0.5); // or full restore
+  updateHeartsUI();
+
+  hideReviveScreen();
+  gameRunning = true; // resume game
 });
 
 /* ---------- IMAGES ---------- */
@@ -109,6 +109,15 @@ updateSkin();
 const reviveScreen = document.getElementById("reviveScreen");
 const reviveBtn = document.getElementById("reviveBtn");
 const quitBtn = document.getElementById("quitBtn");
+
+reviveBtn.addEventListener("click", () => {
+   showRewardAd();
+});
+   
+quitBtn.addEventListener("click", () => {
+   hideReviveScreen();
+   gameOver();
+});
 
 function showReviveScreen() {
   reviveScreen.style.display = "flex";
