@@ -45,15 +45,15 @@ async function showRewardAd() {
 /* ---------- REWARD HANDLER ---------- */
 
 document.addEventListener('DOMContentLoaded', () => {
-  AdMob.addListener('onRewardedVideoAdReward', () => {
-  console.log("Reward earned!");
-
-  health = Math.ceil(maxHearts * 0.5); // or full restore
-  updateHeartsUI();
-
-  hideReviveScreen();
-  gameRunning = true; // resume game
-});
+   AdMob.addListener('onRewardedVideoAdReward', () => {
+      console.log("Reward earned!");
+      health = Math.ceil(maxHearts * 0.5); // or full restore
+      updateHeartsUI();
+      
+      hideReviveScreen();
+      gameRunning = true; // resume game
+   });
+}); 
 
 /* ---------- IMAGES ---------- */
 
@@ -436,7 +436,7 @@ function coinPulse(){
 
 function updateHeartsUI(){
     // Keep original hearts logic (for compatibility)
-    const heartIcons = document.querySelectorAll("#hearts img");
+    const heart = document.querySelectorAll("#hearts img");
     for(let i=0; i<hearts.length; i++){
         if(i < health){
             hearts[i].src = "assets/ui/heart-full.png";
