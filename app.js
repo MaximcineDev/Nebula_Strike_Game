@@ -4,6 +4,57 @@
 
 console.log("APP STARTED - FINAL VERSION");
 
+/* ---------- ADMOB SETUP ---------- */
+
+let admobReady = false;
+
+async function initAds() {
+  try {
+    await AdMob.initialize();
+    admobReady = true;
+    console.log("AdMob initialized");
+  } catch (err) {
+    console.log("AdMob init error:", err);
+  }
+}
+
+initAds();
+
+/* ---------- REWARDED AD ---------- */
+
+async function showRewardAd() {
+  if (!admobReady) {
+    alert("Ads not ready yet");
+    return;
+  }
+
+  try {
+    const options = {
+      adId: 'ca-app-pub-3940256099942544/5224354917', // TEST ID
+    };
+
+    await AdMob.prepareRewardVideoAd(options);
+    await AdMob.showRewardVideoAd();
+
+  } catch (err) {
+    console.log("Ad failed:", err);
+    alert("Ad failed to load");
+  }
+}
+
+/* ---------- REWARD HANDLER ---------- */
+
+document.addEventListener('DOMContentLoaded', () => {
+  AdMob.addListener('onRewardedVideoAdReward', () => {
+     console.log("Reward earned!");
+     
+     health = Math.ceil(maxHearts * 0.5);
+     updateHeartsUI();
+     
+     gameRunning = true;
+  });
+});
+
 /* ---------- IMAGES ---------- */
 
 const playerImg = new Image();
@@ -362,11 +413,11 @@ function coinPulse(){
 
 function updateHeartsUI(){
     // Keep original hearts logic (for compatibility)
-    const hearts = document.querySelectorAll("#hearts img");
+    const heartIcons = document.querySelectorAll("#hearts img");
     for(let i=0; i<hearts.length; i++){
         if(i < health){
             hearts[i].src = "assets/ui/heart-full.png";
-            hearts[i].style.display = "none"; // Hide but keep functional
+            hearts[i].style.display = "none";
         } else {
             hearts[i].src = "assets/ui/heart-empty.png";
             hearts[i].style.display = "none";
@@ -1614,9 +1665,17 @@ function updateEnemyBullets(){
 
                 console.log("PLAYER HIT! Health:", health);
 
-                if(health <= 0){
-                    gameOver();
-                    return;
+                if (health <= 0) {
+                   if (!gameRunning) return;
+                   gameRunning = false;
+                   
+                   const watchAd = confirm("Watch ad to restore energy? ⚡");
+                   
+                   if (watchAd) {
+                      showRewardAd();
+                      return;
+                   }
+                   gameOver();
                 }
 
                 playerHitCooldown = 10;
