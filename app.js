@@ -47,16 +47,48 @@ async function showRewardAd() {
 
 document.addEventListener('DOMContentLoaded', () => {
    AdMob.addListener('onRewardedVideoAdReward', () => {
-      console.log("Reward earned!");
+      console.log("Reward earned:", pendingRewardAction);
       
-      if (pendingRewardAction === 'revive') {
-        health = Math.ceil(maxHearts * 0.5);
-        updateHeartsUI();
-        hideReviveScreen();
-        gameRunning = true;
-        reviveUsed = true;
-        pendingRewardAction = null;
+      switch(pendingRewardAction) {
+         case 'revive':
+            health = Math.ceil(maxHearts * 0.5);
+            updateHeartsUI();
+            hideReviveScreen();
+            gameRunning = true;
+            reviveUsed = true;
+            break;
+            
+         case 'doubleBoss':
+            closeBossReward();
+            updateHUD();
+            saveGame();
+            break;
+            
+         case 'doubleLevel':
+            showCoinGain(rewardAmount);
+            updateHUD();
+            saveGame();
+            break;
+            
+         case 'freeCoins':
+            coins += 100;
+            const shopText = document.getElementById("shopCoinText");
+            if(shopText) shopText.innerText = coins;
+            showCoinGain(100);
+            saveGame();
+            
+            const btn = document.querySelector('.watchAdBtn');
+            if(btn) {
+                btn.style.opacity = '1';
+                btn.innerText = '📺 Watch Ad (+100)';
+            }
+            
+            adCooldown = true;
+            setTimeout(() => adCooldown = false, 30000);
+            break;
       }
+      
+      pendingRewardAction = null;
    });
 });
 
@@ -343,7 +375,6 @@ let soundOn = true;
 
 let playerHitCooldown = 0;
 
-// WAVE SYSTEM VARIABLES
 let enemySpawnRate = 1500;
 let enemySpeed = 2;
 let enemyHPBase = 2;
@@ -362,7 +393,8 @@ let hitFlash = 0;
 let screenShake = 0;
 let sfxVolume = 1;
 
-// LOOP TIMING
+let rewardAmount = 0;
+
 let lastTime = 0;
 const targetFPS = 60;
 const frameInterval = 1000 / targetFPS;
@@ -1198,9 +1230,12 @@ function showBossRewardPopup(amount){
 }
 
 function doubleBossReward(amount) {
-   coins += amount; // Give base reward immediately
+   coins += amount;
    pendingRewardAction = 'doubleBoss';
-   showRewardAd();
+   showRewardAd().catch(err => {
+       console.log("Ad failed:", err);
+       pendingRewardAction = null;
+   });
 }
 
 function closeBossReward(){
@@ -2127,23 +2162,35 @@ function buyCoins(amount) {
 
 function watchAdReward(){
     if (adCooldown) {
-        showCoinWarning("Ad not ready yet!");
+        showCoinWarning("Ad not ready yet! Please wait.");
         return;
     }
     
-    const rewardListener = AdMob.addListener('onRewardedVideoAdReward', () => {
-        coins += 100;
-        document.getElementById("shopCoinText").innerText = coins;
-        showCoinGain(100);
-        saveGame();
-        rewardListener.remove();
-        
-        // cooldown
-        adCooldown = true;
-        setTimeout(() => adCooldown = false, 30000);
-    });
+    if (!admobReady) {
+        showCoinWarning("Ads not ready yet! Check connection.");
+        return;
+    }
+   
+    const btn = document.querySelector('.watchAdBtn');
+    if(btn) {
+        btn.style.opacity = '0.5';
+        btn.innerText = 'Loading...';
+    }
+
+    pendingRewardAction = 'freeCoins';
     
-    showRewardAd();
+    showRewardAd().then(() => {
+        console.log("Ad started");
+    }).catch(err => {
+        console.log("Ad failed:", err);
+        showCoinWarning("Ad failed to load. Try again later.");
+        
+        if(btn) {
+            btn.style.opacity = '1';
+            btn.innerText = '📺 Watch Ad (+100)';
+        }
+        pendingRewardAction = null;
+    });
 }
 
 function showCoinGain(amount) {
@@ -2398,14 +2445,12 @@ function levelComplete(){
 }
 
 function doubleLevelReward(baseReward){
-    const rewardListener = AdMob.addListener('onRewardedVideoAdReward', () => {
-        coins += baseReward;
-        showCoinGain(baseReward);
-        updateHUD();
-        saveGame();
-        rewardListener.remove();
+    rewardAmount = baseReward;
+    pendingRewardAction = 'doubleLevel';
+    showRewardAd().catch(err => {
+        console.log("Ad failed:", err);
+        pendingRewardAction = null;
     });
-    showRewardAd();
 }
 
 function nextLevel(){
