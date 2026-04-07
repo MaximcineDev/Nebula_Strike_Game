@@ -593,7 +593,6 @@ function startGame(){
 
     resizeGame();
 
-    // 🔥 FORCE correct player position (FIXES invisible/off-screen player)
     player.x = canvas.width / 2 - player.width / 2;
     player.y = canvas.height - 150;
 
@@ -602,9 +601,6 @@ function startGame(){
     health = maxHearts;
     score = 0;
     level = 1;
-
-    // 👉 Your choice: reset coins or keep saved
-    // coins = 0;
 
     gameRunning = true;
     paused = false;
@@ -619,7 +615,6 @@ function startGame(){
     enemiesInWave = 0;
     reviveUsed = false;
 
-    // RESET TIMERS
     lastWaveTime = performance.now();
     lastEnemySpawnTime = performance.now();
 
