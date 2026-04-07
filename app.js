@@ -79,7 +79,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Also reset any screen shake
         screenShake = 0;
-        
+
+        console.log("AFTER FIX - hitFlash:", hitFlash, "gameRunning:", gameRunning);
         // Ensure game loop is running
         lastTime = 0;
         requestAnimationFrame(gameLoop);
