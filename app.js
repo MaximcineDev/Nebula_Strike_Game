@@ -10,16 +10,33 @@ let admobReady = false;
 let pendingRewardAction = null;
 
 async function initAds() {
+  const statusEl = document.getElementById('admobStatus');
   try {
     await AdMob.initialize();
     admobReady = true;
     console.log("AdMob initialized");
+    if(statusEl) statusEl.innerText = "AdMob: READY ✅";
   } catch (err) {
     console.log("AdMob init error:", err);
+    if(statusEl) statusEl.innerText = "AdMob: FAILED ❌ " + err.message;
   }
 }
 
 initAds();
+
+let adReady = false;
+
+async function loadRewardAd() {
+  try {
+    await AdMob.prepareRewardVideoAd({
+      adId: 'ca-app-pub-3940256099942544/5224354917',
+    });
+    adReady = true;
+    console.log("Ad ready ✅");
+  } catch {
+    adReady = false;
+  }
+}
 
 /* ---------- REWARDED AD ---------- */
 
@@ -2161,29 +2178,41 @@ function buyCoins(amount) {
 }
 
 function watchAdReward(){
+    console.log("Watch ad clicked. admobReady:", admobReady, "adCooldown:", adCooldown);
+    
     if (adCooldown) {
-        showCoinWarning("Ad not ready yet! Please wait.");
+        showCoinWarning("Ad not ready yet! Please wait 30s.");
         return;
     }
     
     if (!admobReady) {
-        showCoinWarning("Ads not ready yet! Check connection.");
+        console.log("AdMob not ready - offering free coins as fallback");
+       
+        coins += 100;
+        const shopText = document.getElementById("shopCoinText");
+        if(shopText) shopText.innerText = coins;
+        showCoinGain(100);
+        saveGame();
+        showCoinWarning("Free coins! (Ads not ready)");
+        
+        adCooldown = true;
+        setTimeout(() => adCooldown = false, 30000);
         return;
     }
-   
-    const btn = document.querySelector('.watchAdBtn');
+    
+    const btn = document.querySelector('.watchAdBtn') || event.target;
     if(btn) {
         btn.style.opacity = '0.5';
         btn.innerText = 'Loading...';
     }
-
+    
     pendingRewardAction = 'freeCoins';
     
     showRewardAd().then(() => {
-        console.log("Ad started");
+        console.log("Ad showing successfully");
     }).catch(err => {
         console.log("Ad failed:", err);
-        showCoinWarning("Ad failed to load. Try again later.");
+        showCoinWarning("Ad failed. Try again later.");
         
         if(btn) {
             btn.style.opacity = '1';
