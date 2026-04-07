@@ -64,48 +64,26 @@ async function showRewardAd() {
 
 document.addEventListener('DOMContentLoaded', () => {
    AdMob.addListener('onRewardedVideoAdReward', () => {
-      console.log("Reward earned:", pendingRewardAction);
+      console.log("Reward earned!");
       
-      switch(pendingRewardAction) {
-         case 'revive':
-            health = Math.ceil(maxHearts * 0.5);
-            updateHeartsUI();
-            hideReviveScreen();
-            gameRunning = true;
-            reviveUsed = true;
-            break;
-            
-         case 'doubleBoss':
-            closeBossReward();
-            updateHUD();
-            saveGame();
-            break;
-            
-         case 'doubleLevel':
-            showCoinGain(rewardAmount);
-            updateHUD();
-            saveGame();
-            break;
-            
-         case 'freeCoins':
-            coins += 100;
-            const shopText = document.getElementById("shopCoinText");
-            if(shopText) shopText.innerText = coins;
-            showCoinGain(100);
-            saveGame();
-            
-            const btn = document.querySelector('.watchAdBtn');
-            if(btn) {
-                btn.style.opacity = '1';
-                btn.innerText = '📺 Watch Ad (+100)';
-            }
-            
-            adCooldown = true;
-            setTimeout(() => adCooldown = false, 30000);
-            break;
+      if (pendingRewardAction === 'revive') {
+        health = Math.ceil(maxHearts * 0.5);
+        updateHeartsUI();
+        hideReviveScreen();
+        gameRunning = true;
+        reviveUsed = true;
+        pendingRewardAction = null;
+        
+        // 🔥 FIX: Clear the red hit flash immediately
+        hitFlash = 0;
+        
+        // Also reset any screen shake
+        screenShake = 0;
+        
+        // Ensure game loop is running
+        lastTime = 0;
+        requestAnimationFrame(gameLoop);
       }
-      
-      pendingRewardAction = null;
    });
 });
 
