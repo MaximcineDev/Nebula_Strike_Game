@@ -104,6 +104,20 @@ function updateSkin(){
 }
 updateSkin();
 
+/* ---------- REVIVE UI ---------- */
+
+const reviveScreen = document.getElementById("reviveScreen");
+const reviveBtn = document.getElementById("reviveBtn");
+const quitBtn = document.getElementById("quitBtn");
+
+function showReviveScreen() {
+  reviveScreen.style.display = "flex";
+}
+
+function hideReviveScreen() {
+  reviveScreen.style.display = "none";
+}
+
 /* ---------- POWERUPS ---------- */
 
 const healthImg = new Image();
