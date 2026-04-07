@@ -436,7 +436,7 @@ function coinPulse(){
 
 function updateHeartsUI(){
     // Keep original hearts logic (for compatibility)
-    const heart = document.querySelectorAll("#hearts img");
+    const hearts = document.querySelectorAll("#hearts img");
     for(let i=0; i<hearts.length; i++){
         if(i < health){
             hearts[i].src = "assets/ui/heart-full.png";
@@ -730,6 +730,11 @@ function checkDailyReward() {
     saveDailyData();
 
     showDailyRewardUI();
+}
+
+function showDailyRewardUI() {
+    const screen = document.getElementById("dailyRewardScreen");
+    if(screen) screen.style.display = "flex";
 }
 
 function giveReward(amount) {
