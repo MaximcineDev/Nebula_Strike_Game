@@ -7,6 +7,7 @@ console.log("APP STARTED - FINAL VERSION");
 /* ---------- ADMOB SETUP ---------- */
 
 let admobReady = false;
+let pendingRewardAction = null;
 
 async function initAds() {
   try {
@@ -46,14 +47,38 @@ async function showRewardAd() {
 
 document.addEventListener('DOMContentLoaded', () => {
    AdMob.addListener('onRewardedVideoAdReward', () => {
-      console.log("Reward earned!");
-      health = Math.ceil(maxHearts * 0.5); // or full restore
-      updateHeartsUI();
+      console.log("Reward earned:", pendingRewardAction);
       
-      hideReviveScreen();
-      gameRunning = true; // resume game
+      switch(pendingRewardAction) {
+         case 'revive':
+            health = Math.ceil(maxHearts * 0.5);
+            updateHeartsUI();
+            hideReviveScreen();
+            gameRunning = true;
+            break;
+         case 'doubleBoss':
+            // coins already added in doubleBossReward before showing ad
+            closeBossReward();
+            updateHUD();
+            saveGame();
+            break;
+         case 'doubleLevel':
+            // coins already added
+            showCoinGain(rewardAmount);
+            updateHUD();
+            saveGame();
+            break;
+         case 'freeCoins':
+            // coins already added
+            document.getElementById("shopCoinText").innerText = coins;
+            showCoinGain(100);
+            saveGame();
+            break;
+      }
+      
+      pendingRewardAction = null; // Reset
    });
-}); 
+});
 
 /* ---------- IMAGES ---------- */
 
@@ -120,7 +145,8 @@ quitBtn.addEventListener("click", () => {
 });
 
 function showReviveScreen() {
-  reviveScreen.style.display = "flex";
+   pendingRewardAction = 'revive';
+   showRewardAd();
 }
 
 function hideReviveScreen() {
@@ -435,7 +461,6 @@ function coinPulse(){
 }
 
 function updateHeartsUI(){
-    // Keep original hearts logic (for compatibility)
     const hearts = document.querySelectorAll("#hearts img");
     for(let i=0; i<hearts.length; i++){
         if(i < health){
@@ -1177,17 +1202,10 @@ function showBossRewardPopup(amount){
     document.body.appendChild(popup);
 }
 
-function doubleBossReward(amount){
-
-    // 🔥 FUTURE: AdMob Rewarded Ad here
-    // showRewardedAd().then(() => { ... });
-
-    coins += amount; // already got base, so just add same again
-
-    closeBossReward();
-
-    updateHUD();
-    saveGame();
+function doubleBossReward(amount) {
+   coins += amount; // Give base reward immediately
+   pendingRewardAction = 'doubleBoss';
+   showRewardAd();
 }
 
 function closeBossReward(){
@@ -2110,68 +2128,25 @@ function buyCoins(amount) {
     console.log(`Coins added: +${amount} | Total: ${coins}`);
 }
 
-let adCooldown = false;
-
-function watchAdReward() {
-
+function watchAdReward(){
     if (adCooldown) {
         showCoinWarning("Ad not ready yet!");
         return;
     }
-
-    // simulate watching ad
-    showFakeAd(() => {
-
+    
+    const rewardListener = AdMob.addListener('onRewardedVideoAdReward', () => {
         coins += 100;
         document.getElementById("shopCoinText").innerText = coins;
-
         showCoinGain(100);
-
-        // cooldown (prevents spam)
+        saveGame();
+        rewardListener.remove();
+        
+        // cooldown
         adCooldown = true;
-
-        setTimeout(() => {
-            adCooldown = false;
-        }, 30000); // 30 sec cooldown
+        setTimeout(() => adCooldown = false, 30000);
     });
-}
-
-function showFakeAd(callback) {
-
-    const ad = document.createElement("div");
-
-    ad.style.position = "fixed";
-    ad.style.top = "0";
-    ad.style.left = "0";
-    ad.style.width = "100vw";
-    ad.style.height = "100vh";
-    ad.style.background = "black";
-    ad.style.color = "white";
-    ad.style.display = "flex";
-    ad.style.justifyContent = "center";
-    ad.style.alignItems = "center";
-    ad.style.flexDirection = "column";
-    ad.style.zIndex = "99999";
-
-    ad.innerHTML = `
-        <h2>Ad Playing...</h2>
-        <p id="adTimer">3</p>
-    `;
-
-    document.body.appendChild(ad);
-
-    let time = 3;
-
-    const interval = setInterval(() => {
-        time--;
-        ad.querySelector("#adTimer").innerText = time;
-
-        if (time <= 0) {
-            clearInterval(interval);
-            ad.remove();
-            callback();
-        }
-    }, 1000);
+    
+    showRewardAd();
 }
 
 function showCoinGain(amount) {
@@ -2426,19 +2401,14 @@ function levelComplete(){
 }
 
 function doubleLevelReward(baseReward){
-
-    showFakeAd(() => {
-
-        let extra = baseReward; // give same amount again
-
-        coins += extra;
-
-        showCoinGain(extra);
-
+    const rewardListener = AdMob.addListener('onRewardedVideoAdReward', () => {
+        coins += baseReward;
+        showCoinGain(baseReward);
         updateHUD();
-
         saveGame();
+        rewardListener.remove();
     });
+    showRewardAd();
 }
 
 function nextLevel(){
