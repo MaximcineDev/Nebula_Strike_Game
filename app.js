@@ -1680,16 +1680,13 @@ function updateEnemyBullets(){
                 console.log("PLAYER HIT! Health:", health);
 
                 if (health <= 0) {
+                   
                    if (!gameRunning) return;
-                   gameRunning = false;
                    
-                   const watchAd = confirm("Watch ad to restore energy? ⚡");
+                   gameRunning = false; // pause game
+                   showReviveScreen();  // show UI instead of confirm
                    
-                   if (watchAd) {
-                      showRewardAd();
-                      return;
-                   }
-                   gameOver();
+                   return;
                 }
 
                 playerHitCooldown = 10;
