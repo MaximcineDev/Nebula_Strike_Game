@@ -1,12 +1,14 @@
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application'
+}
 
 android {
     namespace = "com.nebulastrike.game"
-    compileSdk = rootProject.ext.compileSdkVersion 34
+    compileSdk 34
     defaultConfig {
         applicationId "com.nebulastrike.game"
-        minSdkVersion rootProject.ext.minSdkVersion 22
-        targetSdkVersion rootProject.ext.targetSdkVersion 34
+        minSdk 22
+        targetSdk 34
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
