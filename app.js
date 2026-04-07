@@ -47,37 +47,13 @@ async function showRewardAd() {
 
 document.addEventListener('DOMContentLoaded', () => {
    AdMob.addListener('onRewardedVideoAdReward', () => {
-      console.log("Reward earned:", pendingRewardAction);
+      console.log("Reward earned!");
       
-      switch(pendingRewardAction) {
-         case 'revive':
-            health = Math.ceil(maxHearts * 0.5);
-            updateHeartsUI();
-            hideReviveScreen();
-            gameRunning = true;
-            reviveUsed = true; // ← Mark as used
-            break;
-            
-         case 'doubleBoss':
-            closeBossReward();
-            updateHUD();
-            saveGame();
-            break;
-            
-         case 'doubleLevel':
-            showCoinGain(rewardAmount);
-            updateHUD();
-            saveGame();
-            break;
-            
-         case 'freeCoins':
-            document.getElementById("shopCoinText").innerText = coins;
-            showCoinGain(100);
-            saveGame();
-            break;
-      }
+      health = Math.ceil(maxHearts * 0.5);
+      updateHeartsUI();
       
-      pendingRewardAction = null;
+      hideReviveScreen();
+      gameRunning = true;
    });
 });
 
