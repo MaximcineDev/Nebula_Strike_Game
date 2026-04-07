@@ -49,11 +49,14 @@ document.addEventListener('DOMContentLoaded', () => {
    AdMob.addListener('onRewardedVideoAdReward', () => {
       console.log("Reward earned!");
       
-      health = Math.ceil(maxHearts * 0.5);
-      updateHeartsUI();
-      
-      hideReviveScreen();
-      gameRunning = true;
+      if (pendingRewardAction === 'revive') {
+        health = Math.ceil(maxHearts * 0.5);
+        updateHeartsUI();
+        hideReviveScreen();
+        gameRunning = true;
+        reviveUsed = true;
+        pendingRewardAction = null;
+      }
    });
 });
 
@@ -113,13 +116,34 @@ const reviveBtn = document.getElementById("reviveBtn");
 const quitBtn = document.getElementById("quitBtn");
 
 reviveBtn.addEventListener("click", () => {
-  reviveUsed = true; // mark as used
+  if (!admobReady) {
+    console.log("Ads not ready, giving free revive");
+    health = Math.ceil(maxHearts * 0.5);
+    updateHeartsUI();
+    hideReviveScreen();
+    gameRunning = true;
+    reviveUsed = true;
+    return;
+  }
+  
+  reviveUsed = true;
   showRewardAd();
+});
+
+quitBtn.addEventListener("click", () => {
+   hideReviveScreen();
+   gameOver();
 });
    
 function showReviveScreen() {
-   pendingRewardAction = 'revive';
-   showRewardAd();
+  reviveScreen.style.display = "flex";
+   
+  if (admobReady) {
+    pendingRewardAction = 'revive';
+    AdMob.prepareRewardVideoAd({
+      adId: 'ca-app-pub-3940256099942544/5224354917'
+    }).catch(err => console.log("Ad prep failed:", err));
+  }
 }
 
 function hideReviveScreen() {
