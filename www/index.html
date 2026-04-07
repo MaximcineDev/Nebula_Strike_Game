@@ -11,10 +11,54 @@
     <title>Nebula Strike</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" crossorigin href="/assets/index-BZx-o_r9.css">
 </head>
 
+<!-- REVIVE SCREEN -->
+<div id="reviveScreen" style="
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background: rgba(0,0,0,0.85);
+  z-index: 9999;
+">
+
+  <h2 style="color: white; margin-bottom: 20px;">
+    ⚡ Out of Energy
+  </h2>
+
+  <button id="reviveBtn" style="
+    padding: 15px 25px;
+    font-size: 18px;
+    background: #00c853;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    margin-bottom: 10px;
+  ">
+    ▶ Watch Ad to Continue
+  </button>
+
+  <button id="quitBtn" style="
+    padding: 10px 20px;
+    font-size: 16px;
+    background: #d50000;
+    color: white;
+    border: none;
+    border-radius: 10px;
+  ">
+    Quit
+  </button>
+
+</div>
 
 <body>
 
