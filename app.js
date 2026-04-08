@@ -70,40 +70,41 @@ async function showRewardAd() {
 
 /* ---------- REWARD HANDLER ---------- */
 
-AdMob.addListener('onRewardedVideoAdReward', () => {
-    console.log("Reward earned!");
+if (AdMob) {
+    AdMob.addListener('onRewardedVideoAdReward', () => {
+        console.log("Reward earned!");
 
-    if (pendingRewardAction === 'revive') {
+        if (pendingRewardAction === 'revive') {
 
-        // restore health
-        health = Math.ceil(maxHearts * 0.5);
-        updateHeartsUI();
+            health = Math.ceil(maxHearts * 0.5);
+            updateHeartsUI();
 
-        hideReviveScreen();
-        gameRunning = true;
-        reviveUsed = true;
+            hideReviveScreen();
+            gameRunning = true;
+            reviveUsed = true;
 
-        // reset effects
-        hitFlash = 0;
-        screenShake = 0;
+            hitFlash = 0;
+            screenShake = 0;
 
-        pendingRewardAction = null;
+            pendingRewardAction = null;
 
-        // restart game loop safely
-        lastTime = 0;
-        requestAnimationFrame(gameLoop);
+            lastTime = 0;
+            requestAnimationFrame(gameLoop);
 
-        console.log("=== GAME RESUMED ===");
-    }
+            console.log("=== GAME RESUMED ===");
+        }
 
-    if (pendingRewardAction === 'freeCoins') {
-        coins += 100;
-        updateHUD();
-        saveGame();
+        else if (pendingRewardAction === 'freeCoins') {
+            coins += 100;
+            updateHUD();
+            saveGame();
+            pendingRewardAction = null;
+        }
 
-        pendingRewardAction = null;
-    }
-});
+    });
+} else {
+    console.log("AdMob listener skipped (browser mode)");
+}
 
 /* ---------- IMAGES ---------- */
 
