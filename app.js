@@ -2636,7 +2636,6 @@ window.addEventListener("load", () => {
     const handleStart = (e) => {
        if(started) return;
        started = true;
-       startGame();
        if(e && e.preventDefault) e.preventDefault();
        
        console.log("User tapped → unlocking audio and starting");
