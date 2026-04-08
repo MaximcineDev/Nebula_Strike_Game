@@ -169,10 +169,6 @@ reviveBtn.addEventListener("click", () => {
     pendingRewardAction = 'revive';
     showRewardAd();
 });
-  
-  reviveUsed = true;
-  showRewardAd();
-});
 
 quitBtn.addEventListener("click", () => {
    hideReviveScreen();
