@@ -380,6 +380,7 @@ let comboTimer = 0;
 
 let gameRunning = false;
 let paused = false;
+let gameState = "menu";
 
 let reviveUsed = false;
 
