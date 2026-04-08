@@ -7,6 +7,8 @@ console.log("=== SCRIPT LOADED ===");
 console.log("Canvas exists:", !!document.getElementById("gameCanvas"));
 let AdMob = window.AdMob || null;
 
+let started = false;
+
 /* ---------- ADMOB SETUP ---------- */
 
 let admobReady = false;
@@ -2629,6 +2631,7 @@ window.addEventListener("load", () => {
     const handleStart = (e) => {
        if(started) return;
        started = true;
+       startGame();
        if(e && e.preventDefault) e.preventDefault();
        
        console.log("User tapped → unlocking audio and starting");
