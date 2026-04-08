@@ -3,6 +3,9 @@
 ========================= */
 
 console.log("APP STARTED - FINAL VERSION");
+console.log("=== SCRIPT LOADED ===");
+console.log("Canvas exists:", !!document.getElementById("gameCanvas"));
+console.log("AdMob exists:", typeof AdMob !== 'undefined');
 
 /* ---------- ADMOB SETUP ---------- */
 
@@ -312,6 +315,11 @@ const player = {
 };
 
 function resizeGame(){
+    if(!canvas) {
+        console.error("Canvas not found!");
+        return;
+    }
+    
     const width = window.innerWidth;
     const height = window.innerHeight;
     
@@ -319,11 +327,13 @@ function resizeGame(){
     canvas.height = height;
     canvas.style.width = width + "px";
     canvas.style.height = height + "px";
+
+    if(player && typeof player.x === 'number' && typeof player.y === 'number'){
+        player.x = Math.min(Math.max(player.x, 0), canvas.width - player.width);
+        player.y = Math.min(Math.max(player.y, 0), canvas.height - player.height);
+    }
     
-    player.x = Math.min(Math.max(player.x, 0), canvas.width - player.width);
-    player.y = Math.min(Math.max(player.y, 0), canvas.height - player.height);
-    
-    if(player.x === 0 && player.y === 0){
+    if(player && player.x === 0 && player.y === 0 && canvas.width > 0){
         player.x = canvas.width / 2;
         player.y = canvas.height - 120;
     }
@@ -653,13 +663,22 @@ function quitGame(){
 /* ---------- START GAME ---------- */
 
 function startGame(){
+    console.log("=== startGame() CALLED ===");
+    
     unlockAudio();
-
     resizeGame();
 
-    player.x = canvas.width / 2 - player.width / 2;
-    player.y = canvas.height - 150;
+    if(!canvas || canvas.width === 0 || canvas.height === 0){
+        console.error("Canvas not ready, retrying...");
+        setTimeout(startGame, 100);
+        return;
+    }
 
+    if(player){
+        player.x = canvas.width / 2 - player.width / 2;
+        player.y = canvas.height - 150;
+    }
+   
     setTimeout(() => resizeGame(), 100);
 
     health = maxHearts;
@@ -673,11 +692,14 @@ function startGame(){
     bullets = [];
     enemyBullets = [];
     powerups = [];
+    boss = null;
 
     waveInProgress = false;
     waveNumber = 0;
     enemiesInWave = 0;
     reviveUsed = false;
+
+    playerPerformance = { shotsFired: 0, shotsHit: 0, damageTaken: 0 };
 
     lastWaveTime = performance.now();
     lastEnemySpawnTime = performance.now();
@@ -697,19 +719,31 @@ function startGame(){
     if(gameCanvas) gameCanvas.style.display = "block";
     if(hud) hud.style.display = "flex";
 
-    menuMusic.pause();
+    if(menuMusic) menuMusic.pause();
 
-    if(soundOn){
+    if(soundOn && gameMusic){
         gameMusic.currentTime = 0;
-        gameMusic.play().catch(()=>{});
+        gameMusic.play().catch((e) => console.log("Game music play failed:", e));
     }
-
+   
     startAutoShoot();
     startWave();
 
     lastTime = 0;
-
-    requestAnimationFrame(gameLoop);
+    
+    if(window.gameLoopId){
+        cancelAnimationFrame(window.gameLoopId);
+    }
+    
+    function loop(currentTime){
+        if(!gameRunning) return;
+        window.gameLoopId = requestAnimationFrame(loop);
+        gameLoop(currentTime);
+    }
+    
+    window.gameLoopId = requestAnimationFrame(loop);
+    
+    console.log("=== GAME STARTED SUCCESSFULLY ===");
 }
 
 function setupDailyReward(){
@@ -2601,49 +2635,39 @@ window.addEventListener("load", () => {
 
     /* ---------- START HANDLER ---------- */
 
-    let started = false;
-
     const handleStart = (e) => {
-        if(started) return;
-        started = true;
-
-        if(e && e.preventDefault) e.preventDefault();
-
-        console.log("User tapped → starting game");
-
-        // Unlock audio
-        if(audioContext && audioContext.state === "suspended"){
-            audioContext.resume();
-        }
-
-        unlockAudio();
-
-        if(soundOn){
-            menuMusic.currentTime = 0;
-            menuMusic.play().catch(()=>{});
-        }
-
-        // Remove overlay
-        tapOverlay.remove();
-
-        // Hide splash
-        if(splash){
-            splash.style.opacity = "0";
-            splash.style.pointerEvents = "none";
-            setTimeout(() => {
-                splash.style.display = "none";
-            }, 500);
-        }
-
-        // Show menu
-        if(menu){
-            menu.style.display = "flex";
-            menu.style.visibility = "visible";
-            menu.style.opacity = "1";
-            menu.classList.add("show");
-        }
-
-        console.log("Game ready");
+       if(started) return;
+       started = true;
+       if(e && e.preventDefault) e.preventDefault();
+       
+       console.log("User tapped → unlocking audio and starting");
+       
+       if(audioContext && audioContext.state === "suspended"){
+          audioContext.resume();
+       }
+       unlockAudio();
+       
+       if(soundOn && menuMusic){
+          menuMusic.currentTime = 0;
+          menuMusic.play().catch(()=>{});
+       }
+       
+       tapOverlay.remove();
+       
+       if(splash){
+          splash.style.opacity = "0";
+          splash.style.pointerEvents = "none";
+          setTimeout(() => splash.style.display = "none", 500);
+       }
+       
+       if(menu){
+          menu.style.display = "flex";
+          menu.style.visibility = "visible";
+          menu.style.opacity = "1";
+          menu.classList.add("show");
+       }
+       
+       console.log("Tap handler complete - menu shown, waiting for player to click START");
     };
 
     // Click + touch support
