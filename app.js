@@ -5,7 +5,7 @@
 console.log("APP STARTED - FINAL VERSION");
 console.log("=== SCRIPT LOADED ===");
 console.log("Canvas exists:", !!document.getElementById("gameCanvas"));
-console.log("AdMob exists:", typeof AdMob !== 'undefined');
+let AdMob = window.AdMob || null;
 
 /* ---------- ADMOB SETUP ---------- */
 
@@ -13,15 +13,17 @@ let admobReady = false;
 let pendingRewardAction = null;
 
 async function initAds() {
-  const statusEl = document.getElementById('admobStatus');
+  if (!AdMob) {
+    console.log("AdMob not available (browser mode)");
+    return;
+  }
+
   try {
     await AdMob.initialize();
     admobReady = true;
     console.log("AdMob initialized");
-    if(statusEl) statusEl.innerText = "AdMob: READY ✅";
   } catch (err) {
     console.log("AdMob init error:", err);
-    if(statusEl) statusEl.innerText = "AdMob: FAILED ❌ " + err.message;
   }
 }
 
@@ -73,39 +75,34 @@ AdMob.addListener('onRewardedVideoAdReward', () => {
 
     if (pendingRewardAction === 'revive') {
 
+        // restore health
         health = Math.ceil(maxHearts * 0.5);
         updateHeartsUI();
 
         hideReviveScreen();
-
         gameRunning = true;
         reviveUsed = true;
 
-        // FULL RESET FIX
+        // reset effects
         hitFlash = 0;
         screenShake = 0;
 
+        pendingRewardAction = null;
+
+        // restart game loop safely
         lastTime = 0;
         requestAnimationFrame(gameLoop);
+
+        console.log("=== GAME RESUMED ===");
     }
 
-    else if (pendingRewardAction === 'freeCoins') {
-
+    if (pendingRewardAction === 'freeCoins') {
         coins += 100;
         updateHUD();
         saveGame();
 
-        showCoinGain(100);
+        pendingRewardAction = null;
     }
-
-    else if (pendingRewardAction === 'doubleBoss') {
-
-        coins += rewardAmount;
-        updateHUD();
-        saveGame();
-    }
-
-    pendingRewardAction = null;
 });
 
 /* ---------- IMAGES ---------- */
