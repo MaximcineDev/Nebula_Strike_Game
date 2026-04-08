@@ -49,21 +49,24 @@ async function loadRewardAd() {
 
 async function showRewardAd() {
 
-    // 🧪 BROWSER MODE FALLBACK
+    console.log("Attempting to show ad...");
+
+    // 🧪 BROWSER MODE (NO ADMOB)
     if (typeof AdMob === "undefined") {
-        console.log("Browser mode → simulating ad reward");
+
+        console.log("Browser mode → fallback revive");
 
         setTimeout(() => {
-            console.log("Simulated reward granted");
-
-            handleReward(); // 👈 manually trigger reward
-        }, 1500);
+            handleReward(true); // simulate success
+        }, 1200);
 
         return;
     }
 
     if (!admobReady) {
-        alert("Ads not ready yet");
+        console.log("Ad not ready → fallback");
+
+        fallbackRevive();
         return;
     }
 
@@ -77,21 +80,32 @@ async function showRewardAd() {
     } catch (err) {
         console.log("Ad failed:", err);
 
-        pendingRewardAction = null;
-
-        alert("Ad failed to load. Try again.");
+        fallbackRevive();
     }
 }
 
 /* ---------- REWARD HANDLER ---------- */
 
-function handleReward() {
-    console.log("Reward earned!");
+function handleReward(success = true) {
 
-    if (pendingRewardAction === 'revive') {
+    if (!success) {
+        console.log("Reward not granted");
+        resetToMenu();
+        return;
+    }
 
-        // Hide death/red screen
-        document.getElementById("gameOverScreen").style.display = "none";
+    console.log("=== REVIVE SUCCESS ===");
+
+    if (pendingRewardAction === "revive") {
+
+        // Hide game over UI
+        const screen = document.getElementById("gameOverScreen");
+        if (screen) {
+            screen.style.opacity = "0";
+            setTimeout(() => {
+                screen.style.display = "none";
+            }, 300);
+        }
 
         // Restore player
         player.health = 3;
@@ -99,22 +113,33 @@ function handleReward() {
         // Reset timing
         lastTime = 0;
 
-        // Restart loop safely
+        // Reset state
+        gameState = "playing";
+        gameRunning = true;
+
+        // Restart loop CLEANLY
         if (window.gameLoopId) {
             cancelAnimationFrame(window.gameLoopId);
         }
 
-        gameRunning = true;
-        requestAnimationFrame(gameLoop);
-
-        console.log("=== REVIVE SUCCESSFUL ===");
+        window.gameLoopId = requestAnimationFrame(gameLoop);
     }
 
     pendingRewardAction = null;
 }
 
 if (typeof AdMob !== "undefined") {
-    AdMob.addListener('onRewardedVideoAdReward', handleReward);
+    AdMob.addListener('onRewardedVideoAdReward', () => {
+        handleReward(true);
+    });
+}
+
+function fallbackRevive() {
+    console.log("Using fallback revive");
+
+    setTimeout(() => {
+        handleReward(true);
+    }, 800);
 }
 
 /* ---------- IMAGES ---------- */
@@ -172,13 +197,14 @@ const reviveScreen = document.getElementById("reviveScreen");
 const reviveBtn = document.getElementById("reviveBtn");
 const quitBtn = document.getElementById("quitBtn");
 
-reviveBtn.addEventListener("click", () => {
-    if (!admobReady) {
-        alert("Ad not ready yet. Try again.");
-        return;
-    }
+document.getElementById("reviveBtn").addEventListener("click", () => {
+    console.log("Revive clicked");
 
-    pendingRewardAction = 'revive';
+    if (gameState !== "gameover") return;
+
+    pendingRewardAction = "revive";
+    gameState = "reviving";
+
     showRewardAd();
 });
 
@@ -1300,59 +1326,36 @@ function closeBossReward(){
 
 /* ---------- MAIN GAME LOOP ---------- */
 
-function gameLoop(currentTime = 0){
-    // ✅ ALWAYS schedule next frame first (unless game stopped)
-    if(gameRunning){
-        window.gameLoopId = requestAnimationFrame(gameLoop);
+function gameLoop(time) {
+
+    // ✅ ALWAYS keep loop alive
+    window.gameLoopId = requestAnimationFrame(gameLoop);
+
+    // ✅ Stop everything if not in playing state
+    if (!gameRunning || gameState !== "playing") return;
+
+    // ✅ Pause: skip updates but KEEP rendering
+    if (paused) {
+       return;
     }
 
-    // ✅ Handle pause - skip updates but keep loop alive
-    if(paused || !gameRunning){
-        return;
-    }
-
+    // ✅ Correct timing
+    const currentTime = time;
     const deltaTime = currentTime - lastTime;
-    if(deltaTime < frameInterval) return;
+
+    if (deltaTime < frameInterval) return;
 
     lastTime = currentTime - (deltaTime % frameInterval);
 
-    // ✅ Reset canvas transforms
+    // ✅ Reset canvas
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Screen shake decay
-    if(screenShake > 0){
-        screenShake *= 0.7;
-        if(screenShake < 0.3) screenShake = 0;
-    }
-
-    if(boss && boss.y > canvas.height){
-        boss = null;
-        document.getElementById("bossBar").style.display = "none";
-    }
-
-    // Draw background
-    if(bgImg && bgImg.complete && bgImg.naturalWidth > 0){
-        ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-    } else {
-        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        gradient.addColorStop(0, "#000022");
-        gradient.addColorStop(0.5, "#000044");
-        gradient.addColorStop(1, "#000011");
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-    
-    // Draw player safely
-    if(playerImg.complete){
-        ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
-    }
-
-    // Run game logic
-    drawStars();
+    // ---------------------------
+    // 🎮 UPDATE (FIRST)
+    // ---------------------------
     updateSpawning(currentTime);
     updatePlayer();
-    drawPlayer();
     updateBullets();
     updateEnemies();
     updateEnemyBullets();
@@ -1362,12 +1365,59 @@ function gameLoop(currentTime = 0){
     updateBoss();
     updateTimers();
 
-    // Hit flash overlay (draw LAST)
-    if(hitFlash > 0){
+    // Screen shake decay
+    if (screenShake > 0) {
+        screenShake *= 0.7;
+        if (screenShake < 0.3) screenShake = 0;
+    }
+
+    if (boss && boss.y > canvas.height) {
+        boss = null;
+        document.getElementById("bossBar").style.display = "none";
+    }
+
+    // ---------------------------
+    // 🎨 DRAW (AFTER UPDATE)
+    // ---------------------------
+
+    // Background
+    if (bgImg && bgImg.complete && bgImg.naturalWidth > 0) {
+        ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+    } else {
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, "#000022");
+        gradient.addColorStop(0.5, "#000044");
+        gradient.addColorStop(1, "#000011");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    drawStars();
+
+    // Player
+    if (playerImg.complete) {
+        ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
+    }
+
+    drawPlayer(); // only if it adds effects, otherwise REMOVE
+
+    // ---------------------------
+    // 💥 HIT EFFECT (LAST)
+    // ---------------------------
+    if (hitFlash > 0) {
         ctx.fillStyle = `rgba(255, 0, 0, ${hitFlash * 0.1})`;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         hitFlash = Math.max(0, hitFlash - 1);
     }
+}
+
+function resetToMenu() {
+    console.log("Resetting to menu");
+
+    gameState = "menu";
+
+    document.getElementById("gameOverScreen").style.display = "none";
+    document.getElementById("main-menu").style.display = "flex";
 }
 
 /* ---------- PLAYER ---------- */
@@ -2525,38 +2575,27 @@ function nextLevel(){
     saveGame();
 }
 
-function gameOver(){
-    console.log("GAME OVER TRIGGERED");
+function triggerGameOver() {
+    console.log("=== GAME OVER ===");
 
+    gameState = "gameover";
     gameRunning = false;
-    cancelAnimationFrame(window.gameLoopId);
-    paused = false;
 
-    // Stop all audio safely
-    if(gameMusic) gameMusic.pause();
-
-    // 🔥 FORCE HIDE GAME ELEMENTS
-    const canvas = document.getElementById("gameCanvas");
-    const hud = document.getElementById("hud");
-
-    if(canvas) canvas.style.display = "none";
-    if(hud) hud.style.display = "none";
-
-    // 🔥 CLEAR ARRAYS (prevents ghost updates)
-    bullets = [];
-    enemyBullets = [];
-    enemies = [];
-
-    // 🔥 SHOW GAME OVER UI CLEANLY
-    const go = document.getElementById("gameOverScreen");
-    if(go){
-        go.style.display = "flex";
+    // Stop loop completely
+    if (window.gameLoopId) {
+        cancelAnimationFrame(window.gameLoopId);
     }
 
-    // Play menu music again
-    if(soundOn){
-        menuMusic.currentTime = 0;
-        menuMusic.play().catch(()=>{});
+    // Show UI
+    const screen = document.getElementById("gameOverScreen");
+    if (screen) {
+        screen.style.display = "flex";
+        screen.style.opacity = "0";
+        
+        setTimeout(() => {
+            screen.style.transition = "opacity 0.3s ease";
+            screen.style.opacity = "1";
+        }, 10);
     }
 }
 
