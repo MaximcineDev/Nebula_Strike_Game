@@ -51,24 +51,38 @@ async function showRewardAd() {
 
     console.log("Attempting to show ad...");
 
-    // 🧪 BROWSER MODE (NO ADMOB)
-    if (typeof AdMob === "undefined") {
-
-        console.log("Browser mode → fallback revive");
+    // 🧪 Browser fallback (no AdMob)
+    if (!AdMob) {
+        console.log("Browser mode → simulate reward");
 
         setTimeout(() => {
-            handleReward(true); // simulate success
-        }, 1200);
+            handleReward(true);
+        }, 1000);
 
         return;
     }
 
+    // Ad not ready → fallback
     if (!admobReady) {
         console.log("Ad not ready → fallback");
-
         fallbackRevive();
         return;
     }
+
+    try {
+        await AdMob.prepareRewardVideoAd({
+            adId: 'ca-app-pub-3940256099942544/5224354917'
+        });
+
+        await AdMob.showRewardVideoAd();
+
+    } catch (err) {
+        console.log("Ad failed:", err);
+
+        pendingRewardAction = null;
+        fallbackRevive();
+    }
+}
 
     try {
         await AdMob.prepareRewardVideoAd({
@@ -86,60 +100,52 @@ async function showRewardAd() {
 
 /* ---------- REWARD HANDLER ---------- */
 
-function handleReward(success = true) {
+function handleReward(success) {
+    if (!success) return;
 
-    if (!success) {
-        console.log("Reward not granted");
-        resetToMenu();
-        return;
+    if (pendingRewardAction === 'revive') {
+        health = Math.ceil(maxHearts * 0.5);
+        updateHeartsUI();
+
+        hideReviveScreen();
+
+        gameRunning = true;
+        reviveUsed = true;
+
+        hitFlash = 0;
+        screenShake = 0;
+
+        lastTime = 0;
+        requestAnimationFrame(gameLoop);
     }
 
-    console.log("=== REVIVE SUCCESS ===");
-
-    if (pendingRewardAction === "revive") {
-
-        // Hide game over UI
-        const screen = document.getElementById("gameOverScreen");
-        if (screen) {
-            screen.style.opacity = "0";
-            setTimeout(() => {
-                screen.style.display = "none";
-            }, 300);
-        }
-
-        // Restore player
-        player.health = 3;
-
-        // Reset timing
-        lastTime = 0;
-
-        // Reset state
-        gameState = "playing";
-        gameRunning = true;
-
-        // Restart loop CLEANLY
-        if (window.gameLoopId) {
-            cancelAnimationFrame(window.gameLoopId);
-        }
-
-        window.gameLoopId = requestAnimationFrame(gameLoop);
+    if (pendingRewardAction === 'freeCoins') {
+        coins += 100;
+        updateHUD();
     }
 
     pendingRewardAction = null;
 }
 
-if (typeof AdMob !== "undefined") {
+function fallbackRevive() {
+    console.log("Fallback revive triggered");
+
+    health = Math.ceil(maxHearts * 0.5);
+    updateHeartsUI();
+
+    hideReviveScreen();
+
+    gameRunning = true;
+    reviveUsed = true;
+
+    lastTime = 0;
+    requestAnimationFrame(gameLoop);
+}
+
+if (!AdMob) {
     AdMob.addListener('onRewardedVideoAdReward', () => {
         handleReward(true);
     });
-}
-
-function fallbackRevive() {
-    console.log("Using fallback revive");
-
-    setTimeout(() => {
-        handleReward(true);
-    }, 800);
 }
 
 /* ---------- IMAGES ---------- */
