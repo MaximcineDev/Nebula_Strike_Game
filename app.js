@@ -681,13 +681,14 @@ function startGame(){
    
     setTimeout(() => resizeGame(), 100);
 
+    // Reset game state
     health = maxHearts;
     score = 0;
     level = 1;
-
     gameRunning = true;
     paused = false;
 
+    // Clear all arrays
     enemies = [];
     bullets = [];
     enemyBullets = [];
@@ -707,6 +708,7 @@ function startGame(){
     updateHUD();
     updateHeartsUI();
 
+    // Hide menu, show game
     const menu = document.getElementById("main-menu");
     if(menu){
         menu.style.display = "none";
@@ -729,19 +731,16 @@ function startGame(){
     startAutoShoot();
     startWave();
 
+    // ✅ CRITICAL FIX: Reset timing and start loop properly
     lastTime = 0;
     
+    // ✅ Cancel any existing loop first
     if(window.gameLoopId){
         cancelAnimationFrame(window.gameLoopId);
     }
     
-    function loop(currentTime){
-        if(!gameRunning) return;
-        window.gameLoopId = requestAnimationFrame(loop);
-        gameLoop(currentTime);
-    }
-    
-    window.gameLoopId = requestAnimationFrame(loop);
+    // ✅ Start the game loop - SINGLE entry point
+    requestAnimationFrame(gameLoop);
     
     console.log("=== GAME STARTED SUCCESSFULLY ===");
 }
@@ -1288,10 +1287,14 @@ function closeBossReward(){
 /* ---------- MAIN GAME LOOP ---------- */
 
 function gameLoop(currentTime = 0){
-    if(!gameRunning) return;
+    // ✅ ALWAYS schedule next frame first (unless game stopped)
+    if(gameRunning){
+        window.gameLoopId = requestAnimationFrame(gameLoop);
+    }
 
-    if(!paused){
-        requestAnimationFrame(gameLoop);
+    // ✅ Handle pause - skip updates but keep loop alive
+    if(paused || !gameRunning){
+        return;
     }
 
     const deltaTime = currentTime - lastTime;
@@ -1299,17 +1302,13 @@ function gameLoop(currentTime = 0){
 
     lastTime = currentTime - (deltaTime % frameInterval);
 
-    if(!gameRunning || paused) return;
-
-    // ✅ CRITICAL FIX: Reset ALL canvas transforms every frame
+    // ✅ Reset canvas transforms
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-
-    // Clear canvas AFTER reset
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Screen shake
+    // Screen shake decay
     if(screenShake > 0){
-        screenShake *= 0.7;   // ✅ faster decay (was 0.85)
+        screenShake *= 0.7;
         if(screenShake < 0.3) screenShake = 0;
     }
 
@@ -1335,7 +1334,7 @@ function gameLoop(currentTime = 0){
         ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
     }
 
-    // Always run game logic
+    // Run game logic
     drawStars();
     updateSpawning(currentTime);
     updatePlayer();
@@ -1348,12 +1347,6 @@ function gameLoop(currentTime = 0){
     updatePowerups();
     updateBoss();
     updateTimers();
-
-    // Restore after shake
-    if(screenShake > 0){
-        screenShake *= 0.85;
-        if(screenShake < 0.5) screenShake = 0;
-    }
 
     // Hit flash overlay (draw LAST)
     if(hitFlash > 0){
