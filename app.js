@@ -715,6 +715,7 @@ function startGame(){
     level = 1;
     gameRunning = true;
     paused = false;
+    gameState = "playing";
 
     // Clear all arrays
     enemies = [];
@@ -2568,7 +2569,7 @@ function nextLevel(){
     saveGame();
 }
 
-function triggerGameOver() {
+function gameOver() {
     console.log("=== GAME OVER ===");
 
     gameState = "gameover";
