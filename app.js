@@ -49,63 +49,72 @@ async function loadRewardAd() {
 
 async function showRewardAd() {
 
-  if (!admobReady) {
-    alert("Ads not ready yet");
-    return;
-  }
+    // 🧪 BROWSER MODE FALLBACK
+    if (typeof AdMob === "undefined") {
+        console.log("Browser mode → simulating ad reward");
 
-  try {
-    await AdMob.prepareRewardVideoAd({
-      adId: 'ca-app-pub-3940256099942544/5224354917',
-    });
+        setTimeout(() => {
+            console.log("Simulated reward granted");
 
-    await AdMob.showRewardVideoAd();
+            handleReward(); // 👈 manually trigger reward
+        }, 1500);
 
-  } catch (err) {
-    console.log("Ad failed:", err);
+        return;
+    }
 
-    pendingRewardAction = null;
+    if (!admobReady) {
+        alert("Ads not ready yet");
+        return;
+    }
 
-    alert("Ad failed to load. Try again.");
-  }
+    try {
+        await AdMob.prepareRewardVideoAd({
+            adId: 'ca-app-pub-3940256099942544/5224354917',
+        });
+
+        await AdMob.showRewardVideoAd();
+
+    } catch (err) {
+        console.log("Ad failed:", err);
+
+        pendingRewardAction = null;
+
+        alert("Ad failed to load. Try again.");
+    }
 }
 
 /* ---------- REWARD HANDLER ---------- */
 
-if (AdMob) {
-    AdMob.addListener('onRewardedVideoAdReward', () => {
-        console.log("Reward earned!");
+function handleReward() {
+    console.log("Reward earned!");
 
-        if (pendingRewardAction === 'revive') {
+    if (pendingRewardAction === 'revive') {
 
-            health = Math.ceil(maxHearts * 0.5);
-            updateHeartsUI();
+        // Hide death/red screen
+        document.getElementById("gameOverScreen").style.display = "none";
 
-            hideReviveScreen();
-            gameRunning = true;
-            reviveUsed = true;
+        // Restore player
+        player.health = 3;
 
-            hitFlash = 0;
-            screenShake = 0;
+        // Reset timing
+        lastTime = 0;
 
-            pendingRewardAction = null;
-
-            lastTime = 0;
-            requestAnimationFrame(gameLoop);
-
-            console.log("=== GAME RESUMED ===");
+        // Restart loop safely
+        if (window.gameLoopId) {
+            cancelAnimationFrame(window.gameLoopId);
         }
 
-        else if (pendingRewardAction === 'freeCoins') {
-            coins += 100;
-            updateHUD();
-            saveGame();
-            pendingRewardAction = null;
-        }
+        gameRunning = true;
+        requestAnimationFrame(gameLoop);
 
-    });
-} else {
-    console.log("AdMob listener skipped (browser mode)");
+        console.log("=== REVIVE SUCCESSFUL ===");
+    }
+
+    pendingRewardAction = null;
+}
+
+if (typeof AdMob !== "undefined") {
+    AdMob.addListener('onRewardedVideoAdReward', handleReward);
 }
 
 /* ---------- IMAGES ---------- */
@@ -2520,6 +2529,7 @@ function gameOver(){
     console.log("GAME OVER TRIGGERED");
 
     gameRunning = false;
+    cancelAnimationFrame(window.gameLoopId);
     paused = false;
 
     // Stop all audio safely
