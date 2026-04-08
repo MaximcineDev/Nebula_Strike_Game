@@ -831,16 +831,21 @@ function showDailyRewardUI() {
 }
 
 function giveReward(amount) {
-
     coins += amount;
 
-    document.getElementById("shopCoinText").innerText = coins;
+    // ✅ SAFE: Check if element exists before updating
+    const shopCoinText = document.getElementById("shopCoinText");
+    if (shopCoinText) {
+        shopCoinText.innerText = coins;
+    }
 
     updateHUD();
-
     showCoinGain(amount);
-
-    document.getElementById("dailyReward").style.display = "none";
+    
+    const dailyRewardEl = document.getElementById("dailyReward");
+    if (dailyRewardEl) {
+        dailyRewardEl.style.display = "none";
+    }
 }
 
 
