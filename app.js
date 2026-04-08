@@ -41,51 +41,68 @@ async function loadRewardAd() {
 /* ---------- REWARDED AD ---------- */
 
 async function showRewardAd() {
+
   if (!admobReady) {
     alert("Ads not ready yet");
     return;
   }
 
   try {
-    const options = {
-      adId: 'ca-app-pub-3940256099942544/5224354917', // TEST ID
-    };
+    await AdMob.prepareRewardVideoAd({
+      adId: 'ca-app-pub-3940256099942544/5224354917',
+    });
 
-    await AdMob.prepareRewardVideoAd(options);
     await AdMob.showRewardVideoAd();
 
   } catch (err) {
     console.log("Ad failed:", err);
-    alert("Ad failed to load");
+
+    pendingRewardAction = null;
+
+    alert("Ad failed to load. Try again.");
   }
 }
 
 /* ---------- REWARD HANDLER ---------- */
 
-document.addEventListener('DOMContentLoaded', () => {
-   AdMob.addListener('onRewardedVideoAdReward', () => {
-      console.log("Reward earned!");
-      
-      if (pendingRewardAction === 'revive') {
+AdMob.addListener('onRewardedVideoAdReward', () => {
+    console.log("Reward earned!");
+
+    if (pendingRewardAction === 'revive') {
+
         health = Math.ceil(maxHearts * 0.5);
         updateHeartsUI();
+
         hideReviveScreen();
+
         gameRunning = true;
         reviveUsed = true;
-        pendingRewardAction = null;
-        
-        // 🔥 FIX: Clear the red hit flash immediately
+
+        // FULL RESET FIX
         hitFlash = 0;
-        
-        // Also reset any screen shake
         screenShake = 0;
 
-        console.log("AFTER FIX - hitFlash:", hitFlash, "gameRunning:", gameRunning);
-        // Ensure game loop is running
         lastTime = 0;
         requestAnimationFrame(gameLoop);
-      }
-   });
+    }
+
+    else if (pendingRewardAction === 'freeCoins') {
+
+        coins += 100;
+        updateHUD();
+        saveGame();
+
+        showCoinGain(100);
+    }
+
+    else if (pendingRewardAction === 'doubleBoss') {
+
+        coins += rewardAmount;
+        updateHUD();
+        saveGame();
+    }
+
+    pendingRewardAction = null;
 });
 
 /* ---------- IMAGES ---------- */
@@ -144,15 +161,14 @@ const reviveBtn = document.getElementById("reviveBtn");
 const quitBtn = document.getElementById("quitBtn");
 
 reviveBtn.addEventListener("click", () => {
-  if (!admobReady) {
-    console.log("Ads not ready, giving free revive");
-    health = Math.ceil(maxHearts * 0.5);
-    updateHeartsUI();
-    hideReviveScreen();
-    gameRunning = true;
-    reviveUsed = true;
-    return;
-  }
+    if (!admobReady) {
+        alert("Ad not ready yet. Try again.");
+        return;
+    }
+
+    pendingRewardAction = 'revive';
+    showRewardAd();
+});
   
   reviveUsed = true;
   showRewardAd();
@@ -164,7 +180,7 @@ quitBtn.addEventListener("click", () => {
 });
    
 function showReviveScreen() {
-  reviveScreen.style.display = "flex";
+  reviveBtn.style.display = reviveUsed ? "none" : "block";
    
   if (admobReady) {
     pendingRewardAction = 'revive';
@@ -2156,49 +2172,15 @@ function buyCoins(amount) {
     console.log(`Coins added: +${amount} | Total: ${coins}`);
 }
 
-function watchAdReward(){
-    console.log("Watch ad clicked. admobReady:", admobReady, "adCooldown:", adCooldown);
-    
-    if (adCooldown) {
-        showCoinWarning("Ad not ready yet! Please wait 30s.");
-        return;
-    }
-    
+function watchAdReward() {
+
     if (!admobReady) {
-        console.log("AdMob not ready - offering free coins as fallback");
-       
-        coins += 100;
-        const shopText = document.getElementById("shopCoinText");
-        if(shopText) shopText.innerText = coins;
-        showCoinGain(100);
-        saveGame();
-        showCoinWarning("Free coins! (Ads not ready)");
-        
-        adCooldown = true;
-        setTimeout(() => adCooldown = false, 30000);
+        showCoinWarning("Ads not ready yet!");
         return;
     }
-    
-    const btn = document.querySelector('.watchAdBtn') || event.target;
-    if(btn) {
-        btn.style.opacity = '0.5';
-        btn.innerText = 'Loading...';
-    }
-    
+
     pendingRewardAction = 'freeCoins';
-    
-    showRewardAd().then(() => {
-        console.log("Ad showing successfully");
-    }).catch(err => {
-        console.log("Ad failed:", err);
-        showCoinWarning("Ad failed. Try again later.");
-        
-        if(btn) {
-            btn.style.opacity = '1';
-            btn.innerText = '📺 Watch Ad (+100)';
-        }
-        pendingRewardAction = null;
-    });
+    showRewardAd();
 }
 
 function showCoinGain(amount) {
