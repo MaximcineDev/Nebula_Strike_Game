@@ -84,20 +84,6 @@ async function showRewardAd() {
     }
 }
 
-    try {
-        await AdMob.prepareRewardVideoAd({
-            adId: 'ca-app-pub-3940256099942544/5224354917',
-        });
-
-        await AdMob.showRewardVideoAd();
-
-    } catch (err) {
-        console.log("Ad failed:", err);
-
-        fallbackRevive();
-    }
-}
-
 /* ---------- REWARD HANDLER ---------- */
 
 function handleReward(success) {
@@ -142,7 +128,7 @@ function fallbackRevive() {
     requestAnimationFrame(gameLoop);
 }
 
-if (!AdMob) {
+if (AdMob) {
     AdMob.addListener('onRewardedVideoAdReward', () => {
         handleReward(true);
     });
