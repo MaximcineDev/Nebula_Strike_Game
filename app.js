@@ -3,7 +3,6 @@
 ========================= */
 
 console.log("APP STARTED - FINAL VERSION");
-console.log("=== SCRIPT LOADED ===");
 console.log("Canvas exists:", !!document.getElementById("gameCanvas"));
 console.log("AdMob exists:", typeof AdMob !== 'undefined');
 
