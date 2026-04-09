@@ -1329,8 +1329,6 @@ function closeBossReward(){
 /* ---------- MAIN GAME LOOP ---------- */
 
 function gameLoop(currentTime) {
-    b.w = b.w || 4;
-    b.h = b.h || 10;
     if (!gameRunning || gameState !== "playing") return;
 
     if (paused) {
