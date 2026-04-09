@@ -51,7 +51,7 @@ async function showRewardAd() {
 
     console.log("Attempting to show ad...");
 
-    // 🧪 Browser fallback (no AdMob)
+    // 🧪 Browser fallback
     if (!AdMob) {
         console.log("Browser mode → simulate reward");
 
@@ -62,7 +62,6 @@ async function showRewardAd() {
         return;
     }
 
-    // Ad not ready → fallback
     if (!admobReady) {
         console.log("Ad not ready → fallback");
         fallbackRevive();
@@ -78,7 +77,6 @@ async function showRewardAd() {
 
     } catch (err) {
         console.log("Ad failed:", err);
-
         pendingRewardAction = null;
         fallbackRevive();
     }
@@ -88,6 +86,8 @@ async function showRewardAd() {
 
 function handleReward(success) {
     if (!success) return;
+
+    console.log("Reward granted:", pendingRewardAction);
 
     if (pendingRewardAction === 'revive') {
         health = Math.ceil(maxHearts * 0.5);
@@ -110,6 +110,11 @@ function handleReward(success) {
         updateHUD();
     }
 
+    if (pendingRewardAction === 'doubleLevel') {
+        coins += rewardAmount;
+        updateHUD();
+    }
+
     pendingRewardAction = null;
 }
 
@@ -123,6 +128,9 @@ function fallbackRevive() {
 
     gameRunning = true;
     reviveUsed = true;
+
+    hitFlash = 0;
+    screenShake = 0;
 
     lastTime = 0;
     requestAnimationFrame(gameLoop);
@@ -1320,34 +1328,34 @@ function closeBossReward(){
 
 /* ---------- MAIN GAME LOOP ---------- */
 
-function gameLoop(time) {
-
-    // ✅ ALWAYS keep loop alive
-    window.gameLoopId = requestAnimationFrame(gameLoop);
-
-    // ✅ Stop everything if not in playing state
+function gameLoop(currentTime) {
+    b.w = b.w || 4;
+    b.h = b.h || 10;
     if (!gameRunning || gameState !== "playing") return;
 
-    // ✅ Pause: skip updates but KEEP rendering
     if (paused) {
-       return;
+        window.gameLoopId = requestAnimationFrame(gameLoop);
+        return;
     }
 
-    // ✅ Correct timing
-    const currentTime = time;
     const deltaTime = currentTime - lastTime;
+    if (deltaTime < frameInterval) {
+        window.gameLoopId = requestAnimationFrame(gameLoop);
+        return;
+    }
 
-    if (deltaTime < frameInterval) return;
+    lastTime = currentTime;
 
-    lastTime = currentTime - (deltaTime % frameInterval);
-
-    // ✅ Reset canvas
+    // ✅ CLEAR SCREEN FIRST
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // ---------------------------
-    // 🎮 UPDATE (FIRST)
-    // ---------------------------
+    // ✅ DRAW BACKGROUND
+    if (bgImg && bgImg.complete) {
+        ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+    }
+
+    // ✅ UPDATE FIRST
     updateSpawning(currentTime);
     updatePlayer();
     updateBullets();
@@ -1359,50 +1367,21 @@ function gameLoop(time) {
     updateBoss();
     updateTimers();
 
-    // Screen shake decay
-    if (screenShake > 0) {
-        screenShake *= 0.7;
-        if (screenShake < 0.3) screenShake = 0;
-    }
-
-    if (boss && boss.y > canvas.height) {
-        boss = null;
-        document.getElementById("bossBar").style.display = "none";
-    }
-
-    // ---------------------------
-    // 🎨 DRAW (AFTER UPDATE)
-    // ---------------------------
-
-    // Background
-    if (bgImg && bgImg.complete && bgImg.naturalWidth > 0) {
-        ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-    } else {
-        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        gradient.addColorStop(0, "#000022");
-        gradient.addColorStop(0.5, "#000044");
-        gradient.addColorStop(1, "#000011");
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-
+    // ✅ DRAW AFTER UPDATES
     drawStars();
+    drawPlayer();
 
-    // Player
-    if (playerImg.complete) {
-        ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
-    }
+    // (Bullets are already drawn inside updateBullets)
 
-    drawPlayer(); // only if it adds effects, otherwise REMOVE
-
-    // ---------------------------
-    // 💥 HIT EFFECT (LAST)
-    // ---------------------------
+    // ✅ HIT FLASH LAST
     if (hitFlash > 0) {
-        ctx.fillStyle = `rgba(255, 0, 0, ${hitFlash * 0.1})`;
+        ctx.fillStyle = `rgba(255,0,0,${hitFlash * 0.1})`;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        hitFlash = Math.max(0, hitFlash - 1);
+        hitFlash--;
     }
+
+    // ✅ LOOP AT VERY END
+    window.gameLoopId = requestAnimationFrame(gameLoop);
 }
 
 function resetToMenu() {
@@ -1463,7 +1442,7 @@ function updateBullets(){
     for(let i = bullets.length - 1; i >= 0; i--){
         let b = bullets[i];
         
-        b.y += b.dy || -8;
+        b.y += (b.dy !== undefined ? b.dy : -8);
         if(b.dx) b.x += b.dx;
         
         ctx.save();
