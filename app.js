@@ -195,7 +195,8 @@ updateSkin();
 
 const reviveScreen = document.getElementById("reviveScreen");
 const reviveBtn = document.getElementById("reviveBtn");
-const quitBtn = document.getElementById("quitBtn");
+
+console.log("Revive elements:", {reviveScreen: !!reviveScreen, reviveBtn: !!reviveBtn});
 
 document.getElementById("reviveBtn").addEventListener("click", () => {
     console.log("Revive clicked");
@@ -207,21 +208,20 @@ document.getElementById("reviveBtn").addEventListener("click", () => {
 
     showRewardAd();
 });
-
-quitBtn.addEventListener("click", () => {
-   hideReviveScreen();
-   gameOver();
-});
    
 function showReviveScreen() {
-  reviveBtn.style.display = reviveUsed ? "none" : "block";
+    console.log("showReviveScreen called, reviveUsed:", reviveUsed);
+    
+    reviveBtn.style.display = reviveUsed ? "none" : "block";
    
-  if (admobReady) {
-    pendingRewardAction = 'revive';
-    AdMob.prepareRewardVideoAd({
-      adId: 'ca-app-pub-3940256099942544/5224354917'
-    }).catch(err => console.log("Ad prep failed:", err));
-  }
+    reviveScreen.style.display = "flex";
+    
+    if (admobReady && !reviveUsed) {
+        pendingRewardAction = 'revive';
+        AdMob.prepareRewardVideoAd({
+            adId: 'ca-app-pub-3940256099942544/5224354917'
+        }).catch(err => console.log("Ad prep failed:", err));
+    }
 }
 
 function hideReviveScreen() {
@@ -1807,15 +1807,23 @@ function updateEnemyBullets(){
                 console.log("PLAYER HIT! Health:", health);
 
                 if (health <= 0) {
+                   console.log("Health depleted, checking revive...");
                    
                    if (!gameRunning) return;
+                   
+                   gameRunning = false;
+                   
                    if (reviveUsed) {
+                      console.log("Revive already used, game over");
+                      gameState = "gameover";
                       gameOver();
                       return;
                    }
                    
-                   gameRunning = false;
+                   console.log("Showing revive screen");
+                   gameState = "gameover";
                    showReviveScreen();
+                   return;
                 }
 
                 playerHitCooldown = 10;
