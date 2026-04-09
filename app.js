@@ -392,7 +392,6 @@ let gameState = "menu";
 
 let reviveUsed = false;
 
-let score = 0;
 let level = 1;
 
 let maxHearts = 5;
@@ -491,7 +490,6 @@ function updateHUD(){
     if (shopText) shopText.innerText = coins;
    
     const levelText = document.getElementById("levelText");
-    const scoreText = document.getElementById("scoreText");
     const comboText = document.getElementById("comboText");
     if(comboText){
         comboText.innerText = combo > 1 ? "x" + combo : "";
@@ -503,7 +501,6 @@ function updateHUD(){
         coinText.textContent = coins.toString();
     }
     if(levelText) levelText.innerText = "Lv " + level;
-    if(scoreText) scoreText.innerText = "Score: " + score;
     
     // Debug - remove after testing
     console.log("HUD Update - Coins:", coins, "Score:", score);
@@ -719,7 +716,6 @@ function startGame(){
 
     // Reset game state
     health = maxHearts;
-    score = 0;
     level = 1;
     gameRunning = true;
     paused = false;
@@ -1510,7 +1506,6 @@ function updateBullets(){
                     coins += reward;
                     combo++;
                     comboTimer = 60;
-                    score += reward * 2;
                     totalKills++;
                     
                     // Visual effects
@@ -1589,7 +1584,6 @@ function bossDefeated(){
     let bossReward = 150;
 
     coins += bossReward;
-    score += bossReward * 2;
     
     for(let i=0; i<20; i++){
         explosions.push({
@@ -2462,8 +2456,6 @@ function levelComplete(){
                     margin: 0 0 20px 0;
                     text-shadow: 0 0 20px rgba(0, 255, 128, 0.8);
                 ">LEVEL ${level} COMPLETE!</h1>
-                
-                <p style="color:white;font-size:18px;">Score: ${score}</p>
                 
                 <p style="color:#ffd700;font-size:20px;margin:20px 0;">
                     Reward: +${reward} 🪙
