@@ -388,7 +388,7 @@ let comboTimer = 0;
 
 let gameRunning = false;
 let paused = false;
-let gameState = "playing";
+let gameState = "menu";
 
 let reviveUsed = false;
 
