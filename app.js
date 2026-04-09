@@ -503,7 +503,7 @@ function updateHUD(){
     if(levelText) levelText.innerText = "Lv " + level;
     
     // Debug - remove after testing
-    console.log("HUD Update - Coins:", coins, "Score:", score);
+    console.log("HUD Update - Coins:", coins);
 
      // Update new HUD elements
     const energyBar = document.getElementById("energyBar");
