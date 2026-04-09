@@ -92,17 +92,21 @@ function handleReward(success) {
     if (pendingRewardAction === 'revive') {
         health = Math.ceil(maxHearts * 0.5);
         updateHeartsUI();
-
         hideReviveScreen();
 
         gameRunning = true;
         reviveUsed = true;
-
+        gameState = "playing";
+        paused = false;
+       
         hitFlash = 0;
         screenShake = 0;
 
         lastTime = 0;
-        requestAnimationFrame(gameLoop);
+        if(gameLoopId) {
+            cancelAnimationFrame(gameLoopId);
+        }
+        gameLoopId = requestAnimationFrame(gameLoop);
     }
 
     if (pendingRewardAction === 'freeCoins') {
@@ -603,7 +607,6 @@ window.addEventListener("keyup",e=>{
 });
 
 /* ---------- PAUSE SYSTEM ---------- */
-
 function togglePause(){
     console.log("Toggle pause called, current state:", {gameRunning, paused});
     
@@ -613,20 +616,22 @@ function togglePause(){
     const pauseMenu = document.getElementById("pauseMenu");
     
     if(paused){
-        console.log("Pausing game");
-        if(pauseMenu) {
-            pauseMenu.style.display = "flex";
-        } else {
-            console.error("pauseMenu NOT FOUND");
-        }
+        if(pauseMenu) pauseMenu.style.display = "flex";
         if(gameMusic) gameMusic.pause();
+       
+        if(window.gameLoopId) {
+            cancelAnimationFrame(window.gameLoopId);
+            window.gameLoopId = null;
+        }
     } else {
         if(pauseMenu) pauseMenu.style.display = "none";
         if(soundOn && gameMusic){
             gameMusic.play().catch(()=>{});
         }
         lastTime = 0;
-        requestAnimationFrame(gameLoop);
+        if(!window.gameLoopId) {
+            window.gameLoopId = requestAnimationFrame(gameLoop);
+        }
     }
 }
 
@@ -714,14 +719,13 @@ function startGame(){
    
     setTimeout(() => resizeGame(), 100);
 
-    // Reset game state
     health = maxHearts;
+    score = 0;
     level = 1;
     gameRunning = true;
     paused = false;
     gameState = "playing";
 
-    // Clear all arrays
     enemies = [];
     bullets = [];
     enemyBullets = [];
@@ -741,7 +745,6 @@ function startGame(){
     updateHUD();
     updateHeartsUI();
 
-    // Hide menu, show game
     const menu = document.getElementById("main-menu");
     if(menu){
         menu.style.display = "none";
@@ -764,16 +767,14 @@ function startGame(){
     startAutoShoot();
     startWave();
 
-    // ✅ CRITICAL FIX: Reset timing and start loop properly
     lastTime = 0;
     
-    // ✅ Cancel any existing loop first
     if(window.gameLoopId){
         cancelAnimationFrame(window.gameLoopId);
+        window.gameLoopId = null;
     }
-    
-    // ✅ Start the game loop - SINGLE entry point
-    requestAnimationFrame(gameLoop);
+   
+    window.gameLoopId = requestAnimationFrame(gameLoop);
     
     console.log("=== GAME STARTED SUCCESSFULLY ===");
 }
@@ -1326,7 +1327,6 @@ function closeBossReward(){
 
 function gameLoop(currentTime) {
     if (!gameRunning || gameState !== "playing") return;
-
     if (paused) {
         window.gameLoopId = requestAnimationFrame(gameLoop);
         return;
