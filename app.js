@@ -380,7 +380,7 @@ let comboTimer = 0;
 
 let gameRunning = false;
 let paused = false;
-let gameState = "menu";
+let gameState = "playing";
 
 let reviveUsed = false;
 
@@ -1459,6 +1459,7 @@ function drawPlayer(){
 /* ---------- BULLETS ---------- */
 
 function updateBullets(){
+    console.log("Bullets:", bullets.length);
     for(let i = bullets.length - 1; i >= 0; i--){
         let b = bullets[i];
         
