@@ -491,14 +491,14 @@ const player = {
         player.x = canvas.width / 2;
         player.y = canvas.height - 120;
     }
-})();
+}
 
 window.addEventListener("resize", () => {
     setTimeout(resizeGame, 100);
 });
 window.addEventListener("orientationchange", () => {
     setTimeout(resizeGame, 300);
-});
+});)();
 
 /* ---------- GAME STATE ---------- */
 
