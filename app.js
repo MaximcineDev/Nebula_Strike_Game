@@ -85,41 +85,59 @@ async function showRewardAd() {
 /* ---------- REWARD HANDLER ---------- */
 
 function handleReward(success) {
-    if (!success) return;
+    if (!success) {
+        console.log("Reward failed or skipped");
+        pendingRewardAction = null;
+        return;
+    }
 
     console.log("Reward granted:", pendingRewardAction);
 
-    if (pendingRewardAction === 'revive') {
-        health = Math.ceil(maxHearts * 0.5);
-        updateHeartsUI();
-        hideReviveScreen();
+    switch (pendingRewardAction) {
+        case 'revive':
+            health = Math.ceil(maxHearts * 0.5);
+            updateHeartsUI();
+            hideReviveScreen();
 
-        gameRunning = true;
-        reviveUsed = true;
-        gameState = "playing";
-        paused = false;
-       
-        hitFlash = 0;
-        screenShake = 0;
+            gameRunning = true;
+            reviveUsed = true;
+            gameState = "playing";
+            paused = false;
 
-        lastTime = 0;
-        if(gameLoopId) {
-            cancelAnimationFrame(gameLoopId);
-        }
-        gameLoopId = requestAnimationFrame(gameLoop);
-    }
+            hitFlash = 0;
+            screenShake = 0;
 
-    if (pendingRewardAction === 'freeCoins') {
-        coins += 100;
-        updateHUD();
-    }
+            lastTime = 0;
+            if (window.gameLoopId) {
+                cancelAnimationFrame(window.gameLoopId);
+            }
+            window.gameLoopId = requestAnimationFrame(gameLoop);
+            break;
 
-    if (pendingRewardAction === 'doubleLevel') {
-        coins += rewardAmount;
-        updateHUD();
+        case 'freeCoins':
+            coins += 100;
+            updateHUD();
+            coinPulse();
+            showCoinGain(100);
+            break;
+
+        case 'doubleLevel':
+            coins += rewardAmount;
+            updateHUD();
+            coinPulse();
+            showCoinGain(rewardAmount);
+            break;
+
+        case 'dailyDouble':
+            claimDailyReward(false);
+            break;
+
+        default:
+            console.log("Unknown reward action:", pendingRewardAction);
     }
 
     pendingRewardAction = null;
+    saveGame();
 }
 
 function fallbackRevive() {
