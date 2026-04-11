@@ -320,7 +320,7 @@
     <div class="dailyBox">
         <h2>🔥 Daily Reward 🔥</h2>
         
-        <div class="streakInfo">Current Streak: <span>1 / 7</span></div>
+        <div class="streakInfo">Current Streak: <span id="streakNumber">1 / 7</span></div>
 
         <div class="dailyGrid">
             <div class="day" id="day1">Day 1<br><b>50</b></div>
@@ -329,12 +329,24 @@
             <div class="day" id="day4">Day 4<br><b>200</b></div>
             <div class="day" id="day5">Day 5<br><b>300</b></div>
             <div class="day" id="day6">Day 6<br><b>400</b></div>
-            <div class="day" id="day7">Day 7<br><b>500</b></div>
+            <!-- Special chest day -->
+            <div class="day day7-chest" id="day7">Day 7<br><b>MEGA!</b></div>
         </div>
 
-        <div id="rewardChest" onclick="openChest()">🎁</div>
+        <!-- Normal reward display (days 1-6) -->
+        <div id="normalReward" style="display:none;">
+            <div id="rewardAmount" style="color: #ffd700; font-size: 24px; font-family: 'Orbitron'; margin: 15px 0;">
+                +50 🪙
+            </div>
+        </div>
+
+        <!-- Big chest for day 7 -->
+        <div id="bigRewardChest" onclick="openBigChest()">🎁</div>
         
-        <div id="rewardAmount" style="display:none;">+50 🪙</div>
+        <!-- Reward info text -->
+        <div id="rewardInfo" style="display:none;">
+            <span id="rewardText">Tap chest to open!</span>
+        </div>
 
         <div class="dailyButtons">
             <button class="claimBtn" onclick="claimDailyReward(false)" disabled>
@@ -347,7 +359,6 @@
         </div>
     </div>
 </div>
-
 
 <!-- ================= SETTINGS ================= -->
 <div id="settings" style="display: none;">
