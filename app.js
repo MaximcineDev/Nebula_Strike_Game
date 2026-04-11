@@ -1513,9 +1513,6 @@ function getDynamicMultiplier(){
     waveSpawnTimer++;
 })();
 
-let lastWaveTime = 0;
-let lastEnemySpawnTime = 0;
-
 (function updateSpawning(currentTime){
     if(boss) return;
 
