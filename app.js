@@ -1874,9 +1874,7 @@ function resetToMenu() {
                 ctx.shadowColor = "lime";
                 break;
             case 2:
-     if (typeof process !== "undefined" && process.env && process.env.NODE_ENV === 'production') {
-    console.log = () => {};
-}           ctx.fillStyle = "yellow";
+                ctx.fillStyle = "yellow";
                 ctx.shadowColor = "yellow";
                 break;
             case 3:
