@@ -71,7 +71,7 @@ async function loadRewardAd() {
 
 /* ---------- REWARDED AD ---------- */
 
- function showRewardAd() {
+async function showRewardAd() {
     console.log("Attempting to show ad...");
 
     if (window.showingRewardAd) {
