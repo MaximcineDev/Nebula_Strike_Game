@@ -71,7 +71,7 @@ async function loadRewardAd() {
 
 /* ---------- REWARDED AD ---------- */
 
-async function showRewardAd() {
+ function showRewardAd() {
     console.log("Attempting to show ad...");
 
     if (window.showingRewardAd) {
@@ -943,7 +943,7 @@ function isChestDay() {
     return dailyData.streak === 7;
 }
 
-(function claimDailyReward(useDoubleReward = false) {
+function claimDailyReward(useDoubleReward = false){
     console.log("Claiming daily reward, double:", useDoubleReward, "chest day:", isChestDay());
     
     // If requesting double reward, show ad first
@@ -1045,24 +1045,24 @@ function isChestDay() {
     }
     
     console.log("Daily reward claimed:", rewards, "New streak:", dailyData.streak);
-})();
+}
 
-(function getDailyReward(streakDay) {
+function getDailyReward(streakDay){
     // Rewards for days 1-6 (day 7 is special chest)
     const rewards = [50, 100, 150, 200, 300, 400];
     const index = Math.min(Math.max(streakDay - 1, 0), 5);
     return rewards[index];
-})();
+}
 
-(function saveDailyData() {
+function saveDailyData(){
     try {
         localStorage.setItem("dailyData", JSON.stringify(dailyData));
     } catch (e) {
         console.error("Failed to save daily data:", e);
     }
-})();
+}
 
-(function loadDailyData() {
+function loadDailyData(){
     try {
         const saved = localStorage.getItem("dailyData");
         if (saved) {
@@ -1084,10 +1084,10 @@ function isChestDay() {
             streak: 1
         };
     }
-})();
+}
 
 // Open normal chest (days 1-6)
-(function openChest() {
+function openChest(){
     console.log("Opening normal chest...");
     
     if (chestOpened) return;
@@ -1112,10 +1112,10 @@ function isChestDay() {
     if (rewardText) {
         rewardText.innerText = `You found ${rewardAmount} coins!`;
     }
-})();
+}
 
 // Open BIG chest (day 7)
-(function openBigChest() {
+function openBigChest(){
     console.log("Opening BIG chest for day 7!");
     
     if (chestOpened) return;
@@ -1154,9 +1154,9 @@ function isChestDay() {
     setTimeout(() => {
         if (bigChest) bigChest.style.display = "none";
     }, 500);
-})();
+}
 
-(function updateDailyRewardUI() {
+function updateDailyRewardUI(){
     console.log("Updating daily reward UI, streak:", dailyData.streak);
     
     // Update streak display
@@ -1253,9 +1253,9 @@ function isChestDay() {
             dayEl.classList.add("active", "today");
         }
     }
-})();
+}
 
-(function showDailyReward() {
+function showDailyReward(){
     console.log("Showing daily reward screen");
     
     updateDailyRewardUI();
@@ -1264,9 +1264,9 @@ function isChestDay() {
     if (dailyRewardEl) {
         dailyRewardEl.style.display = "flex";
     }
-})();
+}
 
-(function checkDailyReward() {
+function checkDailyReward(){
     console.log("Checking daily reward...");
     
     // Ensure dailyData exists
@@ -1312,7 +1312,7 @@ function isChestDay() {
     
     saveDailyData();
     showDailyReward();
-})();
+}
 
 function giveReward(amount) {
     coins += amount;
@@ -1334,7 +1334,7 @@ function giveReward(amount) {
 
 
 /* ---------- CLOSE APP ---------- */
-(function closeApp(){
+function closeApp(){
     gameRunning = false;
     paused = false;
 
@@ -1357,13 +1357,13 @@ function giveReward(amount) {
             Game Closed
         </div>
     `;
-})();
+}
 
 /* ---------- AUTO SHOOT ---------- */
 
 let autoShootTimeout = null;
 
-(function startAutoShoot(){
+function startAutoShoot(){
     if(autoShootTimeout) return;
 
     function shootLoop(){
@@ -1375,9 +1375,9 @@ let autoShootTimeout = null;
     }
 
     shootLoop();
-})();
+}
 
-(function playerShoot(){
+function playerShoot(){
     let now = Date.now();
     if(now - lastShot < 100) return;
     lastShot = now;
@@ -1409,9 +1409,9 @@ let autoShootTimeout = null;
                 createBullet(centerX, bulletY, i * 1.5, -10);
             }
     }
-})();
+}
 
-(function createBullet(x, y, dx, dy){
+function createBullet(x, y, dx, dy){
     bullets.push({
         x: x,
         y: y,
@@ -1422,7 +1422,7 @@ let autoShootTimeout = null;
         active: true,
         skin: currentSkin   // ✅ lock skin at fire time
     });
-})();
+}
 
 
 /* ---------- WAVE & SPAWN SYSTEM ---------- */
@@ -1467,7 +1467,7 @@ function getDynamicMultiplier(){
     return multiplier;
 }
 
-(function startWave(){
+function startWave(){
     if(!gameRunning || paused || boss) return;
     
     const diff = getDifficultySettings();
@@ -1482,9 +1482,9 @@ function getDynamicMultiplier(){
     lastEnemySpawnTime = performance.now();
     
     showWaveNotification(waveNumber);
-})();
+}
 
-(function spawnSingleEnemy(){
+function spawnSingleEnemy(){
     const diff = getDifficultySettings();
     
     let type = ENEMY_NORMAL;
@@ -1529,9 +1529,9 @@ function getDynamicMultiplier(){
     enemies.push(enemy);
     enemiesInWave--;
     waveSpawnTimer++;
-})();
+}
 
-(function updateSpawning(currentTime){
+function updateSpawning(currentTime){
     if(boss) return;
 
     if(!waveInProgress){
@@ -1555,9 +1555,9 @@ function getDynamicMultiplier(){
     } else if(enemiesInWave <= 0 && enemies.length === 0){
          endWave();
     }
-})();
+}
 
-(function endWave(){
+function endWave(){
     waveInProgress = false;
     waveSpawnTimer = 0;
 
@@ -1586,7 +1586,7 @@ function getDynamicMultiplier(){
     setTimeout(() => {
         startWave();
     }, 1500);
-})();
+}
 
 function showWaveNotification(waveNum){
     const notif = document.createElement('div');
@@ -1619,7 +1619,7 @@ function isBossLevel(){
     return level % 5 === 0;
 }
 
-(function spawnBoss(){
+function spawnBoss(){
     if(boss) return;
 
     boss = {
@@ -1658,7 +1658,7 @@ function isBossLevel(){
       console.error("bossBar missing!");
       return;
    }
-})();
+}
 
 function getBossPattern(){
     if(level < 5) return "spray";
@@ -1666,7 +1666,7 @@ function getBossPattern(){
     return ["spray", "burst", "laser"][Math.floor(Math.random()*3)];
 }
 
-(function bossAttack(){
+function bossAttack(){
     if(!boss) return;
 
     const centerX = boss.x + boss.w / 2;
@@ -1713,18 +1713,18 @@ function getBossPattern(){
             });
             break;
     }
-})();
+}
 
-(async function giveBossReward(){
+async function giveBossReward(){
     let baseReward = 200 + (level * 50);
     let reward = Math.floor(baseReward * 1.2);
     await addCoins(reward);  // ✅ Now valid
     showBossRewardPopup(reward);
     updateHUD();
     saveGame();
-})();
+}
 
-(function showBossRewardPopup(amount){
+function showBossRewardPopup(amount){
 
     const popup = document.createElement("div");
     popup.id = "bossRewardPopup";
@@ -1748,16 +1748,16 @@ function getBossPattern(){
     `;
 
     document.body.appendChild(popup);
-})();
+}
 
-(function doubleBossReward(amount) {
+function doubleBossReward(amount){
    coins += amount;
    pendingRewardAction = 'doubleBoss';
    showRewardAd().catch(err => {
        console.log("Ad failed:", err);
        pendingRewardAction = null;
    });
-})();
+}
 
 function closeBossReward(){
     const popup = document.getElementById("bossRewardPopup");
@@ -1856,7 +1856,7 @@ function resetToMenu() {
 
 /* ---------- PLAYER ---------- */
 
-(function updatePlayer(){
+function updatePlayer(){
     if(moveLeft) player.x -= player.speed;
     if(moveRight) player.x += player.speed;
     if(moveUp) player.y -= player.speed;
@@ -1869,9 +1869,9 @@ function resetToMenu() {
     
     player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
     player.y = Math.max(0, Math.min(canvas.height - player.height, player.y));
-})();
+}
 
-(function drawPlayer(){
+function drawPlayer(){
     ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
     ctx.fillStyle = "cyan";
     ctx.fillRect(player.x + player.width/2 - 3, player.y + player.height, 6, 10);
@@ -1894,11 +1894,11 @@ function resetToMenu() {
         ctx.stroke();
         ctx.restore();
     }
-})();
+}
 
 /* ---------- BULLETS ---------- */
 
-(function updateBullets(){
+function updateBullets(){
     console.log("Bullets:", bullets.length);
     for(let i = bullets.length - 1; i >= 0; i--){
         let b = bullets[i];
@@ -2045,9 +2045,9 @@ function resetToMenu() {
             bullets.splice(i, 1);
         }
     }
-})();
+}
 
-(function bossDefeated(){
+function bossDefeated(){
     boss = null;
     document.getElementById("bossBar").style.display = "none";
     let bossReward = 150;
@@ -2071,9 +2071,9 @@ function resetToMenu() {
     }, 3000);
     
     saveGame();
-})();
+}
 
-(function updateExplosions(){
+function updateExplosions(){
     for(let i = explosions.length - 1; i >= 0; i--){
         let ex = explosions[i];
 
@@ -2091,9 +2091,9 @@ function resetToMenu() {
             explosions.splice(i, 1);
         }
     }
-})();
+}
 
-(function updateBoss(){
+function updateBoss(){
     if(!boss) return;
 
     if(boss.y < 120){
@@ -2118,18 +2118,18 @@ function resetToMenu() {
     /* ---------- DRAW ---------- */
 
     ctx.drawImage(bossImg, boss.x, boss.y, boss.w, boss.h);
-})();
+}
 
-(function updateBossBar(){
+function updateBossBar(){
     if(!boss) return;
 
     const hp = document.getElementById("bossHealth");
     if(hp){
         hp.style.width = (boss.hp / bossMaxHP * 100) + "%";
     }
-})();
+}
 
-(function drawStars(){
+function drawStars(){
     ctx.fillStyle = "white";
     for(let s of stars){
         s.y += s.s * 0.5;
@@ -2139,9 +2139,9 @@ function resetToMenu() {
         }
         ctx.fillRect(s.x, s.y, s.s, s.s);
     }
-})();
+}
 
-(function updateCoinFX(){
+function updateCoinFX(){
     for(let i=coinFX.length-1;i>=0;i--){
         let c = coinFX[i];
         c.x += c.vx;
@@ -2154,11 +2154,11 @@ function resetToMenu() {
             coinFX.splice(i,1);
         }
     }
-})();
+}
 
 /* ---------- ENEMIES ---------- */
 
-(function updateEnemies(){
+function updateEnemies(){
     for(let i = enemies.length - 1; i >= 0; i--){
         let e = enemies[i];
 
@@ -2197,11 +2197,11 @@ function resetToMenu() {
            endWave();
        }
     }
-})();
+}
 
 /* ---------- ENEMY BULLETS ---------- */
 
-(function updateEnemyBullets(){
+function updateEnemyBullets(){
     if(!gameRunning) return;
 
     for(let i = enemyBullets.length - 1; i >= 0; i--){
@@ -2301,11 +2301,11 @@ function resetToMenu() {
             enemyBullets.splice(i, 1);
         }
     }
-})();
+}
 
 /* ---------- POWERUPS ---------- */
 
-(function updatePowerups(){
+function updatePowerups(){
     for(let i=powerups.length-1;i>=0;i--){
         let p=powerups[i];
         p.y += 2;
@@ -2352,11 +2352,11 @@ function resetToMenu() {
             powerups.splice(i, 1);
         }
     }
-})();
+}
 
 /* ---------- TIMERS ---------- */
 
-(function updateTimers(){
+function updateTimers(){
     // RAPID FIRE
     if(rapidFire){
         fireRate = 100;
@@ -2387,7 +2387,7 @@ function resetToMenu() {
     // HIT COOLDOWN
     playerHitCooldown--;
     if(playerHitCooldown < 0) playerHitCooldown = 0;
-})();
+}
 
 /* ---------- SAVE/LOAD ---------- */
 
@@ -2540,7 +2540,7 @@ function updateShopCoins(){
     if(coinText) coinText.textContent = coins;
 }
 
-(function updateShopUI(){
+function updateShopUI(){
     unlockedSkins.forEach(id => {
 
         const btn = document.getElementById('skin' + id);
@@ -2559,9 +2559,9 @@ function updateShopCoins(){
             }
         }
     });
-})();
+}
 
-(function openShop() {
+function openShop(){
     const shop = document.getElementById("shop");
     const menu = document.getElementById("main-menu");
 
@@ -2573,9 +2573,9 @@ function updateShopCoins(){
     // ✅ ADD THIS
     updateShopUI();
     updateShopCoins();
-})();
+}
 
-(function closeShop() {
+function closeShop(){
     const shop = document.getElementById("shop");
     const menu = document.getElementById("main-menu");
 
@@ -2585,7 +2585,7 @@ function updateShopCoins(){
     setTimeout(() => {
         menu.classList.add("show");
     }, 10);
-})();
+}
 
 function buyShield(){
 
@@ -2695,7 +2695,7 @@ function buyCoins(amount) {
     console.log(`Coins added: +${amount} | Total: ${coins}`);
 }
 
-(function watchAdReward() {
+function watchAdReward(){
 
     if (!admobReady) {
         showCoinWarning("Ads not ready yet!");
@@ -2704,7 +2704,7 @@ function buyCoins(amount) {
 
     pendingRewardAction = 'freeCoins';
     showRewardAd();
-})();
+}
 
 function showCoinGain(amount) {
     const popup = document.createElement("div");
@@ -2767,7 +2767,7 @@ let dailyData = {
     streak: 0
 };
 
-(function loadDailyData() {
+function loadDailyData(){
     try {
         const data = JSON.parse(localStorage.getItem("dailyData"));
 
@@ -2778,7 +2778,7 @@ let dailyData = {
         console.error("Daily data corrupted, resetting...");
         dailyData = { lastLogin: null, streak: 0 };
     }
-})();
+}
 
 let chestOpened = false;
 
@@ -2801,7 +2801,7 @@ function openChest() {
 
 /* ---------- SETTINGS FUNCTIONS ---------- */
 
-(function openSettings(){
+function openSettings(){
     console.log("Opening settings...");
     const settings = document.getElementById("settings");
     const mainMenu = document.getElementById("main-menu");
@@ -2817,9 +2817,9 @@ function openChest() {
     settings.style.display = "flex";
     
     console.log("Settings opened");
-})();
+}
 
-(function closeSettings(){
+function closeSettings(){
     console.log("Closing settings...");
     const settings = document.getElementById("settings");
     const mainMenu = document.getElementById("main-menu");
@@ -2830,9 +2830,9 @@ function openChest() {
         mainMenu.style.display = "flex";
         mainMenu.classList.add("show");
     }
-})();
+}
 
-(function updateSoundButton(){
+function updateSoundButton(){
     console.log("Updating sound button UI, soundOn:", soundOn);
     const soundIcon = document.getElementById("soundIcon");
     const soundText = document.getElementById("soundText");
@@ -2852,9 +2852,9 @@ function openChest() {
         soundText.textContent = "Sound: OFF";
         if(soundBtn) soundBtn.classList.add("sound-off");
     }
-})();
+}
 
-(function toggleSound(){
+function toggleSound(){
     console.log("Toggling sound, current:", soundOn);
     soundOn = !soundOn;
     
@@ -2879,24 +2879,24 @@ function openChest() {
     updateSoundButton();
     saveGame();
     console.log("Sound is now:", soundOn ? "ON" : "OFF");
-})();
+}
 
-(function setMusicVolume(val){
+function setMusicVolume(val){
     const vol = val / 100;
     if(menuMusic) menuMusic.volume = vol;
     if(gameMusic) gameMusic.volume = vol;
-})();
+}
 
-(function setSFXVolume(val){
+function setSFXVolume(val){
     sfxVolume = val / 100;
 
     shootSound.volume = sfxVolume;
     explosionSound.volume = sfxVolume;
-})();
+}
 
 /* ---------- LEVEL & GAME OVER ---------- */
 
-(function levelComplete(){
+function levelComplete(){
 
     gameRunning = false;
     paused = false;
@@ -2952,7 +2952,7 @@ function openChest() {
     giveReward(reward);
 
     saveGame();
-})();
+}
 
 function doubleLevelReward(baseReward){
     rewardAmount = baseReward;
@@ -2963,7 +2963,7 @@ function doubleLevelReward(baseReward){
     });
 }
 
-(function nextLevel(){
+function nextLevel(){
     level++;
     const levelCompleteScreen = document.getElementById("levelComplete");
     if(levelCompleteScreen) {
@@ -3006,9 +3006,9 @@ function doubleLevelReward(baseReward){
     
     requestAnimationFrame(gameLoop);
     saveGame();
-})();
+}
 
-(function gameOver() {
+function gameOver(){
     console.log("=== GAME OVER ===");
 
     gameState = "gameover";
@@ -3030,9 +3030,9 @@ function doubleLevelReward(baseReward){
             screen.style.opacity = "1";
         }, 10);
     }
-})();
+}
 
-(function restartGame(){
+function restartGame(){
     document.getElementById("gameOverScreen").style.display = "none";
     
     health = maxHearts;
@@ -3047,7 +3047,7 @@ function doubleLevelReward(baseReward){
     waveInProgress = false;
     
     startGame();
-})();
+}
 
 function backToMenu(){
     document.getElementById("gameOverScreen").style.display = "none";
