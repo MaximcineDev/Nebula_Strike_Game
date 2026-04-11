@@ -645,7 +645,7 @@ canvas.addEventListener("touchend", () => {
     touchY = null;
 });
 
-(function updateHUD(){
+function updateHUD(){
     document.getElementById("coinText").innerText = coins;
     const shopText = document.getElementById("shopCoinText");
     if (shopText) shopText.innerText = coins;
@@ -687,7 +687,7 @@ canvas.addEventListener("touchend", () => {
         const total = waveNumber * 6;
         missionProgress.innerText = killed + " / " + total;
     }
-})();
+}
 
 function coinPulse(){
     const coinBox = document.getElementById("coinBox");
@@ -703,7 +703,7 @@ function coinPulse(){
     },150);
 }
 
-(function updateHeartsUI(){
+function updateHeartsUI(){
     const hearts = document.querySelectorAll("#hearts img");
     for(let i=0; i<hearts.length; i++){
         if(i < health){
@@ -739,7 +739,7 @@ function coinPulse(){
     if(energyText) {
         energyText.innerText = currentEnergy + " / " + maxEnergy;
     }
-})();
+}
 
 /* ---------- KEYBOARD ---------- */
 
@@ -792,16 +792,16 @@ function togglePause(){
     }
 }
 
-(function resumeGame(){
+function resumeGame(){
     console.log("Resume game button clicked");
     if(paused){
         togglePause();
     }
-})();
+}
 
 /* ---------- QUIT GAME ---------- */
 
-(function quitGame(){
+function quitGame(){
     console.log("Quitting game...");
     
     try {
@@ -853,11 +853,11 @@ function togglePause(){
     enemiesInWave = 0;
     
     console.log("Game quit successfully");
-})();
+}
 
 /* ---------- START GAME ---------- */
 
-(function startGame(){
+function startGame(){
     console.log("=== startGame() CALLED ===");
     
     unlockAudio();
@@ -934,7 +934,7 @@ function togglePause(){
     window.gameLoopId = requestAnimationFrame(gameLoop);
     
     console.log("=== GAME STARTED SUCCESSFULLY ===");
-})();
+}
 
 /* ---------- DAILY REWARD FUNCTIONS ---------- */
 
@@ -1792,7 +1792,7 @@ async function addCoins(amount) {
 
 /* ---------- MAIN GAME LOOP ---------- */
 
-(function gameLoop(currentTime) {
+function gameLoop(currentTime) {
     if (!gameRunning || gameState !== "playing") return;
     if (paused) {
         window.gameLoopId = requestAnimationFrame(gameLoop);
@@ -1843,7 +1843,7 @@ async function addCoins(amount) {
 
     // ✅ LOOP AT VERY END
     window.gameLoopId = requestAnimationFrame(gameLoop);
-})();
+}
 
 function resetToMenu() {
     console.log("Resetting to menu");
@@ -2391,7 +2391,7 @@ function resetToMenu() {
 
 /* ---------- SAVE/LOAD ---------- */
 
-(function saveGame() {
+function saveGame() {
     const data = {
         coins,
         weaponLevel,
@@ -2401,9 +2401,9 @@ function resetToMenu() {
     };
 
     localStorage.setItem("nebulaSave", JSON.stringify(data));
-})();
+}
 
-(function loadGame() {
+function loadGame() {
     const save = localStorage.getItem("nebulaSave");
 
     if (!save) return;
@@ -2417,7 +2417,7 @@ function resetToMenu() {
     dailyData = data.dailyData || dailyData;
 
     updateSkin();
-})();
+}
 
 /* ---------- SHOP FUNCTIONS ---------- */
 
