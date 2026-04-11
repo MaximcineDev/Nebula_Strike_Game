@@ -2,6 +2,8 @@
    NEBULA STRIKE
 ========================= */
 
+import { db, doc, getDoc, setDoc, updateDoc, increment } from "./firebase";
+
 console.log("APP STARTED - FINAL VERSION");
 if (!window.location.href.includes("localhost")) {
     console.log = () => {};
@@ -467,6 +469,13 @@ const player = {
     height: 60,
     speed: 6
 };
+
+let playerId = localStorage.getItem("playerId");
+
+if (!playerId) {
+    playerId = "player_" + Math.random().toString(36).substring(2);
+    localStorage.setItem("playerId", playerId);
+}
 
 function resizeGame(){
     if(!canvas) {
@@ -1697,7 +1706,7 @@ function getBossPattern(){
     // Bonus scaling (makes late game worth it)
     let reward = Math.floor(baseReward * 1.2);
 
-    coins += reward;
+    await addCoins(reward);
 
     showBossRewardPopup(reward);
 
@@ -1743,6 +1752,33 @@ function getBossPattern(){
 function closeBossReward(){
     const popup = document.getElementById("bossRewardPopup");
     if(popup) popup.remove();
+}
+
+async function loadCoins() {
+
+    const ref = doc(db, "players", playerId);
+    const snap = await getDoc(ref);
+
+    if (snap.exists()) {
+        coins = snap.data().coins || 0;
+    } else {
+        await setDoc(ref, { coins: 0 });
+        coins = 0;
+    }
+
+    updateHUD();
+}
+
+async function addCoins(amount) {
+
+    const ref = doc(db, "players", playerId);
+
+    await updateDoc(ref, {
+        coins: increment(amount)
+    });
+
+    coins += amount; // local sync
+    updateHUD();
 }
 
 /* ---------- MAIN GAME LOOP ---------- */
@@ -1925,7 +1961,7 @@ function resetToMenu() {
                     if(e.type === ENEMY_SHOOTER) reward = 12;
                     
                     // UPDATE SCORE AND COINS
-                    coins += reward;
+                    await addCoins(reward);
                     combo++;
                     comboTimer = 60;
                     totalKills++;
@@ -3013,7 +3049,9 @@ function backToMenu(){
 window.addEventListener("load", () => {
     console.log("Window loaded, initializing...");
 
-    //detectTamper();
+    detectTamper();
+   
+    await loadCoins();
 
     loadGame();
     loadDailyData();
