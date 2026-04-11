@@ -2,9 +2,27 @@
    NEBULA STRIKE
 ========================= */
 
-const db = firebase.firestore();
+const firebaseConfig = {
+    apiKey: "AIzaSyCf-8mnm77vLl5qSAQVv3Ffk3BNE0rLSws",
+    authDomain: "nebula-strike-2c357.firebaseapp.com",
+    projectId: "nebula-strike-2c357",
+    storageBucket: "nebula-strike-2c357.firebasestorage.app",
+    messagingSenderId: "656562876567",
+    appId: "1:656562876567:web:b394b02ba3b03dfbabb9d2"
+};
+
+if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+    console.log("Firebase initialized");
+} else if (!typeof firebase !== 'undefined') {
+    console.warn("Firebase SDK not loaded - running in offline mode");
+}
+
+const db = firebase.firestore ? firebase.firestore() : null;
+const { increment } = firebase.firestore ? firebase.firestore.FieldValue : { increment: null };
 
 console.log("APP STARTED - FINAL VERSION");
+
 if (!window.location.href.includes("localhost")) {
     console.log = () => {};
 }
