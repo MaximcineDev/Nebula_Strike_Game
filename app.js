@@ -1019,21 +1019,55 @@ function updateDailyRewardUI() {
     const bigChest = document.getElementById("bigRewardChest");
     const rewardInfo = document.getElementById("rewardInfo");
     
+    // Get buttons
+    const claimBtn = document.querySelector(".claimBtn");
+    const doubleBtn = document.querySelector(".doubleRewardBtn");
+    
     if (isDay7) {
-        // Day 7 - show big chest
+        // Day 7 - show big chest, DISABLE buttons until chest opened
         if (normalReward) normalReward.style.display = "none";
-        if (bigChest) bigChest.style.display = "block";
+        if (bigChest) {
+            bigChest.style.display = "block";
+            bigChest.style.cursor = "pointer";
+        }
         if (rewardInfo) {
             rewardInfo.style.display = "flex";
             rewardInfo.innerHTML = `<span id="rewardText">Tap the chest for MEGA reward!</span>`;
         }
+        
+        // Buttons disabled until chest opened
+        if (claimBtn) {
+            claimBtn.disabled = true;
+            claimBtn.innerText = "CLAIM MEGA REWARD!";
+        }
+        if (doubleBtn) {
+            doubleBtn.disabled = true;
+            doubleBtn.innerText = "🎥 WATCH AD FOR 2X COINS";
+        }
+        
+        chestOpened = false;
+        
     } else {
-        // Days 1-6 - normal
-        if (normalReward) normalReward.style.display = "none";
+        // Days 1-6 - ENABLE buttons immediately, show reward info
+        if (normalReward) normalReward.style.display = "block";
         if (bigChest) bigChest.style.display = "none";
         if (rewardInfo) {
-            rewardInfo.style.display = "none";
+            rewardInfo.style.display = "flex";
+            const rewardAmount = getDailyReward(dailyData.streak);
+            rewardInfo.innerHTML = `<span id="rewardText">Daily Reward: ${rewardAmount} coins</span>`;
         }
+        
+        // Buttons ENABLED immediately for days 1-6
+        if (claimBtn) {
+            claimBtn.disabled = false;
+            claimBtn.innerText = "CLAIM REWARD";
+        }
+        if (doubleBtn) {
+            doubleBtn.disabled = false;
+            doubleBtn.innerText = "🎥 WATCH AD FOR 2X";
+        }
+        
+        chestOpened = true;
     }
     
     // Update all day boxes
@@ -1054,7 +1088,6 @@ function updateDailyRewardUI() {
         }
         
         if (i < dailyData.streak) {
-            // Already claimed
             dayEl.classList.add("claimed");
             if (i === 7) {
                 dayEl.innerHTML = `Day 7<br><b>✓</b>`;
@@ -1065,21 +1098,6 @@ function updateDailyRewardUI() {
             // Today's reward
             dayEl.classList.add("active", "today");
         }
-    }
-    
-    // Reset state
-    chestOpened = false;
-    
-    // Disable buttons until chest opened
-    const claimBtn = document.querySelector(".claimBtn");
-    const doubleBtn = document.querySelector(".doubleRewardBtn");
-    if (claimBtn) {
-        claimBtn.disabled = true;
-        claimBtn.innerText = isDay7 ? "CLAIM MEGA REWARD!" : "CLAIM REWARD";
-    }
-    if (doubleBtn) {
-        doubleBtn.disabled = true;
-        doubleBtn.innerText = isDay7 ? "🎥 WATCH AD FOR 2X COINS" : "🎥 WATCH AD FOR 2X";
     }
 }
 
