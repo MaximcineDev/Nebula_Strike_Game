@@ -529,7 +529,7 @@ body {
 
 
 /* =========================
-      DAILY REWARD
+      DAILY REWARD - UPDATED
 ========================= */
 
 #dailyReward {
@@ -567,7 +567,7 @@ body {
     letter-spacing: 3px;
 }
 
-/* Grid - 7 days horizontal scroll or 4+3 grid */
+/* Grid - 7 days horizontal */
 .dailyGrid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -648,34 +648,75 @@ body {
     letter-spacing: 1px;
 }
 
-/* CHEST */
-#rewardChest {
-    font-size: 80px;
-    margin: 20px auto;
-    cursor: pointer;
-    animation: chestBounce 1.5s infinite;
-    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6));
-    transition: transform 0.2s ease;
+/* Day 7 - Special Chest Day */
+.day.day7-chest {
+    background: linear-gradient(135deg, #ff6600 0%, #ffcc00 100%);
+    border-color: #ffcc00;
+    color: #000;
+    animation: chestGlow 2s infinite;
 }
 
-#rewardChest:hover {
+.day.day7-chest b {
+    color: #000;
+    font-size: 20px;
+}
+
+.day.day7-chest::after {
+    content: '🎁';
+    font-size: 24px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(0 0 10px rgba(255, 204, 0, 0.8));
+}
+
+@keyframes chestGlow {
+    0%, 100% { box-shadow: 0 0 20px rgba(255, 204, 0, 0.6); }
+    50% { box-shadow: 0 0 40px rgba(255, 204, 0, 1); }
+}
+
+/* BIG CHEST for Day 7 reward */
+#bigRewardChest {
+    font-size: 100px;
+    margin: 20px auto;
+    cursor: pointer;
+    animation: bigChestBounce 1.5s infinite;
+    filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.8));
+    transition: transform 0.2s ease;
+    display: none; /* Hidden by default, shown on day 7 */
+}
+
+#bigRewardChest:hover {
     transform: scale(1.1);
 }
 
-@keyframes chestBounce {
+@keyframes bigChestBounce {
     0%, 100% { transform: scale(1) rotate(0deg); }
     25% { transform: scale(1.1) rotate(-5deg); }
     50% { transform: scale(1.15) rotate(0deg); }
     75% { transform: scale(1.1) rotate(5deg); }
 }
 
-/* Reward amount display */
-#rewardAmount {
+/* Reward info display */
+#rewardInfo {
     color: #ffd700;
-    font-size: 24px;
+    font-size: 18px;
     font-family: 'Orbitron', sans-serif;
     margin: 15px 0;
     text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+#rewardInfo .big-reward {
+    color: #ff6600;
+    font-size: 22px;
+    font-weight: bold;
 }
 
 /* Button container */
@@ -712,7 +753,13 @@ body {
     transform: scale(0.98);
 }
 
-/* Double reward button */
+.claimBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Double reward button - SINGLE ICON */
 .doubleRewardBtn {
     padding: 12px 30px;
     font-family: 'Orbitron', sans-serif;
@@ -726,11 +773,12 @@ body {
     border-radius: 50px;
     cursor: pointer;
     transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
     box-shadow: 0 0 15px rgba(255, 204, 0, 0.3);
+}
+
+/* Remove the ::before pseudo-element that was adding extra icon */
+.doubleRewardBtn::before {
+    content: none; /* DISABLED - was adding extra icon */
 }
 
 .doubleRewardBtn:hover {
@@ -738,25 +786,21 @@ body {
     box-shadow: 0 0 25px rgba(255, 204, 0, 0.5);
 }
 
-.doubleRewardBtn::before {
-    content: '🎥';
+.doubleRewardBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
-/* Responsive: stack to 4+3 on smaller screens */
+/* Responsive */
 @media (max-width: 500px) {
     .dailyGrid {
         grid-template-columns: repeat(4, 1fr);
         gap: 6px;
     }
     
-    .day:nth-child(5),
-    .day:nth-child(6),
-    .day:nth-child(7) {
-        grid-column: span 1;
-    }
-    
-    /* Center the last 3 days */
-    .day:nth-child(5) { grid-column: 2; }
+    .day:nth-child(5) { grid-column: 1; }
+    .day:nth-child(6) { grid-column: 2; }
+    .day:nth-child(7) { grid-column: 3; }
 }
 
 /* Streak info */
