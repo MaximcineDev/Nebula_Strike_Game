@@ -1747,13 +1747,18 @@ function closeBossReward(){
 }
 
 async function loadCoins() {
-    const ref = db.collection("players").doc(playerId);
-    const snap = await ref.get();
-    if (snap.exists) {
-        coins = snap.data().coins || 0;
-    } else {
-        await ref.set({ coins: 0 });
-        coins = 0;
+    try {
+        const ref = db.collection("players").doc(playerId);
+        const snap = await ref.get();
+        if (snap.exists) {
+            coins = snap.data().coins || 0;
+        } else {
+            await ref.set({ coins: 0 });
+            coins = 0;
+        }
+    } catch (e) {
+        console.warn("Firebase blocked, using localStorage");
+        coins = parseInt(localStorage.getItem("coins") || "0");
     }
     updateHUD();
 }
