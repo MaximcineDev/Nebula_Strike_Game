@@ -781,80 +781,171 @@ function startGame(){
 
 /* ---------- DAILY REWARD FUNCTIONS ---------- */
 
-function claimDailyReward(doubleReward = false) {
-    console.log("Claiming daily reward, double:", doubleReward);
+function claimDailyReward(useDoubleReward = false) {
+    console.log("Claiming daily reward, double reward:", useDoubleReward);
     
-    const rewardAmount = getDailyReward(dailyData.streak);
-    const finalAmount = doubleReward ? rewardAmount * 2 : rewardAmount;
+    // If requesting double reward, show ad first
+    if (useDoubleReward) {
+        if (!admobReady) {
+            showCoinWarning("Ads not ready! Claiming normal reward...");
+            // Fall back to normal claim
+            claimDailyReward(false);
+            return;
+        }
+        
+        pendingRewardAction = 'dailyDouble';
+        showRewardAd();
+        return;
+    }
     
+    // Normal claim or ad completed
+    const baseAmount = getDailyReward(dailyData.streak);
+    const finalAmount = (pendingRewardAction === 'dailyDouble') ? baseAmount * 2 : baseAmount;
+    
+    // Clear pending action
+    pendingRewardAction = null;
+    
+    // Add coins
     coins += finalAmount;
+    
+    // Update login date and streak
     const today = new Date().toDateString();
     dailyData.lastLogin = today;
     
-    if (dailyData.streak < 7) {
-        dailyData.streak++;
-    } else {
+    // Increment streak (cap at 7, then reset to 1)
+    if (dailyData.streak >= 7) {
         dailyData.streak = 1;
+    } else {
+        dailyData.streak++;
     }
     
+    // Save and update UI
     saveDailyData();
+    saveGame();
     updateHUD();
     coinPulse();
     showCoinGain(finalAmount);
     
+    // Hide daily reward screen
     const dailyRewardEl = document.getElementById("dailyReward");
     if (dailyRewardEl) {
         dailyRewardEl.style.display = "none";
     }
     
-    console.log("Daily reward claimed:", finalAmount, "Streak:", dailyData.streak);
+    console.log("Daily reward claimed:", finalAmount, "New streak:", dailyData.streak);
 }
 
-function getDailyReward(streak) {
+function getDailyReward(streakDay) {
+    // Rewards for days 1-7
     const rewards = [50, 100, 150, 200, 300, 400, 500];
-    const dayIndex = Math.min(streak - 1, 6);
-    return rewards[dayIndex];
+    const index = Math.min(Math.max(streakDay - 1, 0), 6);
+    return rewards[index];
 }
 
 function saveDailyData() {
-    localStorage.setItem("dailyData", JSON.stringify(dailyData));
+    try {
+        localStorage.setItem("dailyData", JSON.stringify(dailyData));
+    } catch (e) {
+        console.error("Failed to save daily data:", e);
+    }
+}
+
+function loadDailyData() {
+    try {
+        const saved = localStorage.getItem("dailyData");
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            dailyData = {
+                lastLogin: parsed.lastLogin || null,
+                streak: parsed.streak || 1
+            };
+        } else {
+            dailyData = {
+                lastLogin: null,
+                streak: 1
+            };
+        }
+    } catch (e) {
+        console.error("Failed to load daily data:", e);
+        dailyData = {
+            lastLogin: null,
+            streak: 1
+        };
+    }
 }
 
 function openChest() {
-    console.log("Chest opened!");
+    console.log("Opening chest...");
     
-    if (chestOpened) return;
+    if (chestOpened) {
+        console.log("Chest already opened");
+        return;
+    }
+    
     chestOpened = true;
     
     const chest = document.getElementById("rewardChest");
-    if (chest) {
-        chest.innerText = "✨";
-        chest.style.transform = "scale(1.5)";
-        chest.style.transition = "transform 0.3s ease";
-        
-        setTimeout(() => {
-            chest.style.display = "none";
-            claimDailyReward(false);
-        }, 500);
+    if (!chest) return;
+    
+    // Animation
+    chest.innerText = "✨";
+    chest.style.transform = "scale(1.5)";
+    chest.style.transition = "all 0.3s ease";
+    
+    // Show reward amount
+    const rewardAmount = getDailyReward(dailyData.streak);
+    const amountDisplay = document.getElementById("rewardAmount");
+    if (amountDisplay) {
+        amountDisplay.innerText = `+${rewardAmount} 🪙`;
+        amountDisplay.style.display = "block";
     }
+    
+    // Enable claim buttons
+    const claimBtn = document.querySelector(".claimBtn");
+    const doubleBtn = document.querySelector(".doubleRewardBtn");
+    if (claimBtn) claimBtn.disabled = false;
+    if (doubleBtn) doubleBtn.disabled = false;
+    
+    // Hide chest after animation
+    setTimeout(() => {
+        chest.style.display = "none";
+    }, 500);
 }
 
 function updateDailyRewardUI() {
     console.log("Updating daily reward UI, streak:", dailyData.streak);
-   
+    
+    // Update streak info
+    const streakInfo = document.querySelector(".streakInfo");
+    if (streakInfo) {
+        streakInfo.innerHTML = `Current Streak: <span>${dailyData.streak} / 7</span>`;
+    }
+    
+    // Update all day boxes
+    const rewards = [50, 100, 150, 200, 300, 400, 500];
+    
     for (let i = 1; i <= 7; i++) {
         const dayEl = document.getElementById(`day${i}`);
         if (!dayEl) continue;
         
-        dayEl.classList.remove('active', 'claimed', 'today');
+        // Reset classes
+        dayEl.className = "day";
+        
+        // Set content
+        dayEl.innerHTML = `Day ${i}<br><b>${rewards[i-1]}</b>`;
         
         if (i < dailyData.streak) {
-            dayEl.classList.add('claimed');
+            // Already claimed
+            dayEl.classList.add("claimed");
+            dayEl.innerHTML += "<br>✓";
         } else if (i === dailyData.streak) {
-            dayEl.classList.add('today', 'active');
+            // Today's reward (can claim)
+            dayEl.classList.add("active", "today");
         }
+        // Future days: default styling
     }
-
+    
+    // Reset chest
     chestOpened = false;
     const chest = document.getElementById("rewardChest");
     if (chest) {
@@ -862,6 +953,18 @@ function updateDailyRewardUI() {
         chest.innerText = "🎁";
         chest.style.transform = "scale(1)";
     }
+    
+    // Hide reward amount until chest opened
+    const amountDisplay = document.getElementById("rewardAmount");
+    if (amountDisplay) {
+        amountDisplay.style.display = "none";
+    }
+    
+    // Disable buttons until chest opened
+    const claimBtn = document.querySelector(".claimBtn");
+    const doubleBtn = document.querySelector(".doubleRewardBtn");
+    if (claimBtn) claimBtn.disabled = true;
+    if (doubleBtn) doubleBtn.disabled = true;
 }
 
 function showDailyReward() {
@@ -876,6 +979,8 @@ function showDailyReward() {
 }
 
 function checkDailyReward() {
+    console.log("Checking daily reward...");
+    
     // Ensure dailyData exists
     if (!dailyData || typeof dailyData !== "object") {
         dailyData = {
@@ -883,46 +988,42 @@ function checkDailyReward() {
             streak: 1
         };
     }
-
+    
     loadDailyData();
-
+    
     const today = new Date().toDateString();
-
-    // First time login
+    
+    // First time ever
     if (!dailyData.lastLogin) {
+        console.log("First time user - showing daily reward");
         dailyData.streak = 1;
         saveDailyData();
         showDailyReward();
         return;
     }
-
+    
     // Already claimed today
     if (dailyData.lastLogin === today) {
-        console.log("Daily reward already claimed today");
+        console.log("Already claimed today");
         return;
     }
-
-    // Check if streak continues or resets
+    
+    // Check if streak continues
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayString = yesterday.toDateString();
     
-    if (dailyData.lastLogin === yesterday.toDateString()) {
-        // Continue streak
-        if (dailyData.streak >= 7) {
-            dailyData.streak = 1; // Reset after week
-        }
-    } else {
+    if (dailyData.lastLogin !== yesterdayString) {
         // Streak broken
+        console.log("Streak broken, resetting to day 1");
         dailyData.streak = 1;
+    } else {
+        // Streak continues
+        console.log("Streak continues:", dailyData.streak);
     }
-
+    
     saveDailyData();
     showDailyReward();
-}
-
-function showDailyRewardUI() {
-    const screen = document.getElementById("dailyRewardScreen");
-    if(screen) screen.style.display = "flex";
 }
 
 function giveReward(amount) {
