@@ -1700,16 +1700,11 @@ function getBossPattern(){
     }
 })();
 
-(function giveBossReward(){
+(async function giveBossReward(){
     let baseReward = 200 + (level * 50);
-
-    // Bonus scaling (makes late game worth it)
     let reward = Math.floor(baseReward * 1.2);
-
-    await addCoins(reward);
-
+    await addCoins(reward);  // ✅ Now valid
     showBossRewardPopup(reward);
-
     updateHUD();
     saveGame();
 })();
@@ -1960,8 +1955,10 @@ function resetToMenu() {
                     if(e.type === ENEMY_TANK) reward = 15;
                     if(e.type === ENEMY_SHOOTER) reward = 12;
                     
-                    // UPDATE SCORE AND COINS
-                    await addCoins(reward);
+                    // UPDATE SCORE AND COINS - Use promise instead of await
+                    addCoins(reward).then(() => {
+                        // This runs after coins are added
+                    });
                     combo++;
                     comboTimer = 60;
                     totalKills++;
