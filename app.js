@@ -1764,8 +1764,10 @@ async function loadCoins() {
 }
 
 async function addCoins(amount) {
-    const ref = doc(db, "players", playerId);
-    await updateDoc(ref, { coins: increment(amount) });
+    const ref = db.collection("players").doc(playerId);
+    await ref.update({ 
+        coins: firebase.firestore.FieldValue.increment(amount) 
+    });
     coins += amount;
     updateHUD();
 }
