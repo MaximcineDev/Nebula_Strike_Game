@@ -48,22 +48,28 @@ async function loadRewardAd() {
 /* ---------- REWARDED AD ---------- */
 
 async function showRewardAd() {
-
     console.log("Attempting to show ad...");
 
-    // 🧪 Browser fallback
+    if (window.showingRewardAd) {
+        console.log("Already showing ad, ignoring duplicate call");
+        return;
+    }
+    window.showingRewardAd = true;
+
     if (!AdMob) {
         console.log("Browser mode → simulate reward");
-
+        
         setTimeout(() => {
             handleReward(true);
+            window.showingRewardAd = false;
         }, 1000);
-
+        
         return;
     }
 
     if (!admobReady) {
         console.log("Ad not ready → fallback");
+        window.showingRewardAd = false;
         fallbackRevive();
         return;
     }
@@ -74,10 +80,23 @@ async function showRewardAd() {
         });
 
         await AdMob.showRewardVideoAd();
-
+        
+        window.showingRewardAd = false;
+        
     } catch (err) {
         console.log("Ad failed:", err);
         pendingRewardAction = null;
+        gameState = "gameover";
+        window.showingRewardAd = false;
+        
+        // Re-enable button
+        const reviveBtn = document.getElementById("reviveBtn");
+        if (reviveBtn) {
+            reviveBtn.disabled = false;
+            reviveBtn.style.opacity = "1";
+            reviveBtn.innerText = "▶ Watch Ad to Continue";
+        }
+        
         fallbackRevive();
     }
 }
@@ -87,15 +106,53 @@ async function showRewardAd() {
 function handleReward(success) {
     if (!success) {
         console.log("Reward failed or skipped");
+        
+        // Re-enable button on failure
+        const reviveBtn = document.getElementById("reviveBtn");
+        if (reviveBtn && pendingRewardAction === 'revive') {
+            reviveBtn.disabled = false;
+            reviveBtn.style.opacity = "1";
+            reviveBtn.innerText = "▶ Watch Ad to Continue";
+        }
+        
         pendingRewardAction = null;
+        gameState = "gameover"; // Reset state
         return;
     }
 
     console.log("Reward granted:", pendingRewardAction);
+    
+    // Store action then clear immediately to prevent re-processing
+    const action = pendingRewardAction;
+    pendingRewardAction = null;
 
-    switch (pendingRewardAction) {
+    switch (action) {
         case 'revive':
-            // ... existing revive code ...
+            // CRITICAL: Check if already revived to prevent double-processing
+            if (reviveUsed) {
+                console.log("Already revived, ignoring duplicate");
+                return;
+            }
+            
+            health = Math.ceil(maxHearts * 0.5);
+            updateHeartsUI();
+            hideReviveScreen();
+
+            gameRunning = true;
+            reviveUsed = true;
+            gameState = "playing";
+            paused = false;
+
+            hitFlash = 0;
+            screenShake = 0;
+
+            lastTime = 0;
+            if (window.gameLoopId) {
+                cancelAnimationFrame(window.gameLoopId);
+            }
+            window.gameLoopId = requestAnimationFrame(gameLoop);
+            
+            console.log("Revive complete, health:", health);
             break;
 
         case 'freeCoins':
@@ -113,15 +170,13 @@ function handleReward(success) {
             break;
 
         case 'dailyDouble':
-            // Double coins for daily reward - claimDailyReward will handle it
-            claimDailyReward(false); // false because we already processed the ad
+            claimDailyReward(false);
             break;
 
         default:
-            console.log("Unknown reward action:", pendingRewardAction);
+            console.log("Unknown reward action:", action);
     }
 
-    pendingRewardAction = null;
     saveGame();
 }
 
@@ -143,9 +198,38 @@ function fallbackRevive() {
     requestAnimationFrame(gameLoop);
 }
 
+
 if (AdMob) {
+    let rewardHandled = false;
+    
     AdMob.addListener('onRewardedVideoAdReward', () => {
+        if (rewardHandled) {
+            console.log("Reward already handled, ignoring duplicate");
+            return;
+        }
+        rewardHandled = true;
+        
         handleReward(true);
+        
+        setTimeout(() => { rewardHandled = false; }, 1000);
+    });
+    
+    AdMob.addListener('onRewardedVideoAdClosed', () => {
+        console.log("Ad closed");
+        window.showingRewardAd = false;
+        
+        if (pendingRewardAction === 'revive') {
+            console.log("Ad closed without reward");
+            gameState = "gameover";
+            pendingRewardAction = null;
+            
+            const reviveBtn = document.getElementById("reviveBtn");
+            if (reviveBtn) {
+                reviveBtn.disabled = false;
+                reviveBtn.style.opacity = "1";
+                reviveBtn.innerText = "▶ Watch Ad to Continue";
+            }
+        }
     });
 }
 
@@ -207,11 +291,26 @@ console.log("Revive elements:", {reviveScreen: !!reviveScreen, reviveBtn: !!revi
 
 document.getElementById("reviveBtn").addEventListener("click", () => {
     console.log("Revive clicked");
+    
+    if (pendingRewardAction === 'revive' || gameState === "reviving") {
+        console.log("Already processing revive, ignoring click");
+        return;
+    }
 
-    if (gameState !== "gameover") return;
+    if (gameState !== "gameover") {
+        console.log("Not in gameover state, ignoring. Current state:", gameState);
+        return;
+    }
 
     pendingRewardAction = "revive";
     gameState = "reviving";
+    
+    const reviveBtn = document.getElementById("reviveBtn");
+    if (reviveBtn) {
+        reviveBtn.disabled = true;
+        reviveBtn.style.opacity = "0.5";
+        reviveBtn.innerText = "Loading...";
+    }
 
     showRewardAd();
 });
@@ -219,12 +318,21 @@ document.getElementById("reviveBtn").addEventListener("click", () => {
 function showReviveScreen() {
     console.log("showReviveScreen called, reviveUsed:", reviveUsed);
     
-    reviveBtn.style.display = reviveUsed ? "none" : "block";
-   
+    const reviveBtn = document.getElementById("reviveBtn");
+    if (reviveBtn) {
+        if (reviveUsed) {
+            reviveBtn.style.display = "none";
+        } else {
+            reviveBtn.style.display = "block";
+            reviveBtn.disabled = false;
+            reviveBtn.style.opacity = "1";
+            reviveBtn.innerText = "▶ Watch Ad to Continue";
+        }
+    }
+    
     reviveScreen.style.display = "flex";
     
     if (admobReady && !reviveUsed) {
-        pendingRewardAction = 'revive';
         AdMob.prepareRewardVideoAd({
             adId: 'ca-app-pub-3940256099942544/5224354917'
         }).catch(err => console.log("Ad prep failed:", err));
