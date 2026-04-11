@@ -3037,7 +3037,7 @@ function backToMenu(){
 
 /* ---------- INITIALIZATION ---------- */
 
-window.addEventListener("load", () => {
+window.addEventListener("load", async () => {
     console.log("Window loaded, initializing...");
 
     detectTamper();
