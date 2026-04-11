@@ -3013,7 +3013,7 @@ function backToMenu(){
 window.addEventListener("load", () => {
     console.log("Window loaded, initializing...");
 
-    detectTamper();
+    //detectTamper();
 
     loadGame();
     loadDailyData();
