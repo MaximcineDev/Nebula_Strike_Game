@@ -2,24 +2,7 @@
    NEBULA STRIKE
 ========================= */
 
-const firebaseConfig = {
-    apiKey: "AIzaSyCf-8mnm77vLl5qSAQVv3Ffk3BNE0rLSws",
-    authDomain: "nebula-strike-2c357.firebaseapp.com",
-    projectId: "nebula-strike-2c357",
-    storageBucket: "nebula-strike-2c357.firebasestorage.app",
-    messagingSenderId: "656562876567",
-    appId: "1:656562876567:web:b394b02ba3b03dfbabb9d2"
-};
-
-if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-    console.log("Firebase initialized");
-} else if (!typeof firebase !== 'undefined') {
-    console.warn("Firebase SDK not loaded - running in offline mode");
-}
-
-const db = firebase.firestore ? firebase.firestore() : null;
-const { increment } = firebase.firestore ? firebase.firestore.FieldValue : { increment: null };
+import { FirebaseFirestore } from '@capacitor-firebase/firestore';
 
 console.log("APP STARTED - FINAL VERSION");
 
@@ -1766,28 +1749,33 @@ function closeBossReward(){
 
 async function loadCoins() {
     try {
-        const ref = db.collection("players").doc(playerId);
-        const snap = await ref.get();
-        if (snap.exists) {
-            coins = snap.data().coins || 0;
-        } else {
-            await ref.set({ coins: 0 });
-            coins = 0;
-        }
+        const { snapshot } = await FirebaseFirestore.getDocument({
+            reference: `players/${playerId}`,
+        });
+        coins = snapshot?.data?.coins || 0;
     } catch (e) {
-        console.warn("Firebase blocked, using localStorage");
+        console.warn("Firebase error, using localStorage", e);
         coins = parseInt(localStorage.getItem("coins") || "0");
     }
     updateHUD();
 }
 
 async function addCoins(amount) {
-    const ref = db.collection("players").doc(playerId);
-    await ref.update({ 
-        coins: firebase.firestore.FieldValue.increment(amount) 
-    });
-    coins += amount;
-    updateHUD();
+    try {
+        const current = coins;
+        await FirebaseFirestore.setDocument({
+            reference: `players/${playerId}`,
+            data: { coins: current + amount },
+            merge: true,
+        });
+        coins += amount;
+        updateHUD();
+    } catch (e) {
+        console.warn("Firebase update failed, using localStorage", e);
+        coins += amount;
+        localStorage.setItem("coins", coins);
+        updateHUD();
+    }
 }
 
 /* ---------- MAIN GAME LOOP ---------- */
