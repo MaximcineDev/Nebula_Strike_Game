@@ -535,78 +535,242 @@ body {
 #dailyReward {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.9);
-
+    background: rgba(0,0,0,0.95);
     display: none;
     justify-content: center;
     align-items: center;
-
-    z-index: 6000;
+    z-index: 9999;
+    backdrop-filter: blur(10px);
 }
 
 .dailyBox {
-    background: linear-gradient(135deg, #1a1a2e, #16213e);
-    border: 2px solid #00ffff;
-    border-radius: 20px;
-
-    padding: 25px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border: 3px solid #00ffff;
+    border-radius: 25px;
+    padding: 30px;
     text-align: center;
-
     width: 90%;
-    max-width: 400px;
+    max-width: 450px;
+    box-shadow: 
+        0 0 50px rgba(0, 255, 255, 0.4),
+        inset 0 0 30px rgba(0, 255, 255, 0.1);
+    animation: pop 0.4s ease;
 }
 
 .dailyBox h2 {
-    color: white;
-    margin-bottom: 15px;
+    color: #00ffff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 28px;
+    margin: 0 0 25px 0;
+    text-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+    text-transform: uppercase;
+    letter-spacing: 3px;
 }
 
-/* Grid */
+/* Grid - 7 days horizontal scroll or 4+3 grid */
 .dailyGrid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    margin-bottom: 20px;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-bottom: 25px;
+    padding: 10px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 15px;
+    border: 1px solid rgba(0, 255, 255, 0.2);
 }
 
 /* Each day */
 .day {
-    padding: 10px;
-    border-radius: 10px;
-    border: 2px solid #555;
-    color: white;
-    font-size: 12px;
+    padding: 12px 5px;
+    border-radius: 12px;
+    border: 2px solid #444;
+    color: #aaa;
+    font-size: 11px;
+    font-family: 'Orbitron', sans-serif;
+    background: rgba(0,0,0,0.4);
+    transition: all 0.3s ease;
+    position: relative;
+    min-height: 70px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
-/* States */
+.day b {
+    display: block;
+    color: #ffd700;
+    font-size: 16px;
+    margin-top: 5px;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+/* Active day (can claim) */
 .day.active {
     border-color: #00ffff;
-    box-shadow: 0 0 10px cyan;
+    box-shadow: 
+        0 0 20px rgba(0, 255, 255, 0.5),
+        inset 0 0 15px rgba(0, 255, 255, 0.2);
+    color: #ffffff;
+    background: rgba(0, 100, 150, 0.3);
+    animation: pulseDay 2s infinite;
 }
 
+@keyframes pulseDay {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Claimed days */
 .day.claimed {
-    background: #00ff88;
-    color: black;
+    background: linear-gradient(135deg, #00aa55 0%, #00ff88 100%);
+    border-color: #00ff88;
+    color: #000;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+}
+
+.day.claimed b {
+    color: #000;
+    text-shadow: none;
+}
+
+/* Today indicator */
+.day.today::before {
+    content: 'TODAY';
+    position: absolute;
+    top: -8px;
+    font-size: 8px;
+    background: #ff3366;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    letter-spacing: 1px;
 }
 
 /* CHEST */
 #rewardChest {
-    font-size: 60px;
-    margin: 15px auto;
+    font-size: 80px;
+    margin: 20px auto;
     cursor: pointer;
-    animation: chestBounce 1.2s infinite;
+    animation: chestBounce 1.5s infinite;
+    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6));
+    transition: transform 0.2s ease;
+}
+
+#rewardChest:hover {
+    transform: scale(1.1);
 }
 
 @keyframes chestBounce {
-    0%,100% { transform: scale(1); }
-    50% { transform: scale(1.15); }
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.1) rotate(-5deg); }
+    50% { transform: scale(1.15) rotate(0deg); }
+    75% { transform: scale(1.1) rotate(5deg); }
 }
 
-.flyingCoin {
-    position: fixed;
+/* Reward amount display */
+#rewardAmount {
+    color: #ffd700;
     font-size: 24px;
-    z-index: 9999;
-    transition: transform 0.7s ease-in, opacity 0.7s ease-in;
+    font-family: 'Orbitron', sans-serif;
+    margin: 15px 0;
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+}
+
+/* Button container */
+.dailyButtons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+/* Claim button */
+.claimBtn {
+    padding: 15px 40px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #000;
+    background: linear-gradient(135deg, #00ff88 0%, #00cc66 100%);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 25px rgba(0, 255, 136, 0.5);
+}
+
+.claimBtn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 35px rgba(0, 255, 136, 0.7);
+}
+
+.claimBtn:active {
+    transform: scale(0.98);
+}
+
+/* Double reward button */
+.doubleRewardBtn {
+    padding: 12px 30px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #ffcc00;
+    background: transparent;
+    border: 2px solid #ffcc00;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 0 15px rgba(255, 204, 0, 0.3);
+}
+
+.doubleRewardBtn:hover {
+    background: rgba(255, 204, 0, 0.1);
+    box-shadow: 0 0 25px rgba(255, 204, 0, 0.5);
+}
+
+.doubleRewardBtn::before {
+    content: '🎥';
+}
+
+/* Responsive: stack to 4+3 on smaller screens */
+@media (max-width: 500px) {
+    .dailyGrid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+    }
+    
+    .day:nth-child(5),
+    .day:nth-child(6),
+    .day:nth-child(7) {
+        grid-column: span 1;
+    }
+    
+    /* Center the last 3 days */
+    .day:nth-child(5) { grid-column: 2; }
+}
+
+/* Streak info */
+.streakInfo {
+    color: #aaddff;
+    font-size: 14px;
+    margin-bottom: 15px;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.streakInfo span {
+    color: #00ffff;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
 }
 
 /* =========================
