@@ -579,6 +579,10 @@ let playerPerformance = {
 
 let isTrusted = true;
 
+let lastWaveTime = 0;
+let lastEnemySpawnTime = 0
+let score = 0;
+
 function detectTamper() {
     if (
         !window.location.href.includes("localhost") &&
