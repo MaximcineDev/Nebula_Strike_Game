@@ -95,23 +95,7 @@ function handleReward(success) {
 
     switch (pendingRewardAction) {
         case 'revive':
-            health = Math.ceil(maxHearts * 0.5);
-            updateHeartsUI();
-            hideReviveScreen();
-
-            gameRunning = true;
-            reviveUsed = true;
-            gameState = "playing";
-            paused = false;
-
-            hitFlash = 0;
-            screenShake = 0;
-
-            lastTime = 0;
-            if (window.gameLoopId) {
-                cancelAnimationFrame(window.gameLoopId);
-            }
-            window.gameLoopId = requestAnimationFrame(gameLoop);
+            // ... existing revive code ...
             break;
 
         case 'freeCoins':
@@ -129,7 +113,8 @@ function handleReward(success) {
             break;
 
         case 'dailyDouble':
-            claimDailyReward(false);
+            // Double coins for daily reward - claimDailyReward will handle it
+            claimDailyReward(false); // false because we already processed the ad
             break;
 
         default:
@@ -799,8 +784,13 @@ function startGame(){
 
 /* ---------- DAILY REWARD FUNCTIONS ---------- */
 
+// Check if today is day 7 (chest day)
+function isChestDay() {
+    return dailyData.streak === 7;
+}
+
 function claimDailyReward(useDoubleReward = false) {
-    console.log("Claiming daily reward, double reward:", useDoubleReward);
+    console.log("Claiming daily reward, double:", useDoubleReward, "chest day:", isChestDay());
     
     // If requesting double reward, show ad first
     if (useDoubleReward) {
@@ -816,21 +806,54 @@ function claimDailyReward(useDoubleReward = false) {
         return;
     }
     
-    // Normal claim or ad completed
-    const baseAmount = getDailyReward(dailyData.streak);
-    const finalAmount = (pendingRewardAction === 'dailyDouble') ? baseAmount * 2 : baseAmount;
+    // Calculate reward based on day
+    let rewards = {
+        coins: 0,
+        weaponUpgraded: false,
+        shieldUpgraded: false
+    };
+    
+    if (isChestDay()) {
+        // DAY 7 - MEGA CHEST REWARD
+        rewards.coins = 1000;
+        rewards.weaponUpgraded = true;
+        rewards.shieldUpgraded = true;
+        
+        // Apply upgrades
+        if (weaponLevel < 5) {
+            weaponLevel++;
+            damage += 1;
+            fireRate = Math.max(80, fireRate - 40);
+        }
+        if (shieldLevel < 5) {
+            shieldLevel++;
+        }
+        
+        // Activate shield immediately
+        shieldActive = true;
+        shieldTimer = 600; // 10 seconds at 60fps
+        
+    } else {
+        // Normal days 1-6
+        rewards.coins = getDailyReward(dailyData.streak);
+    }
+    
+    // Double if applicable
+    if (pendingRewardAction === 'dailyDouble') {
+        rewards.coins *= 2;
+    }
     
     // Clear pending action
     pendingRewardAction = null;
     
     // Add coins
-    coins += finalAmount;
+    coins += rewards.coins;
     
     // Update login date and streak
     const today = new Date().toDateString();
     dailyData.lastLogin = today;
     
-    // Increment streak (cap at 7, then reset to 1)
+    // Reset streak after day 7, otherwise increment
     if (dailyData.streak >= 7) {
         dailyData.streak = 1;
     } else {
@@ -842,21 +865,38 @@ function claimDailyReward(useDoubleReward = false) {
     saveGame();
     updateHUD();
     coinPulse();
-    showCoinGain(finalAmount);
     
-    // Hide daily reward screen
+    // Show appropriate message
+    if (isChestDay()) {
+        showCoinGain(rewards.coins);
+        // Show special popup for chest rewards
+        setTimeout(() => {
+            alert(`🎉 MEGA CHEST OPENED! 🎉\n+${rewards.coins} coins\nWeapon Upgraded!\nShield Upgraded!`);
+        }, 100);
+    } else {
+        showCoinGain(rewards.coins);
+    }
+    
+    // Hide daily reward and return to menu
     const dailyRewardEl = document.getElementById("dailyReward");
     if (dailyRewardEl) {
         dailyRewardEl.style.display = "none";
     }
     
-    console.log("Daily reward claimed:", finalAmount, "New streak:", dailyData.streak);
+    // Go to main menu
+    const menu = document.getElementById("main-menu");
+    if (menu) {
+        menu.style.display = "flex";
+        menu.classList.add("show");
+    }
+    
+    console.log("Daily reward claimed:", rewards, "New streak:", dailyData.streak);
 }
 
 function getDailyReward(streakDay) {
-    // Rewards for days 1-7
-    const rewards = [50, 100, 150, 200, 300, 400, 500];
-    const index = Math.min(Math.max(streakDay - 1, 0), 6);
+    // Rewards for days 1-6 (day 7 is special chest)
+    const rewards = [50, 100, 150, 200, 300, 400];
+    const index = Math.min(Math.max(streakDay - 1, 0), 5);
     return rewards[index];
 }
 
@@ -892,23 +932,12 @@ function loadDailyData() {
     }
 }
 
+// Open normal chest (days 1-6)
 function openChest() {
-    console.log("Opening chest...");
+    console.log("Opening normal chest...");
     
-    if (chestOpened) {
-        console.log("Chest already opened");
-        return;
-    }
-    
+    if (chestOpened) return;
     chestOpened = true;
-    
-    const chest = document.getElementById("rewardChest");
-    if (!chest) return;
-    
-    // Animation
-    chest.innerText = "✨";
-    chest.style.transform = "scale(1.5)";
-    chest.style.transition = "all 0.3s ease";
     
     // Show reward amount
     const rewardAmount = getDailyReward(dailyData.streak);
@@ -918,71 +947,140 @@ function openChest() {
         amountDisplay.style.display = "block";
     }
     
-    // Enable claim buttons
+    // Enable buttons
     const claimBtn = document.querySelector(".claimBtn");
     const doubleBtn = document.querySelector(".doubleRewardBtn");
     if (claimBtn) claimBtn.disabled = false;
     if (doubleBtn) doubleBtn.disabled = false;
     
+    // Update reward text
+    const rewardText = document.getElementById("rewardText");
+    if (rewardText) {
+        rewardText.innerText = `You found ${rewardAmount} coins!`;
+    }
+}
+
+// Open BIG chest (day 7)
+function openBigChest() {
+    console.log("Opening BIG chest for day 7!");
+    
+    if (chestOpened) return;
+    chestOpened = true;
+    
+    const bigChest = document.getElementById("bigRewardChest");
+    if (bigChest) {
+        bigChest.innerText = "✨";
+        bigChest.style.transform = "scale(1.3)";
+    }
+    
+    // Show reward info
+    const rewardInfo = document.getElementById("rewardInfo");
+    const rewardText = document.getElementById("rewardText");
+    if (rewardInfo) {
+        rewardInfo.style.display = "flex";
+        rewardInfo.innerHTML = `
+            <span class="big-reward">🎉 MEGA CHEST! 🎉</span>
+            <span>1000 coins + Weapon + Shield</span>
+        `;
+    }
+    
+    // Enable buttons
+    const claimBtn = document.querySelector(".claimBtn");
+    const doubleBtn = document.querySelector(".doubleRewardBtn");
+    if (claimBtn) {
+        claimBtn.disabled = false;
+        claimBtn.innerText = "CLAIM MEGA REWARD!";
+    }
+    if (doubleBtn) {
+        doubleBtn.disabled = false;
+        doubleBtn.innerText = "🎥 WATCH AD FOR 2X COINS";
+    }
+    
     // Hide chest after animation
     setTimeout(() => {
-        chest.style.display = "none";
+        if (bigChest) bigChest.style.display = "none";
     }, 500);
 }
 
 function updateDailyRewardUI() {
     console.log("Updating daily reward UI, streak:", dailyData.streak);
     
-    // Update streak info
-    const streakInfo = document.querySelector(".streakInfo");
-    if (streakInfo) {
-        streakInfo.innerHTML = `Current Streak: <span>${dailyData.streak} / 7</span>`;
+    // Update streak display
+    const streakNumber = document.getElementById("streakNumber");
+    if (streakNumber) {
+        streakNumber.innerText = `${dailyData.streak} / 7`;
+    }
+    
+    // Check if day 7 (chest day)
+    const isDay7 = isChestDay();
+    
+    // Show/hide appropriate elements
+    const normalReward = document.getElementById("normalReward");
+    const bigChest = document.getElementById("bigRewardChest");
+    const rewardInfo = document.getElementById("rewardInfo");
+    
+    if (isDay7) {
+        // Day 7 - show big chest
+        if (normalReward) normalReward.style.display = "none";
+        if (bigChest) bigChest.style.display = "block";
+        if (rewardInfo) {
+            rewardInfo.style.display = "flex";
+            rewardInfo.innerHTML = `<span id="rewardText">Tap the chest for MEGA reward!</span>`;
+        }
+    } else {
+        // Days 1-6 - normal
+        if (normalReward) normalReward.style.display = "none";
+        if (bigChest) bigChest.style.display = "none";
+        if (rewardInfo) {
+            rewardInfo.style.display = "none";
+        }
     }
     
     // Update all day boxes
-    const rewards = [50, 100, 150, 200, 300, 400, 500];
+    const rewards = [50, 100, 150, 200, 300, 400, "MEGA!"];
     
     for (let i = 1; i <= 7; i++) {
         const dayEl = document.getElementById(`day${i}`);
         if (!dayEl) continue;
         
         // Reset classes
-        dayEl.className = "day";
+        dayEl.className = i === 7 ? "day day7-chest" : "day";
         
         // Set content
-        dayEl.innerHTML = `Day ${i}<br><b>${rewards[i-1]}</b>`;
+        if (i === 7) {
+            dayEl.innerHTML = `Day 7<br><b>MEGA!</b>`;
+        } else {
+            dayEl.innerHTML = `Day ${i}<br><b>${rewards[i-1]}</b>`;
+        }
         
         if (i < dailyData.streak) {
             // Already claimed
             dayEl.classList.add("claimed");
-            dayEl.innerHTML += "<br>✓";
+            if (i === 7) {
+                dayEl.innerHTML = `Day 7<br><b>✓</b>`;
+            } else {
+                dayEl.innerHTML += "<br>✓";
+            }
         } else if (i === dailyData.streak) {
-            // Today's reward (can claim)
+            // Today's reward
             dayEl.classList.add("active", "today");
         }
-        // Future days: default styling
     }
     
-    // Reset chest
+    // Reset state
     chestOpened = false;
-    const chest = document.getElementById("rewardChest");
-    if (chest) {
-        chest.style.display = "block";
-        chest.innerText = "🎁";
-        chest.style.transform = "scale(1)";
-    }
-    
-    // Hide reward amount until chest opened
-    const amountDisplay = document.getElementById("rewardAmount");
-    if (amountDisplay) {
-        amountDisplay.style.display = "none";
-    }
     
     // Disable buttons until chest opened
     const claimBtn = document.querySelector(".claimBtn");
     const doubleBtn = document.querySelector(".doubleRewardBtn");
-    if (claimBtn) claimBtn.disabled = true;
-    if (doubleBtn) doubleBtn.disabled = true;
+    if (claimBtn) {
+        claimBtn.disabled = true;
+        claimBtn.innerText = isDay7 ? "CLAIM MEGA REWARD!" : "CLAIM REWARD";
+    }
+    if (doubleBtn) {
+        doubleBtn.disabled = true;
+        doubleBtn.innerText = isDay7 ? "🎥 WATCH AD FOR 2X COINS" : "🎥 WATCH AD FOR 2X";
+    }
 }
 
 function showDailyReward() {
