@@ -468,7 +468,7 @@ const player = {
     speed: 6
 };
 
-(function resizeGame(){
+function resizeGame(){
     if(!canvas) {
         console.error("Canvas not found!");
         return;
@@ -498,7 +498,7 @@ window.addEventListener("resize", () => {
 });
 window.addEventListener("orientationchange", () => {
     setTimeout(resizeGame, 300);
-});)();
+});
 
 /* ---------- GAME STATE ---------- */
 
