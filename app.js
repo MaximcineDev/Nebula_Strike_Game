@@ -2,7 +2,7 @@
    NEBULA STRIKE
 ========================= */
 
-import { db, doc, getDoc, setDoc, updateDoc, increment } from "./firebase";
+const db = firebase.firestore();
 
 console.log("APP STARTED - FINAL VERSION");
 if (!window.location.href.includes("localhost")) {
@@ -1750,29 +1750,21 @@ function closeBossReward(){
 }
 
 async function loadCoins() {
-
-    const ref = doc(db, "players", playerId);
-    const snap = await getDoc(ref);
-
-    if (snap.exists()) {
+    const ref = db.collection("players").doc(playerId);
+    const snap = await ref.get();
+    if (snap.exists) {
         coins = snap.data().coins || 0;
     } else {
-        await setDoc(ref, { coins: 0 });
+        await ref.set({ coins: 0 });
         coins = 0;
     }
-
     updateHUD();
 }
 
 async function addCoins(amount) {
-
     const ref = doc(db, "players", playerId);
-
-    await updateDoc(ref, {
-        coins: increment(amount)
-    });
-
-    coins += amount; // local sync
+    await updateDoc(ref, { coins: increment(amount) });
+    coins += amount;
     updateHUD();
 }
 
