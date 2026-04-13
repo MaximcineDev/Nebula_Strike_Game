@@ -3051,6 +3051,16 @@ function backToMenu(){
     document.getElementById("main-menu").style.display = "flex";
 }
 
+/* ---------- FIREBASE CONFIG ---------- */
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "nebula-strike-2c357.firebaseapp.com",
+    projectId: "nebula-strike-2c357",
+    storageBucket: "nebula-strike-2c357.appspot.com",
+    messagingSenderId: "656562876567",
+    appId: "1:656562876567:web:b394b02ba3b03dfbab9d2c"
+};
+
 /* ---------- INITIALIZATION ---------- */
 
 const isAndroidNative = typeof Capacitor !== 'undefined' && Capacitor.getPlatform() === 'android';
