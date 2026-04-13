@@ -41,7 +41,7 @@ let adReady = false;
 async function loadRewardAd() {
   try {
     await AdMob.prepareRewardVideoAd({
-      adId: 'ca-app-pub-3940256099942544/5224354917',
+      adId: 'ca-app-pub-5850163781981893/3862181045',
     });
     adReady = true;
     console.log("Ad ready ✅");
@@ -81,7 +81,7 @@ async function showRewardAd() {
 
     try {
         await AdMob.prepareRewardVideoAd({
-            adId: 'ca-app-pub-3940256099942544/5224354917'
+            adId: 'ca-app-pub-5850163781981893/3862181045'
         });
 
         await AdMob.showRewardVideoAd();
@@ -339,7 +339,7 @@ function showReviveScreen() {
     
     if (admobReady && !reviveUsed) {
         AdMob.prepareRewardVideoAd({
-            adId: 'ca-app-pub-3940256099942544/5224354917'
+            adId: 'ca-app-pub-5850163781981893/3862181045'
         }).catch(err => console.log("Ad prep failed:", err));
     }
 }
