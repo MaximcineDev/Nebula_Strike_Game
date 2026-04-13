@@ -3053,19 +3053,15 @@ function backToMenu(){
 
 /* ---------- INITIALIZATION ---------- */
 
-import { initializeApp } from 'firebase/app';
-import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
-import { Capacitor } from '@capacitor/core';
+const isAndroidNative = typeof Capacitor !== 'undefined' && Capacitor.getPlatform() === 'android';
 
-const app = initializeApp(firebaseConfig);
-
-const isAndroidNative = Capacitor.getPlatform() === 'android';
-
-if (!isAndroidNative) {
-    const appCheck = initializeAppCheck(app, {
-        provider: new ReCaptchaV3Provider('6Lxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
-        isTokenAutoRefreshEnabled: true
-    });
+if (isAndroidNative) {
+    // Android: Firebase is initialized natively, no web SDK needed
+    console.log("Using native Android Firebase");
+} else {
+    // Web: Initialize Firebase with CDN
+    firebase.initializeApp(firebaseConfig);
+    firebase.appCheck().activate('YOUR_RECAPTCHA_SITE_KEY', true);
 }
 
 window.addEventListener("load", async () => {
