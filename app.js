@@ -1296,9 +1296,8 @@ function checkDailyReward(){
 }
 
 function giveReward(amount) {
-    coins += amount;
-
-    // ✅ SAFE: Check if element exists before updating
+    await addCoins(amount);
+   
     const shopCoinText = document.getElementById("shopCoinText");
     if (shopCoinText) {
         shopCoinText.innerText = coins;
@@ -1559,7 +1558,7 @@ function endWave(){
       return;
    }
 
-    coins += 20 + level * 5;
+    await addCoins(20 + level * 5);
     updateHUD();
     coinPulse();
 
@@ -1787,6 +1786,24 @@ async function addCoins(amount) {
     
     coins = newAmount;
     updateHUD();
+}
+
+async function setCoins(amount) {
+    if (window.FirebaseFirestore) {
+        try {
+            await window.FirebaseFirestore.setDocument({
+                reference: `players/${playerId}`,
+                data: { coins: amount },
+                merge: true,
+            });
+            return;
+        } catch (e) {
+            console.warn("Native Firebase save failed", e);
+        }
+    }
+    
+    // Fallback to localStorage
+    localStorage.setItem("coins", amount);
 }
 
 /* ---------- MAIN GAME LOOP ---------- */
@@ -2051,7 +2068,7 @@ function bossDefeated(){
     document.getElementById("bossBar").style.display = "none";
     let bossReward = 150;
 
-    coins += bossReward;
+    await addCoins(bossReward);
     
     for(let i=0; i<20; i++){
         explosions.push({
@@ -2390,9 +2407,9 @@ function updateTimers(){
 
 /* ---------- SAVE/LOAD ---------- */
 
-function saveGame() {
+async function saveGame() {
+    await setCoins(coins);
     const data = {
-        coins,
         weaponLevel,
         currentSkin,
         unlockedSkins,
@@ -2402,14 +2419,14 @@ function saveGame() {
     localStorage.setItem("nebulaSave", JSON.stringify(data));
 }
 
-function loadGame() {
+async function loadGame() {
     const save = localStorage.getItem("nebulaSave");
-
     if (!save) return;
 
     const data = JSON.parse(save);
 
-    coins = data.coins || 0;
+    await loadCoins();
+   
     weaponLevel = data.weaponLevel || 1;
     currentSkin = data.currentSkin || 0;
     unlockedSkins = data.unlockedSkins || [0];
@@ -2476,21 +2493,17 @@ function selectSkin(id){
 }
 
 function tryBuySkin(id, price){
-
-    // Already owned
     if(unlockedSkins.includes(id)){
         selectSkin(id);
         return;
     }
 
-    // Not enough coins
     if(coins < price){
         showCoinWarning("Not enough coins!");
         return;
     }
 
-    // Deduct coins
-    coins -= price;
+    await addCoins(-price);
     showCoinSpend(price);
 
     // Unlock
@@ -2603,27 +2616,21 @@ function buyShield(){
     }
 
     // ✅ Deduct coins
-    coins -= shieldCost;
+    await addCoins(-shieldCost);
     showCoinSpend(shieldCost);
     shieldLevel++;
-
-    // ✅ Activate / refresh shield
     shieldActive = true;
 
-    // If already active → refresh instead of stacking infinitely
     shieldTimer = Math.max(shieldTimer, 300 + (shieldLevel * 150));
 
     hitFlash = 3;
     screenShake = 4;
 
-    // ✅ UI updates
     updateHUD();
     updateShopCoins();
 
-    // ✅ Save
     saveGame();
 
-    // ✅ Feedback
     coinPulse();
     showCoinGain(0);
     console.log("Shield upgraded:", shieldLevel);
@@ -2640,7 +2647,7 @@ function buyWeapon() {
 
     if (coins >= weaponCost) {
 
-        coins -= weaponCost;
+        await addCoins(-weaponCost);
         showCoinSpend(weaponCost);
         weaponLevel++;
 
@@ -2663,35 +2670,26 @@ function buyWeapon() {
     }
 }
 
-function buyCoins(amount) {
+async function buyCoins(amount) {
 
-    // ✅ Validate amount
     if (typeof amount !== "number" || amount <= 0) {
         console.warn("Invalid coin amount:", amount);
         showCoinWarning("Invalid amount");
         return;
     }
 
-    // ✅ Add coins
     coins += amount;
 
-    // ✅ Save
-    localStorage.setItem("coins", coins);
+    await setCoins(coins);
 
-    // ✅ Update UI safely
     const shopText = document.getElementById("shopCoinText");
     if (shopText) {
         shopText.innerText = coins;
     }
 
-    // ✅ Update full HUD (important for consistency)
     updateHUD();
     coinPulse();
-
-    // ✅ Feedback animation
     showCoinGain(amount);
-
-    console.log(`Coins added: +${amount} | Total: ${coins}`);
 }
 
 function watchAdReward(){
@@ -3071,7 +3069,7 @@ window.addEventListener("load", async () => {
    
     await loadCoins();
 
-    loadGame();
+    await loadGame();
     loadDailyData();
     setTimeout(() => {
         if(document.querySelectorAll('.skinBtn').length){
