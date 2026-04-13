@@ -2,8 +2,6 @@
    NEBULA STRIKE
 ========================= */
 
-import { FirebaseFirestore } from '@capacitor-firebase/firestore';
-
 console.log("APP STARTED - FINAL VERSION");
 
 if (!window.location.href.includes("localhost")) {
