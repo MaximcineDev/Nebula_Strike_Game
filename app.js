@@ -3058,12 +3058,15 @@ window.addEventListener("load", async () => {
 
     detectTamper();
 
-    try {
-        const { FirebaseFirestore } = await import('@capacitor-firebase/firestore');
-        window.FirebaseFirestore = FirebaseFirestore;
-        console.log("Firebase native plugin loaded");
-    } catch (e) {
-        console.warn("Firebase plugin failed, using localStorage", e);
+    const isAndroidNative = Capacitor.getPlatform() === 'android';
+   
+    if (!isAndroidNative) {
+        // Only initialize web App Check (reCAPTCHA) for web
+        import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
+        const appCheck = initializeAppCheck(app, {
+            provider: new ReCaptchaV3Provider('your-site-key'),
+            isTokenAutoRefreshEnabled: true
+        });
     }
    
     await loadCoins();
