@@ -19,6 +19,8 @@ let started = false;
 let admobReady = false;
 let pendingRewardAction = null;
 
+const BANNER_AD_ID = 'ca-app-pub-5850163781981893/7518088125';
+
 async function initAds() {
   if (!AdMob) {
     console.log("AdMob not available (browser mode)");
@@ -104,6 +106,30 @@ async function showRewardAd() {
         
         fallbackRevive();
     }
+}
+
+/* ---------- BANNER AD ---------- */
+
+async function loadBannerAd() {
+  try {
+    await AdMob.showBanner({
+      adId: BANNER_AD_ID,
+      position: 'bottom', // or 'top'
+      margin: 0
+    });
+    console.log("Banner ad loaded");
+  } catch (err) {
+    console.log("Banner ad failed:", err);
+  }
+}
+
+function hideBannerAd() {
+  try {
+    AdMob.hideBanner();
+    console.log("Banner hidden");
+  } catch (err) {
+    console.log("Hide banner failed:", err);
+  }
 }
 
 /* ---------- REWARD HANDLER ---------- */
@@ -839,6 +865,8 @@ function quitGame(){
 /* ---------- START GAME ---------- */
 
 function startGame(){
+    hideBannerAd();
+   
     console.log("=== startGame() CALLED ===");
     
     unlockAudio();
@@ -3186,9 +3214,10 @@ window.addEventListener("load", async () => {
         const menu = document.getElementById("main-menu");
 
         splash.style.display = "none";
-
         menu.style.display = "flex";
         menu.classList.add("show");
+
+        loadBannerAd();
 
     }, 1500);
 
