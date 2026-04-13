@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "build": "vite build",
+    "obfuscate": "javascript-obfuscator dist --output dist --config obfuscator-config.json",
     "capacitor:copy:after": "npm run obfuscate",
-    "obfuscate": "javascript-obfuscator dist --output dist --config obfuscator-config.json"
+    "sync": "npm run build && npx cap sync",
+    "build:prod": "npm run build && npm run obfuscate && npx cap sync"
   },
   "dependencies": {
     "@capacitor-community/admob": "^8.0.0",
