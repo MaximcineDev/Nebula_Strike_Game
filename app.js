@@ -2,25 +2,6 @@
    NEBULA STRIKE
 ========================= */
 
-const firebaseConfig = {
-    apiKey: "AIzaSyCf-8mnm77vLl5qSAQVv3Ffk3BNE0rLSws",
-    authDomain: "nebula-strike-2c357.firebaseapp.com",
-    projectId: "nebula-strike-2c357",
-    storageBucket: "nebula-strike-2c357.firebasestorage.app",
-    messagingSenderId: "656562876567",
-    appId: "1:656562876567:web:b394b02ba3b03dfbabb9d2"
-};
-
-if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-    console.log("Firebase initialized");
-} else if (!typeof firebase !== 'undefined') {
-    console.warn("Firebase SDK not loaded - running in offline mode");
-}
-
-const db = firebase.firestore ? firebase.firestore() : null;
-const { increment } = firebase.firestore ? firebase.firestore.FieldValue : { increment: null };
-
 console.log("APP STARTED - FINAL VERSION");
 
 if (!window.location.href.includes("localhost")) {
@@ -71,7 +52,7 @@ async function loadRewardAd() {
 
 /* ---------- REWARDED AD ---------- */
 
- function showRewardAd() {
+async function showRewardAd() {
     console.log("Attempting to show ad...");
 
     if (window.showingRewardAd) {
@@ -1314,10 +1295,9 @@ function checkDailyReward(){
     showDailyReward();
 }
 
-function giveReward(amount) {
-    coins += amount;
-
-    // ✅ SAFE: Check if element exists before updating
+async function giveReward(amount) {
+    await addCoins(amount);
+   
     const shopCoinText = document.getElementById("shopCoinText");
     if (shopCoinText) {
         shopCoinText.innerText = coins;
@@ -1557,7 +1537,7 @@ function updateSpawning(currentTime){
     }
 }
 
-function endWave(){
+async function endWave(){
     waveInProgress = false;
     waveSpawnTimer = 0;
 
@@ -1578,7 +1558,7 @@ function endWave(){
       return;
    }
 
-    coins += 20 + level * 5;
+    await addCoins(20 + level * 5);
     updateHUD();
     coinPulse();
 
@@ -1765,29 +1745,65 @@ function closeBossReward(){
 }
 
 async function loadCoins() {
-    try {
-        const ref = db.collection("players").doc(playerId);
-        const snap = await ref.get();
-        if (snap.exists) {
-            coins = snap.data().coins || 0;
-        } else {
-            await ref.set({ coins: 0 });
-            coins = 0;
+    // Try native plugin first
+    if (window.FirebaseFirestore) {
+        try {
+            const { snapshot } = await window.FirebaseFirestore.getDocument({
+                reference: `players/${playerId}`,
+            });
+            coins = snapshot?.data?.coins || 0;
+            updateHUD();
+            return;
+        } catch (e) {
+            console.warn("Native Firebase failed, falling back", e);
         }
-    } catch (e) {
-        console.warn("Firebase blocked, using localStorage");
-        coins = parseInt(localStorage.getItem("coins") || "0");
     }
+    
+    // Fallback to localStorage
+    coins = parseInt(localStorage.getItem("coins") || "0");
     updateHUD();
 }
 
 async function addCoins(amount) {
-    const ref = db.collection("players").doc(playerId);
-    await ref.update({ 
-        coins: firebase.firestore.FieldValue.increment(amount) 
-    });
-    coins += amount;
+    const newAmount = coins + amount;
+    
+    // Try native plugin first
+    if (window.FirebaseFirestore) {
+        try {
+            await window.FirebaseFirestore.setDocument({
+                reference: `players/${playerId}`,
+                data: { coins: newAmount },
+                merge: true,
+            });
+        } catch (e) {
+            console.warn("Native Firebase failed", e);
+            localStorage.setItem("coins", newAmount);
+        }
+    } else {
+        // No plugin, use localStorage
+        localStorage.setItem("coins", newAmount);
+    }
+    
+    coins = newAmount;
     updateHUD();
+}
+
+async function setCoins(amount) {
+    if (window.FirebaseFirestore) {
+        try {
+            await window.FirebaseFirestore.setDocument({
+                reference: `players/${playerId}`,
+                data: { coins: amount },
+                merge: true,
+            });
+            return;
+        } catch (e) {
+            console.warn("Native Firebase save failed", e);
+        }
+    }
+    
+    // Fallback to localStorage
+    localStorage.setItem("coins", amount);
 }
 
 /* ---------- MAIN GAME LOOP ---------- */
@@ -1908,7 +1924,7 @@ function updateBullets(){
         
         ctx.save();
         ctx.shadowBlur = 10;
-        // ✅ BULLET COLOR BASED ON SKIN (NOT weaponLevel)
+       
         switch(b.skin){
             case 0:
                 ctx.fillStyle = "cyan";
@@ -1969,7 +1985,6 @@ function updateBullets(){
                     if(e.type === ENEMY_TANK) reward = 15;
                     if(e.type === ENEMY_SHOOTER) reward = 12;
                     
-                    // UPDATE SCORE AND COINS - Use promise instead of await
                     addCoins(reward).then(() => {
                         // This runs after coins are added
                     });
@@ -2047,12 +2062,12 @@ function updateBullets(){
     }
 }
 
-function bossDefeated(){
+async function bossDefeated(){
     boss = null;
     document.getElementById("bossBar").style.display = "none";
     let bossReward = 150;
 
-    coins += bossReward;
+    await addCoins(bossReward);
     
     for(let i=0; i<20; i++){
         explosions.push({
@@ -2391,9 +2406,9 @@ function updateTimers(){
 
 /* ---------- SAVE/LOAD ---------- */
 
-function saveGame() {
+async function saveGame() {
+    await setCoins(coins);
     const data = {
-        coins,
         weaponLevel,
         currentSkin,
         unlockedSkins,
@@ -2403,14 +2418,14 @@ function saveGame() {
     localStorage.setItem("nebulaSave", JSON.stringify(data));
 }
 
-function loadGame() {
+async function loadGame() {
     const save = localStorage.getItem("nebulaSave");
-
     if (!save) return;
 
     const data = JSON.parse(save);
 
-    coins = data.coins || 0;
+    await loadCoins();
+   
     weaponLevel = data.weaponLevel || 1;
     currentSkin = data.currentSkin || 0;
     unlockedSkins = data.unlockedSkins || [0];
@@ -2476,22 +2491,18 @@ function selectSkin(id){
     console.log("Equipped skin:", id);
 }
 
-function tryBuySkin(id, price){
-
-    // Already owned
+async function tryBuySkin(id, price){
     if(unlockedSkins.includes(id)){
         selectSkin(id);
         return;
     }
 
-    // Not enough coins
     if(coins < price){
         showCoinWarning("Not enough coins!");
         return;
     }
 
-    // Deduct coins
-    coins -= price;
+    await addCoins(-price);
     showCoinSpend(price);
 
     // Unlock
@@ -2587,7 +2598,7 @@ function closeShop(){
     }, 10);
 }
 
-function buyShield(){
+async function buyShield(){
 
     const shieldCost = 50;
 
@@ -2604,33 +2615,27 @@ function buyShield(){
     }
 
     // ✅ Deduct coins
-    coins -= shieldCost;
+    await addCoins(-shieldCost);
     showCoinSpend(shieldCost);
     shieldLevel++;
-
-    // ✅ Activate / refresh shield
     shieldActive = true;
 
-    // If already active → refresh instead of stacking infinitely
     shieldTimer = Math.max(shieldTimer, 300 + (shieldLevel * 150));
 
     hitFlash = 3;
     screenShake = 4;
 
-    // ✅ UI updates
     updateHUD();
     updateShopCoins();
 
-    // ✅ Save
     saveGame();
 
-    // ✅ Feedback
     coinPulse();
     showCoinGain(0);
     console.log("Shield upgraded:", shieldLevel);
 }
 
-function buyWeapon() {
+async function buyWeapon() {
 
     const weaponCost = 150 * weaponLevel;
 
@@ -2641,7 +2646,7 @@ function buyWeapon() {
 
     if (coins >= weaponCost) {
 
-        coins -= weaponCost;
+        await addCoins(-weaponCost);
         showCoinSpend(weaponCost);
         weaponLevel++;
 
@@ -2664,35 +2669,26 @@ function buyWeapon() {
     }
 }
 
-function buyCoins(amount) {
+async function buyCoins(amount) {
 
-    // ✅ Validate amount
     if (typeof amount !== "number" || amount <= 0) {
         console.warn("Invalid coin amount:", amount);
         showCoinWarning("Invalid amount");
         return;
     }
 
-    // ✅ Add coins
     coins += amount;
 
-    // ✅ Save
-    localStorage.setItem("coins", coins);
+    await setCoins(coins);
 
-    // ✅ Update UI safely
     const shopText = document.getElementById("shopCoinText");
     if (shopText) {
         shopText.innerText = coins;
     }
 
-    // ✅ Update full HUD (important for consistency)
     updateHUD();
     coinPulse();
-
-    // ✅ Feedback animation
     showCoinGain(amount);
-
-    console.log(`Coins added: +${amount} | Total: ${coins}`);
 }
 
 function watchAdReward(){
@@ -3061,10 +3057,18 @@ window.addEventListener("load", async () => {
     console.log("Window loaded, initializing...");
 
     detectTamper();
+
+    try {
+        const { FirebaseFirestore } = await import('@capacitor-firebase/firestore');
+        window.FirebaseFirestore = FirebaseFirestore;
+        console.log("Firebase native plugin loaded");
+    } catch (e) {
+        console.warn("Firebase plugin failed, using localStorage", e);
+    }
    
     await loadCoins();
 
-    loadGame();
+    await loadGame();
     loadDailyData();
     setTimeout(() => {
         if(document.querySelectorAll('.skinBtn').length){

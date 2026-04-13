@@ -109,12 +109,3 @@ captures/
 # Nebula Strike assets you want to keep
 # ---------------------------
 
-# Keep these for the PWA
-!assets/**
-!icons/**
-!screenshots/**
-!styles.css
-!app.js
-!index.html
-!manifest.json
-!service-worker.js
