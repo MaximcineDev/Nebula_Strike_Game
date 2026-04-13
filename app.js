@@ -3056,26 +3056,31 @@ const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "nebula-strike-2c357.firebaseapp.com",
     projectId: "nebula-strike-2c357",
-    storageBucket: "nebula-strike-2c357.appspot.com",
+    storageBucket: "nebula-strike-2c357.firebasestorage.app",
     messagingSenderId: "656562876567",
-    appId: "1:656562876567:web:b394b02ba3b03dfbab9d2c"
+    appId: "1:656562876567:android:38aef3fff6b0dff2abb9d2"
 };
 
 /* ---------- INITIALIZATION ---------- */
 
-const isAndroidNative = typeof Capacitor !== 'undefined' && Capacitor.getPlatform() === 'android';
-
-if (isAndroidNative) {
-    // Android: Firebase is initialized natively, no web SDK needed
-    console.log("Using native Android Firebase");
-} else {
-    // Web: Initialize Firebase with CDN
-    firebase.initializeApp(firebaseConfig);
-    firebase.appCheck().activate('YOUR_RECAPTCHA_SITE_KEY', true);
-}
-
 window.addEventListener("load", async () => {
     console.log("Window loaded, initializing...");
+
+   const isAndroidNative = typeof Capacitor !== 'undefined' && Capacitor.getPlatform() === 'android';
+
+    if (isAndroidNative) {
+        console.log("Using native Android Firebase");
+        // Android: Firebase initialized natively via Capacitor plugin
+    } else {
+        console.log("Using web Firebase with App Check");
+        // Web: Initialize Firebase with CDN
+        if (typeof firebase !== 'undefined') {
+            firebase.initializeApp(firebaseConfig);
+            firebase.appCheck().activate('YOUR_RECAPTCHA_SITE_KEY', true);
+        } else {
+            console.warn("Firebase SDK not loaded");
+        }
+    }
 
     detectTamper();
    
