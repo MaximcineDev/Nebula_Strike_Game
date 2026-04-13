@@ -1295,7 +1295,7 @@ function checkDailyReward(){
     showDailyReward();
 }
 
-function giveReward(amount) {
+async function giveReward(amount) {
     await addCoins(amount);
    
     const shopCoinText = document.getElementById("shopCoinText");
@@ -1537,7 +1537,7 @@ function updateSpawning(currentTime){
     }
 }
 
-function endWave(){
+async function endWave(){
     waveInProgress = false;
     waveSpawnTimer = 0;
 
@@ -1924,7 +1924,7 @@ function updateBullets(){
         
         ctx.save();
         ctx.shadowBlur = 10;
-        // ✅ BULLET COLOR BASED ON SKIN (NOT weaponLevel)
+       
         switch(b.skin){
             case 0:
                 ctx.fillStyle = "cyan";
@@ -1985,7 +1985,6 @@ function updateBullets(){
                     if(e.type === ENEMY_TANK) reward = 15;
                     if(e.type === ENEMY_SHOOTER) reward = 12;
                     
-                    // UPDATE SCORE AND COINS - Use promise instead of await
                     addCoins(reward).then(() => {
                         // This runs after coins are added
                     });
@@ -2063,7 +2062,7 @@ function updateBullets(){
     }
 }
 
-function bossDefeated(){
+async function bossDefeated(){
     boss = null;
     document.getElementById("bossBar").style.display = "none";
     let bossReward = 150;
@@ -2492,7 +2491,7 @@ function selectSkin(id){
     console.log("Equipped skin:", id);
 }
 
-function tryBuySkin(id, price){
+async function tryBuySkin(id, price){
     if(unlockedSkins.includes(id)){
         selectSkin(id);
         return;
@@ -2599,7 +2598,7 @@ function closeShop(){
     }, 10);
 }
 
-function buyShield(){
+async function buyShield(){
 
     const shieldCost = 50;
 
@@ -2636,7 +2635,7 @@ function buyShield(){
     console.log("Shield upgraded:", shieldLevel);
 }
 
-function buyWeapon() {
+async function buyWeapon() {
 
     const weaponCost = 150 * weaponLevel;
 
