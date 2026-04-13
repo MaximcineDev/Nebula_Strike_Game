@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "webpack --mode=production",
+    "build": "vite build",  // or "webpack --mode=production"
     "capacitor:copy:after": "npm run obfuscate",
-    "obfuscate": "javascript-obfuscator www --output www --config obfuscator-config.json"
+    "obfuscate": "javascript-obfuscator dist --output dist --config obfuscator-config.json"
   },
   "dependencies": {
     "@capacitor-community/admob": "^8.0.0",
@@ -13,8 +13,7 @@
     "@capacitor/android": "^8.3.0",
     "@capacitor/cli": "^8.3.0",
     "@capacitor/core": "^8.3.0",
-    "@capacitor/ios": "^8.3.0",
-    "firebase": "^12.12.0"
+    "@capacitor/ios": "^8.3.0"
   },
   "devDependencies": {
     "javascript-obfuscator": "^5.4.1",
