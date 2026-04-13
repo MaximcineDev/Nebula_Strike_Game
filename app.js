@@ -1746,34 +1746,47 @@ function closeBossReward(){
 }
 
 async function loadCoins() {
-    try {
-        const { snapshot } = await FirebaseFirestore.getDocument({
-            reference: `players/${playerId}`,
-        });
-        coins = snapshot?.data?.coins || 0;
-    } catch (e) {
-        console.warn("Firebase error, using localStorage", e);
-        coins = parseInt(localStorage.getItem("coins") || "0");
+    // Try native plugin first
+    if (window.FirebaseFirestore) {
+        try {
+            const { snapshot } = await window.FirebaseFirestore.getDocument({
+                reference: `players/${playerId}`,
+            });
+            coins = snapshot?.data?.coins || 0;
+            updateHUD();
+            return;
+        } catch (e) {
+            console.warn("Native Firebase failed, falling back", e);
+        }
     }
+    
+    // Fallback to localStorage
+    coins = parseInt(localStorage.getItem("coins") || "0");
     updateHUD();
 }
 
 async function addCoins(amount) {
-    try {
-        const current = coins;
-        await FirebaseFirestore.setDocument({
-            reference: `players/${playerId}`,
-            data: { coins: current + amount },
-            merge: true,
-        });
-        coins += amount;
-        updateHUD();
-    } catch (e) {
-        console.warn("Firebase update failed, using localStorage", e);
-        coins += amount;
-        localStorage.setItem("coins", coins);
-        updateHUD();
+    const newAmount = coins + amount;
+    
+    // Try native plugin first
+    if (window.FirebaseFirestore) {
+        try {
+            await window.FirebaseFirestore.setDocument({
+                reference: `players/${playerId}`,
+                data: { coins: newAmount },
+                merge: true,
+            });
+        } catch (e) {
+            console.warn("Native Firebase failed", e);
+            localStorage.setItem("coins", newAmount);
+        }
+    } else {
+        // No plugin, use localStorage
+        localStorage.setItem("coins", newAmount);
     }
+    
+    coins = newAmount;
+    updateHUD();
 }
 
 /* ---------- MAIN GAME LOOP ---------- */
@@ -3046,18 +3059,15 @@ function backToMenu(){
 window.addEventListener("load", async () => {
     console.log("Window loaded, initializing...");
 
-    let FirebaseFirestore;
-    try {
-        const module = await import('@capacitor-firebase/firestore');
-        FirebaseFirestore = module.FirebaseFirestore;
-        console.log("Firebase Firestore native plugin loaded");
-    } catch (e) {
-        console.warn("Native plugin not available, using localStorage fallback", e);
-    }
-
-    window.FirebaseFirestore = FirebaseFirestore;
-
     detectTamper();
+
+    try {
+        const { FirebaseFirestore } = await import('@capacitor-firebase/firestore');
+        window.FirebaseFirestore = FirebaseFirestore;
+        console.log("Firebase native plugin loaded");
+    } catch (e) {
+        console.warn("Firebase plugin failed, using localStorage", e);
+    }
    
     await loadCoins();
 
