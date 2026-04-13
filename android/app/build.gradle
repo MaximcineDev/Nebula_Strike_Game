@@ -45,6 +45,7 @@ dependencies {
     implementation project(':capacitor-cordova-android-plugins')
     implementation platform('com.google.firebase:firebase-bom:34.12.0')
     implementation 'com.google.firebase:firebase-firestore'
+    implementation 'com.google.firebase:firebase-appcheck-playintegrity'
 }
 
 apply from: 'capacitor.build.gradle'
