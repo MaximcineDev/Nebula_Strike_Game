@@ -79,6 +79,19 @@ keystore.properties
 .externalNativeBuild
 .cxx/
 
+# Android
+android/local.properties
+android/app/google-services.json
+android/app/src/main/res/values/strings.xml  # If keeping secrets here
+
+# iOS (if applicable)
+ios/GoogleService-Info.plist
+
+# General
+.env
+.env.local
+secrets.properties
+
 # ---------------------------
 # Fastlane
 # ---------------------------
