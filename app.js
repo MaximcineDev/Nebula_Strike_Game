@@ -3048,6 +3048,17 @@ function backToMenu(){
 window.addEventListener("load", async () => {
     console.log("Window loaded, initializing...");
 
+    let FirebaseFirestore;
+    try {
+        const module = await import('@capacitor-firebase/firestore');
+        FirebaseFirestore = module.FirebaseFirestore;
+        console.log("Firebase Firestore native plugin loaded");
+    } catch (e) {
+        console.warn("Native plugin not available, using localStorage fallback", e);
+    }
+
+    window.FirebaseFirestore = FirebaseFirestore;
+
     detectTamper();
    
     await loadCoins();
