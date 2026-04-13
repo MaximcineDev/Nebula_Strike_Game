@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "656562876567",
+    "project_id": "nebula-strike-2c357",
+    "storage_bucket": "nebula-strike-2c357.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:656562876567:android:38aef3fff6b0dff2abb9d2",
+        "android_client_info": {
+          "package_name": "com.nebulastrike.game"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDnn8IUYiA6LaRbHCdnhdILVpwCujUn-Og"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
