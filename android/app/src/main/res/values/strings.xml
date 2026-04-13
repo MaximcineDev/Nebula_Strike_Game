@@ -1,7 +1,11 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Nebula Strike</string>
-    <string name="title_activity_main">Nebula Strike</string>
-    <string name="package_name">com.nebulastrike.game</string>
-    <string name="custom_url_scheme">com.nebulastrike.game</string>
+    
+    <!-- Firebase Config -->
+    <string name="firebase_database_url">https://nebula-strike-2c357.firebaseio.com</string>
+    <string name="gcm_defaultSenderId">656562876567</string>
+    <string name="google_api_key">AIzaSyCf-8mnm77vLl5qSAQVv3Ffk3BNE0rLSws</string>
+    <string name="google_app_id">1:656562876567:android:b394b02ba3b03dfbabb9d2</string>
+    <string name="project_id">nebula-strike-2c357</string>
 </resources>
