@@ -130,7 +130,7 @@
         </div>
     </div>
 
-    <!-- Mission Counter (top left below top bar) -->
+    <!-- Mission Counter (below top bar) -->
     <div class="mission-counter">
         <span class="mission-label">DESTROY ENEMIES</span>
         <span class="mission-progress" id="missionProgress">0 / 25</span>
@@ -148,16 +148,11 @@
 <!-- ================= BOSS ================= -->
 
 <div id="bossBar">
-
     <div id="bossHealth"></div>
-
 </div>
 
-
 <div id="bossWarning">
-
     WARNING! BOSS INCOMING
-
 </div>
 
 
@@ -175,23 +170,29 @@
 
         <div class="coinPacks">
 
-            <div class="coinCard" onclick="buyCoins(500)">
-                <div class="coinAmount">500</div>
-                <div class="coinLabel">Coins</div>
-                <div class="coinPrice">$0.99</div>
-            </div>
-
-            <div class="coinCard popular" onclick="buyCoins(1000)">
-                <div class="badge">BEST</div>
+            <div class="coinCard" onclick="buyCoins(1000)">
                 <div class="coinAmount">1000</div>
                 <div class="coinLabel">Coins</div>
                 <div class="coinPrice">$1.99</div>
             </div>
 
-            <div class="coinCard" onclick="buyCoins(2000)">
-                <div class="coinAmount">2000</div>
+            <div class="coinCard popular" onclick="buyCoins(1500)">
+                <div class="badge">BEST</div>
+                <div class="coinAmount">1,500</div>
                 <div class="coinLabel">Coins</div>
-                <div class="coinPrice">$2.99</div>
+                <div class="coinPrice">$3.99</div>
+            </div>
+
+            <div class="coinCard" onclick="buyCoins(3000)">
+                <div class="coinAmount">3,000</div>
+                <div class="coinLabel">Coins</div>
+                <div class="coinPrice">$5.99</div>
+            </div>
+
+            <div class="coinCard" onclick="buyCoins(7500)">
+                <div class="coinAmount">7,500</div>
+                <div class="coinLabel">Coins</div>
+                <div class="coinPrice">$9.99</div>
             </div>
 
             <div class="rewardAdBox">
