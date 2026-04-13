@@ -3053,21 +3053,25 @@ function backToMenu(){
 
 /* ---------- INITIALIZATION ---------- */
 
+import { initializeApp } from 'firebase/app';
+import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
+import { Capacitor } from '@capacitor/core';
+
+const app = initializeApp(firebaseConfig);
+
+const isAndroidNative = Capacitor.getPlatform() === 'android';
+
+if (!isAndroidNative) {
+    const appCheck = initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider('6Lxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'),
+        isTokenAutoRefreshEnabled: true
+    });
+}
+
 window.addEventListener("load", async () => {
     console.log("Window loaded, initializing...");
 
     detectTamper();
-
-    const isAndroidNative = Capacitor.getPlatform() === 'android';
-   
-    if (!isAndroidNative) {
-        // Only initialize web App Check (reCAPTCHA) for web
-        import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
-        const appCheck = initializeAppCheck(app, {
-            provider: new ReCaptchaV3Provider('your-site-key'),
-            isTokenAutoRefreshEnabled: true
-        });
-    }
    
     await loadCoins();
 
