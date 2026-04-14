@@ -2791,38 +2791,6 @@ let dailyData = {
     streak: 0
 };
 
-function loadDailyData(){
-    try {
-        const data = JSON.parse(localStorage.getItem("dailyData"));
-
-        if (data && typeof data === "object") {
-            dailyData = data;
-        }
-    } catch (e) {
-        console.error("Daily data corrupted, resetting...");
-        dailyData = { lastLogin: null, streak: 0 };
-    }
-}
-
-let chestOpened = false;
-
-function openChest() {
-
-    if (chestOpened) return;
-
-    chestOpened = true;
-
-    const chest = document.getElementById("rewardChest");
-
-    chest.innerText = "✨";
-
-    chest.style.transform = "scale(1.5)";
-
-    setTimeout(() => {
-        chest.style.display = "none";
-    }, 500);
-}
-
 /* ---------- SETTINGS FUNCTIONS ---------- */
 
 function openSettings(){
