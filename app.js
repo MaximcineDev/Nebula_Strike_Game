@@ -663,7 +663,7 @@ function updateHUD(){
         comboText.innerText = combo > 1 ? "x" + combo : "";
     }
 
-    // Force update with multiple methods
+    const coinText = document.getElementById("coinText");
     if(coinText) {
         coinText.innerText = coins.toString();
         coinText.textContent = coins.toString();
@@ -1704,7 +1704,8 @@ function bossAttack(){
                         x: centerX - 4,
                         y: y,
                         w: 8,
-                        h: 25
+                        h: 25,
+                        dy: 10
                     });
                 }, i * 120);
             }
@@ -1943,7 +1944,7 @@ function drawPlayer(){
 /* ---------- BULLETS ---------- */
 
 function updateBullets(){
-    console.log("Bullets:", bullets.length);
+    if (DEBUG) console.log("Bullets:", bullets.length);
     for(let i = bullets.length - 1; i >= 0; i--){
         let b = bullets[i];
         
@@ -2014,7 +2015,6 @@ function updateBullets(){
                     if(e.type === ENEMY_SHOOTER) reward = 12;
                     
                     addCoins(reward).then(() => {
-                        // This runs after coins are added
                     });
                     combo++;
                     comboTimer = 60;
