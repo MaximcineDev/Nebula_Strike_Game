@@ -2,6 +2,12 @@
    NEBULA STRIKE
 ========================= */
 
+if (location.hostname !== "localhost") {
+    console.log = () => {};
+    console.warn = () => {};
+    console.error = () => {};
+}
+
 console.log("APP STARTED - FINAL VERSION");
 
 if (!window.location.href.includes("localhost")) {
@@ -618,13 +624,22 @@ let lastEnemySpawnTime = 0
 let score = 0;
 
 function detectTamper() {
-    if (
-        !window.location.href.includes("localhost") &&
-        !window.location.href.includes("chinabel.github.io")
-    ) {
-        isTrusted = false;
+    const allowedDomains = [
+        "chinabel.github.io",
+        "localhost"
+    ];
+
+    const isAllowed = allowedDomains.some(domain =>
+        window.location.hostname.includes(domain)
+    );
+
+    if (!isAllowed) {
+        document.body.innerHTML = "<h1>Unauthorized Copy</h1>";
+        throw new Error("Tampering detected");
     }
 }
+
+detectTamper();
 
 /* ---------- TOUCH ---------- */
 
