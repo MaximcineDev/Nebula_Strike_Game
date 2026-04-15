@@ -82,7 +82,6 @@ keystore.properties
 # Android
 android/local.properties
 android/app/google-services.json
-android/app/src/main/res/values/strings.xml
 
 # iOS (if applicable)
 ios/GoogleService-Info.plist
