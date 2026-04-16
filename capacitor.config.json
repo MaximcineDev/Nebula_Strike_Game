@@ -6,10 +6,10 @@
   "plugins": {
     "SplashScreen": {
       "launchAutoHide": false
-      "FirebaseFirestore": {
+    },
+    "FirebaseFirestore": {
       "apiKey": "${FIREBASE_API_KEY}",
       "projectId": "${FIREBASE_PROJECT_ID}"
-      }
     }
   }
 }
