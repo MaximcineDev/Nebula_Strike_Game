@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "build": "vite build",
-    "obfuscate": "javascript-obfuscator dist --output dist --config obfuscator-config.json",
-    "sync:android": "npm run build && npm run obfuscate && npx cap copy android && npx cap update android",
-    "sync:ios": "npm run build && npm run obfuscate && npx cap copy ios && npx cap update ios"
+    "build:obfuscated": "vite build && javascript-obfuscator dist --output dist --config obfuscator-config.json",
+    "sync:android": "npm run build && npx cap copy android && npx cap update android",
+    "sync:ios": "npm run build && npx cap copy ios && npx cap update ios",
+    "sync:android:obfuscated": "npm run build:obfuscated && npx cap copy android && npx cap update android"
   },
   "dependencies": {
     "@capacitor-community/admob": "^8.0.0",
@@ -16,7 +17,7 @@
     "@capacitor/ios": "^8.3.0"
   },
   "devDependencies": {
-    "@capacitor/cli": "^6.2.1",
+    "@capacitor/cli": "^8.3.0",
     "javascript-obfuscator": "^5.4.1",
     "vite": "^8.0.3"
   }
