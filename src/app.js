@@ -3154,11 +3154,14 @@ window.addEventListener("load", async () => {
     /* ---------- START HANDLER ---------- */
 
     const handleStart = (e) => {
-       if(started) return;
-       started = true;
-       if(e && e.preventDefault) e.preventDefault();
-       
-       console.log("User tapped → unlocking audio and starting");
+        if (started) return;
+        started = true;
+    
+        clearTimeout(fallbackTimer);  // Stop the fallback
+    
+        if (e && e.preventDefault) e.preventDefault();
+    
+        console.log("User tapped → unlocking audio and starting");
        
        if(audioContext && audioContext.state === "suspended"){
           audioContext.resume();
@@ -3195,13 +3198,31 @@ window.addEventListener("load", async () => {
 
     /* ---------- FALLBACK ---------- */
 
-    setTimeout(() => {
+    let fallbackTriggered = false;
+
+    const fallbackTimer = setTimeout(() => {
+        if (started || fallbackTriggered) return;  // Don't run if already started
+        fallbackTriggered = true;
+    
+        console.log("Fallback timer running...");
+    
         const splash = document.getElementById("splashScreen");
         const menu = document.getElementById("main-menu");
 
-        splash.style.display = "none";
-        menu.style.display = "flex";
-        menu.classList.add("show");
+        if (splash) {
+            splash.style.opacity = "0";
+            splash.style.pointerEvents = "none";
+            setTimeout(() => {
+                if (splash) splash.style.display = "none";
+            }, 500);
+        }
+    
+        if (menu) {
+            menu.style.display = "flex";
+            menu.style.visibility = "visible";
+            menu.style.opacity = "1";
+            menu.classList.add("show");
+        }
 
         loadBannerAd();
 
