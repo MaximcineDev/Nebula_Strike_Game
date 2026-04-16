@@ -81,7 +81,7 @@ body {
     height: 100vh;
     height: 100dvh;
     min-height: -webkit-fill-available;
-    background: url("assets/ui/splash-screen.png") center center no-repeat;
+    background: url("./assets/ui/splash-screen.png") center center no-repeat;
     background-size: 100% 100%;
     background-color: #000;
     display: flex;
@@ -123,7 +123,7 @@ body {
     min-height: -webkit-fill-available;
     background: 
         radial-gradient(ellipse at center, rgba(20, 0, 40, 0.9) 0%, rgba(0, 0, 0, 1) 100%),
-        url("assets/background.png") center center / cover no-repeat;
+        url("./assets/background.png") center center / cover no-repeat;
     display: none;
     flex-direction: column;
     justify-content: flex-start;

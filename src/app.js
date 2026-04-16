@@ -627,6 +627,11 @@ function detectTamper() {
         "localhost"
     ];
 
+    const isAndroidNative = typeof Capacitor !== 'undefined' && 
+                            Capacitor.getPlatform() === 'android';
+
+    if (isAndroidNative) return;
+
     const isAllowed = allowedDomains.some(domain =>
         window.location.hostname.includes(domain)
     );
