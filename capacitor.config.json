@@ -1,8 +1,7 @@
 {
   "appId": "com.nebulastrike.game",
   "appName": "Nebula Strike",
-  "webDir": ".",
-  "bundledWebRuntime": false,
+  "webDir": "www",
   "plugins": {
     "SplashScreen": {
       "launchAutoHide": false

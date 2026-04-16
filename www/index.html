@@ -2,6 +2,8 @@
 <html lang="en">
 
 <head>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-check-compat.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11,9 +13,8 @@
     <title>Nebula Strike</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-
-  <link rel="stylesheet" crossorigin href="/assets/index-BZx-o_r9.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" crossorigin href="/assets/index-C5w1kPc-.css">
 </head>
 
 <!-- REVIVE SCREEN -->
@@ -46,20 +47,8 @@
   ">
     ▶ Watch Ad to Continue
   </button>
-
-  <button id="quitBtn" style="
-    padding: 10px 20px;
-    font-size: 16px;
-    background: #d50000;
-    color: white;
-    border: none;
-    border-radius: 10px;
-  ">
-    Quit
-  </button>
-
 </div>
-
+    
 <body>
 
 
@@ -143,7 +132,7 @@
         </div>
     </div>
 
-    <!-- Mission Counter (top left below top bar) -->
+    <!-- Mission Counter (below top bar) -->
     <div class="mission-counter">
         <span class="mission-label">DESTROY ENEMIES</span>
         <span class="mission-progress" id="missionProgress">0 / 25</span>
@@ -161,16 +150,11 @@
 <!-- ================= BOSS ================= -->
 
 <div id="bossBar">
-
     <div id="bossHealth"></div>
-
 </div>
 
-
 <div id="bossWarning">
-
     WARNING! BOSS INCOMING
-
 </div>
 
 
@@ -188,23 +172,29 @@
 
         <div class="coinPacks">
 
-            <div class="coinCard" onclick="buyCoins(500)">
-                <div class="coinAmount">500</div>
-                <div class="coinLabel">Coins</div>
-                <div class="coinPrice">$0.99</div>
-            </div>
-
-            <div class="coinCard popular" onclick="buyCoins(1000)">
-                <div class="badge">BEST</div>
+            <div class="coinCard" onclick="buyCoins(1000)">
                 <div class="coinAmount">1000</div>
                 <div class="coinLabel">Coins</div>
                 <div class="coinPrice">$1.99</div>
             </div>
 
-            <div class="coinCard" onclick="buyCoins(2000)">
-                <div class="coinAmount">2000</div>
+            <div class="coinCard popular" onclick="buyCoins(1500)">
+                <div class="coinAmount">1,500</div>
                 <div class="coinLabel">Coins</div>
-                <div class="coinPrice">$2.99</div>
+                <div class="coinPrice">$3.99</div>
+            </div>
+
+            <div class="coinCard" onclick="buyCoins(3000)">
+                <div class="badge">BEST</div>
+                <div class="coinAmount">3,000</div>
+                <div class="coinLabel">Coins</div>
+                <div class="coinPrice">$5.99</div>
+            </div>
+
+            <div class="coinCard" onclick="buyCoins(7500)">
+                <div class="coinAmount">7,500</div>
+                <div class="coinLabel">Coins</div>
+                <div class="coinPrice">$9.99</div>
             </div>
 
             <div class="rewardAdBox">
@@ -227,7 +217,7 @@
             </div>
             
             <!-- Skin 1 - Locked -->
-            <div class="skinBtn locked" id="skin1" onclick="tryBuySkin(1, 100)">
+            <div class="skinBtn locked" id="skin1" onclick="tryBuySkin(1, 250)">
                 <!-- SKIN IMAGE -->
                 <img 
                     src="/assets/skin1-DqyL0DVn.png" 
@@ -239,11 +229,11 @@
                     <img src="/assets/locked-level-ChE_BY5-.png" onerror="this.style.display='none'">
                 </div>
                 <!-- 💰 PRICE / STATUS -->
-                <div class="skinPrice">100 🪙</div>
+                <div class="skinPrice">250 🪙</div>
             </div>
             
             <!-- Skin 2 - Locked -->
-            <div class="skinBtn locked" id="skin2" onclick="tryBuySkin(2, 250)">
+            <div class="skinBtn locked" id="skin2" onclick="tryBuySkin(2, 450)">
                 <!-- SKIN IMAGE -->
                 <img 
                     src="/assets/skin2-DvKvXUSR.png" 
@@ -255,11 +245,11 @@
                     <img src="/assets/locked-level-ChE_BY5-.png" onerror="this.style.display='none'">
                 </div>
                 <!-- 💰 PRICE / STATUS -->
-                <div class="skinPrice">250 🪙</div>
+                <div class="skinPrice">450 🪙</div>
             </div>
             
             <!-- Skin 3 - Locked -->
-            <div class="skinBtn locked" id="skin3" onclick="tryBuySkin(3,500)">
+            <div class="skinBtn locked" id="skin3" onclick="tryBuySkin(3,600)">
                 <!-- SKIN IMAGE -->
                 <img 
                     src="/assets/skin3-COsflYCm.png" 
@@ -271,11 +261,11 @@
                     <img src="/assets/locked-level-ChE_BY5-.png" onerror="this.style.display='none'">
                 </div>
                 <!-- 💰 PRICE / STATUS -->
-                <div class="skinPrice">500 🪙</div>
+                <div class="skinPrice">600 🪙</div>
             </div>
 
             <!-- Skin 4 - Locked -->
-            <div class="skinBtn locked" id="skin4" onclick="tryBuySkin(4, 750)">
+            <div class="skinBtn locked" id="skin4" onclick="tryBuySkin(4, 950)">
                 <!-- SKIN IMAGE -->
                 <img 
                     src="/assets/skin4-B2SmBH9P.png" 
@@ -287,7 +277,7 @@
                     <img src="/assets/locked-level-ChE_BY5-.png" onerror="this.style.display='none'">
                 </div>
                 <!-- 💰 PRICE / STATUS -->
-                <div class="skinPrice">750 🪙</div>
+                <div class="skinPrice">950 🪙</div>
             </div>
         </div>
     </div> <!-- Close shopSection for Skins -->
@@ -297,11 +287,11 @@
         <h2>Upgrades</h2>
         <div class="shopControls">
             <div class="shopBtn" onclick="buyWeapon()">
-                <span>Upgrade Weapon (150 🪙)</span>
+                <span>Upgrade Weapon (250 🪙)</span>
             </div>
             
             <div class="shopBtn" onclick="buyShield()">
-                <span>Buy Shield (50 🪙)</span>
+                <span>Buy Shield (150 🪙)</span>
             </div>
         </div>
     </div> <!-- Close shopSection for Upgrades -->
@@ -330,37 +320,48 @@
 
 <!-- ================= DAILY REWARD ================= -->
 <div id="dailyReward" style="display:none;">
-
     <div class="dailyBox">
-        <h2>Daily Reward</h2>
+        <h2>🔥 Daily Reward 🔥</h2>
+        
+        <div class="streakInfo">Current Streak: <span id="streakNumber">1 / 7</span></div>
 
         <div class="dailyGrid">
-
-            <div class="day" id="day1">Day 1<br>50</div>
-            <div class="day" id="day2">Day 2<br>100</div>
-            <div class="day" id="day3">Day 3<br>150</div>
-            <div class="day" id="day4">Day 4<br>200</div>
-            <div class="day" id="day5">Day 5<br>300</div>
-            <div class="day" id="day6">Day 6<br>400</div>
-            <div class="day" id="day7">Day 7<br>500</div>
-
+            <div class="day" id="day1">Day 1<br><b>50</b></div>
+            <div class="day" id="day2">Day 2<br><b>100</b></div>
+            <div class="day" id="day3">Day 3<br><b>150</b></div>
+            <div class="day" id="day4">Day 4<br><b>200</b></div>
+            <div class="day" id="day5">Day 5<br><b>300</b></div>
+            <div class="day" id="day6">Day 6<br><b>400</b></div>
+            <!-- Special chest day -->
+            <div class="day day7-chest" id="day7">Day 7<br><b>MEGA!</b></div>
         </div>
 
-        <div id="rewardChest" onclick="openChest()">
-            🎁
+        <!-- Normal reward display (days 1-6) -->
+        <div id="normalReward" style="display:none;">
+            <div id="rewardAmount" style="color: #ffd700; font-size: 24px; font-family: 'Orbitron'; margin: 15px 0;">
+                +50 🪙
+            </div>
         </div>
 
-        <button onclick="claimDailyReward(getDailyReward(dailyData.streak), dailyData.streak)">
-            CLAIM
-        </button>
+        <!-- Big chest for day 7 -->
+        <div id="bigRewardChest" onclick="openBigChest()">🎁</div>
         
-        <button class="menu-btn rewardBtn" onclick="claimDailyReward(true)">
-            🎥 DOUBLE REWARD
-        </button>
+        <!-- Reward info text -->
+        <div id="rewardInfo" style="display:none;">
+            <span id="rewardText">Tap chest to open!</span>
+        </div>
+
+        <div class="dailyButtons">
+            <button class="claimBtn" onclick="claimDailyReward(false)" enabled>
+                CLAIM REWARD
+            </button>
+            
+            <button class="doubleRewardBtn" onclick="claimDailyReward(true)" enabled>
+                🎥 WATCH AD FOR 2X
+            </button>
+        </div>
     </div>
-
 </div>
-
 
 <!-- ================= SETTINGS ================= -->
 <div id="settings" style="display: none;">
