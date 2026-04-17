@@ -271,25 +271,25 @@ if (AdMob) {
 /* ---------- IMAGES ---------- */
 
 const playerImg = new Image();
-playerImg.src = "./assets/player.png";
+playerImg.src = "assets/player.png";
 
 const enemyImg = new Image();
-enemyImg.src = "./assets/enemy.png";
+enemyImg.src = "assets/enemy.png";
 
 const enemyFastImg = new Image();
-enemyFastImg.src = "./assets/enemies/enemy-fast.png";
+enemyFastImg.src = "assets/enemies/enemy-fast.png";
 
 const enemyTankImg = new Image();
-enemyTankImg.src = "./assets/enemies/enemy-tank.png";
+enemyTankImg.src = "assets/enemies/enemy-tank.png";
 
 const enemyShooterImg = new Image();
-enemyShooterImg.src = "./assets/enemies/enemy-shooter.png";
+enemyShooterImg.src = "assets/enemies/enemy-shooter.png";
 
 const bossImg = new Image();
-bossImg.src = "./assets/boss.png";
+bossImg.src = "assets/boss.png";
 
 const bgImg = new Image();
-bgImg.src = "./assets/background.png";
+bgImg.src = "assets/background.png";
 
 bgImg.onerror = function() {
     console.error("Background image failed to load!");
@@ -297,19 +297,19 @@ bgImg.onerror = function() {
 };
 
 const explosionImg = new Image();
-explosionImg.src = "./assets/effects/explosion.png";
+explosionImg.src = "assets/effects/explosion.png";
 
 const coinImg = new Image();
-coinImg.src = "./assets/ui/coin-icon.png";
+coinImg.src = "assets/ui/coin-icon.png";
 
 let currentSkin = 0;
 
 const skins = [
-    "./assets/player.png",
-    "./assets/skins/skin1.png",
-    "./assets/skins/skin2.png",
-    "./assets/skins/skin3.png",
-    "./assets/skins/skin4.png"
+    "assets/player.png",
+    "assets/skins/skin1.png",
+    "assets/skins/skin2.png",
+    "assets/skins/skin3.png",
+    "assets/skins/skin4.png"
 ];
 
 function updateSkin(){
@@ -381,13 +381,13 @@ function hideReviveScreen() {
 /* ---------- POWERUPS ---------- */
 
 const healthImg = new Image();
-healthImg.src = "./assets/ui/health.png";
+healthImg.src = "assets/ui/health.png";
 
 const rapidImg = new Image();
-rapidImg.src = "./assets/ui/rapid.png";
+rapidImg.src = "assets/ui/rapid.png";
 
 const shieldImg = new Image();
-shieldImg.src = "./assets/ui/shield.png";
+shieldImg.src = "assets/ui/shield.png";
 
 const ENEMY_NORMAL = 0;
 const ENEMY_FAST = 1;
@@ -396,15 +396,15 @@ const ENEMY_SHOOTER = 3;
 
 /* ---------- SOUNDS ---------- */
 
-const shootSound = new Audio("./assets/sounds/shoot.wav");
-const explosionSound = new Audio("./assets/sounds/explosion.wav");
-const powerupSound = new Audio("./assets/sounds/powerup.wav");
+const shootSound = new Audio("assets/sounds/shoot.wav");
+const explosionSound = new Audio("assets/sounds/explosion.wav");
+const powerupSound = new Audio("assets/sounds/powerup.wav");
 
-let menuMusic = new Audio("./assets/sounds/menu.mp3");
+let menuMusic = new Audio("assets/sounds/menu.mp3");
 menuMusic.loop = true;
 menuMusic.volume = 0.7;
 
-let gameMusic = new Audio("./assets/sounds/music.mp3");
+let gameMusic = new Audio("assets/sounds/music.mp3");
 gameMusic.loop = true;
 gameMusic.volume = 0.7;
 
@@ -732,10 +732,10 @@ function updateHeartsUI(){
     const hearts = document.querySelectorAll("#hearts img");
     for(let i=0; i<hearts.length; i++){
         if(i < health){
-            hearts[i].src = "./assets/ui/heart-full.png";
+            hearts[i].src = "assets/ui/heart-full.png";
             hearts[i].style.display = "none";
         } else {
-            hearts[i].src = "./assets/ui/heart-empty.png";
+            hearts[i].src = "assets/ui/heart-empty.png";
             hearts[i].style.display = "none";
         }
     }
