@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "vite build",
-    "build:obfuscated": "vite build && javascript-obfuscator dist --output dist --config obfuscator-config.json",
+    "build:obfuscated": "vite build && javascript-obfuscator www --output www --config obfuscator-config.json",
     "sync:android": "npm run build && npx cap copy android && npx cap update android",
     "sync:ios": "npm run build && npx cap copy ios && npx cap update ios",
     "sync:android:obfuscated": "npm run build:obfuscated && npx cap copy android && npx cap update android"
