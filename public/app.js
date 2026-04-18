@@ -397,6 +397,15 @@ function checkImagesLoaded() {
     return imagesToLoad.every(img => img.complete && img.naturalWidth > 0);
 }
 
+imagesToLoad.forEach(img => {
+    img.addEventListener('error', () => {
+        console.error("FAILED TO LOAD:", img.src);
+    });
+    img.addEventListener('load', () => {
+        console.log("Loaded OK:", img.src);
+    });
+});
+
 const ENEMY_NORMAL = 0;
 const ENEMY_FAST = 1;
 const ENEMY_TANK = 2;
@@ -1888,8 +1897,12 @@ function gameLoop(currentTime) {
     }
 
     // ✅ DRAW BACKGROUND
-    if (bgImg && bgImg.complete) {
+    if (bgImg && bgImg.complete && bgImg.naturalWidth > 0) {
         ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+    } else {
+        // Fallback - draw dark space background
+        ctx.fillStyle = "#0a0a1a";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
     // ✅ UPDATE FIRST
