@@ -8,7 +8,7 @@
 **A 2D sci-fi space shooter with arcade gameplay, and cross-platform progression. Play instantly in your browser or mobile.**
 
 <p align="center">
-  <img src="assets/icon.png" alt="Nebula Strike" width="400">
+  <img src="src/assets/imgs/logo.png" alt="Nebula Strike" width="400">
 </p>
 
 ---
