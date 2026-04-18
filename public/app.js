@@ -317,14 +317,6 @@ function updateSkin(){
 }
 updateSkin();
 
-let imagesLoaded = false;
-let imagesToLoad = [playerImg, enemyImg, bgImg, bossImg, explosionImg, coinImg, 
-                    enemyFastImg, enemyTankImg, enemyShooterImg, healthImg, rapidImg, shieldImg];
-
-function checkImagesLoaded() {
-    return imagesToLoad.every(img => img.complete && img.naturalWidth > 0);
-}
-
 /* ---------- REVIVE UI ---------- */
 
 const reviveScreen = document.getElementById("reviveScreen");
@@ -396,6 +388,14 @@ rapidImg.src = "assets/ui/rapid.png";
 
 const shieldImg = new Image();
 shieldImg.src = "assets/ui/shield.png";
+
+let imagesLoaded = false;
+let imagesToLoad = [playerImg, enemyImg, bgImg, bossImg, explosionImg, coinImg, 
+                    enemyFastImg, enemyTankImg, enemyShooterImg, healthImg, rapidImg, shieldImg];
+
+function checkImagesLoaded() {
+    return imagesToLoad.every(img => img.complete && img.naturalWidth > 0);
+}
 
 const ENEMY_NORMAL = 0;
 const ENEMY_FAST = 1;
@@ -1876,16 +1876,16 @@ function gameLoop(currentTime) {
         return;
     }
 
-    if (!checkImagesLoaded()) {
-        window.gameLoopId = requestAnimationFrame(gameLoop);
-        return;
-    }
-
     lastTime = currentTime;
 
     // ✅ CLEAR SCREEN FIRST
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (!checkImagesLoaded()) {
+        window.gameLoopId = requestAnimationFrame(gameLoop);
+        return;
+    }
 
     // ✅ DRAW BACKGROUND
     if (bgImg && bgImg.complete) {
