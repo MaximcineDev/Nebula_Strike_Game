@@ -317,6 +317,14 @@ function updateSkin(){
 }
 updateSkin();
 
+let imagesLoaded = false;
+let imagesToLoad = [playerImg, enemyImg, bgImg, bossImg, explosionImg, coinImg, 
+                    enemyFastImg, enemyTankImg, enemyShooterImg, healthImg, rapidImg, shieldImg];
+
+function checkImagesLoaded() {
+    return imagesToLoad.every(img => img.complete && img.naturalWidth > 0);
+}
+
 /* ---------- REVIVE UI ---------- */
 
 const reviveScreen = document.getElementById("reviveScreen");
@@ -1864,6 +1872,11 @@ function gameLoop(currentTime) {
 
     const deltaTime = currentTime - lastTime;
     if (deltaTime < frameInterval) {
+        window.gameLoopId = requestAnimationFrame(gameLoop);
+        return;
+    }
+
+    if (!checkImagesLoaded()) {
         window.gameLoopId = requestAnimationFrame(gameLoop);
         return;
     }
