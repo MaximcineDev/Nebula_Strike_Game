@@ -23,7 +23,7 @@ jobs:
         run: npm install
 
       - name: Install Capacitor Android
-        run: npm install @capacitor/android@5
+        run: npm install @capacitor/android@8
 
       - name: Copy web assets
         run: npx cap copy
