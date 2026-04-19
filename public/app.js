@@ -1891,11 +1891,6 @@ function gameLoop(currentTime) {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (!checkImagesLoaded()) {
-        window.gameLoopId = requestAnimationFrame(gameLoop);
-        return;
-    }
-
     // ✅ DRAW BACKGROUND
     if (bgImg && bgImg.complete && bgImg.naturalWidth > 0) {
         ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
