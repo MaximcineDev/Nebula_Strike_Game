@@ -10,6 +10,7 @@
     "sync:android:obfuscated": "npm run build:obfuscated && npx cap copy android && npx cap update android"
   },
   "dependencies": {
+    "22": "0.0.0",
     "@capacitor-community/admob": "^8.0.0",
     "@capacitor-firebase/firestore": "^8.2.0",
     "@capacitor/android": "^8.3.0",
