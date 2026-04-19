@@ -975,7 +975,11 @@ function startGame(){
         window.gameLoopId = null;
     }
    
-    window.gameLoopId = requestAnimationFrame(gameLoop);
+    setTimeout(() => {
+        resizeGame();
+        lastTime = 0;
+        window.gameLoopId = requestAnimationFrame(gameLoop);
+    }, 50);
     
     console.log("=== GAME STARTED SUCCESSFULLY ===");
 }
@@ -2251,8 +2255,12 @@ function updateEnemies(){
         if(e.type === ENEMY_TANK) img = enemyTankImg;
         if(e.type === ENEMY_SHOOTER) img = enemyShooterImg;
 
-        if(img.complete){
+        if(img.complete && img.naturalWidth > 0){
             ctx.drawImage(img, e.x, e.y, e.w, e.h);
+        } else {
+            ctx.fillStyle = e.type === ENEMY_FAST ? "#ff4444" : 
+                            e.type === ENEMY_TANK ? "#ff8800" : "#ff0000";
+            ctx.fillRect(e.x, e.y, e.w, e.h);
         }
 
         if(e.y > canvas.height + 50){
