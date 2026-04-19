@@ -1891,14 +1891,13 @@ function gameLoop(currentTime) {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (!checkImagesLoaded()) {
-        window.gameLoopId = requestAnimationFrame(gameLoop);
-        return;
-    }
-
     // ✅ DRAW BACKGROUND
-    if (bgImg && bgImg.complete) {
+    if (bgImg && bgImg.complete && bgImg.naturalWidth > 0) {
         ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+    } else {
+        // Fallback - draw dark space background
+        ctx.fillStyle = "#0a0a1a";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
     // ✅ UPDATE FIRST
