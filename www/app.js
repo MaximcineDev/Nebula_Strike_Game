@@ -967,10 +967,11 @@ function startGame(){
         window.gameLoopId = null;
     }
    
-    resizeGame();
-    lastTime = 0;
-
-    window.gameLoopId = requestAnimationFrame(gameLoop);
+    setTimeout(() => {
+        resizeGame();
+        lastTime = 0;
+        window.gameLoopId = requestAnimationFrame(gameLoop);
+    }, 50);
     
     console.log("=== GAME STARTED SUCCESSFULLY ===");
 }
@@ -1946,12 +1947,16 @@ function updatePlayer(){
 }
 
 function drawPlayer(){
-    if (playerImg.complete && playerImg.naturalWidth > 0) {
+    if(playerImg.complete && playerImg.naturalWidth > 0) {
         ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
     } else {
-        // fallback so player is always visible
-        ctx.fillStyle = "red";
-        ctx.fillRect(player.x, player.y, player.width, player.height);
+        ctx.fillStyle = "cyan";
+        ctx.beginPath();
+        ctx.moveTo(player.x + player.width/2, player.y);
+        ctx.lineTo(player.x, player.y + player.height);
+        ctx.lineTo(player.x + player.width, player.y + player.height);
+        ctx.closePath();
+        ctx.fill();
     }
 
     ctx.fillStyle = "cyan";
@@ -2271,6 +2276,14 @@ function updateEnemies(){
         if(e.y > canvas.height + 50){
             enemies.splice(i, 1);
             continue;
+        }
+
+        if(img.complete && img.naturalWidth > 0){
+            ctx.drawImage(img, e.x, e.y, e.w, e.h);
+        } else {
+            ctx.fillStyle = e.type === ENEMY_FAST ? "#ff4444" : 
+                            e.type === ENEMY_TANK ? "#ff8800" : "#ff0000";
+            ctx.fillRect(e.x, e.y, e.w, e.h);
         }
 
         // GUARANTEED shooting - every 2 seconds per enemy
