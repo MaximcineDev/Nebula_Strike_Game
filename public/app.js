@@ -1960,7 +1960,18 @@ function updatePlayer(){
 }
 
 function drawPlayer(){
-    ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
+    if(playerImg.complete && playerImg.naturalWidth > 0) {
+        ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
+    } else {
+        ctx.fillStyle = "cyan";
+        ctx.beginPath();
+        ctx.moveTo(player.x + player.width/2, player.y);
+        ctx.lineTo(player.x, player.y + player.height);
+        ctx.lineTo(player.x + player.width, player.y + player.height);
+        ctx.closePath();
+        ctx.fill();
+    }
+
     ctx.fillStyle = "cyan";
     ctx.fillRect(player.x + player.width/2 - 3, player.y + player.height, 6, 10);
 
