@@ -268,27 +268,6 @@ if (AdMob) {
     });
 }
 
-/* ---------- IMAGES ---------- */
-
-function loadImage(src) {
-    const img = new Image();
-    img.src = src;
-    return img;
-}
-
-const playerImg = loadImage("assets/player.png");
-const enemyImg = loadImage("assets/enemy.png");
-const enemyFastImg = loadImage("assets/enemies/enemy-fast.png");
-const enemyTankImg = loadImage("assets/enemies/enemy-tank.png");
-const enemyShooterImg = loadImage("assets/enemies/enemy-shooter.png");
-const bossImg = loadImage("assets/boss.png");
-const bgImg = loadImage("assets/background.png");
-const explosionImg = loadImage("assets/effects/explosion.png");
-const coinImg = loadImage("assets/ui/coin-icon.png");
-const healthImg = loadImage("assets/ui/health.png");
-const rapidImg = loadImage("assets/ui/rapid.png");
-const shieldImg = loadImage("assets/ui/shield.png");
-
 /* ---------- LOAD TRACKING ---------- */
 
 const imagesToLoad = [
@@ -309,26 +288,31 @@ const imagesToLoad = [
 let loadedCount = 0;
 let imagesLoaded = false;
 
-imagesToLoad.forEach(img => {
-    img.onload = () => {
-        loadedCount++;
-        checkAllImagesLoaded();
-    };
-
-    img.onerror = () => {
-        console.error("FAILED TO LOAD:", img.src);
-        loadedCount++; // still count it so game doesn’t hang
-        checkAllImagesLoaded();
-    };
-});
-
 function checkAllImagesLoaded() {
-    if (loadedCount === imagesToLoad.length) {
+    if (loadedCount >= imagesToLoad.length && !imagesLoaded) {
         imagesLoaded = true;
         console.log("ALL IMAGES READY");
-        startGame();   // ✅ ONLY start here
     }
 }
+
+// ✅ FIX: Check both onload AND already-complete images
+imagesToLoad.forEach(img => {
+    if (img.complete && img.naturalWidth > 0) {
+        // Image already loaded (cached)
+        loadedCount++;
+        checkAllImagesLoaded();
+    } else {
+        img.onload = () => {
+            loadedCount++;
+            checkAllImagesLoaded();
+        };
+        img.onerror = () => {
+            console.error("FAILED TO LOAD:", img.src);
+            loadedCount++; // still count it so game doesn't hang
+            checkAllImagesLoaded();
+        };
+    }
+});
 
 /* ---------- SKINS ---------- */
 
@@ -985,7 +969,7 @@ function startGame(){
    
     resizeGame();
     lastTime = 0;
-    draw();
+
     window.gameLoopId = requestAnimationFrame(gameLoop);
     
     console.log("=== GAME STARTED SUCCESSFULLY ===");
@@ -1898,20 +1882,19 @@ function gameLoop(currentTime) {
 
     lastTime = currentTime;
 
-    // ✅ CLEAR SCREEN FIRST
+    // ✅ CLEAR SCREEN
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // ✅ DRAW BACKGROUND
+    // ✅ DRAW BACKGROUND (with fallback)
     if (bgImg && bgImg.complete && bgImg.naturalWidth > 0) {
         ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
     } else {
-        // Fallback - draw dark space background
         ctx.fillStyle = "#0a0a1a";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
-    // ✅ UPDATE FIRST
+    // ✅ UPDATE & DRAW EVERYTHING
     updateSpawning(currentTime);
     updatePlayer();
     updateBullets();
@@ -1923,21 +1906,16 @@ function gameLoop(currentTime) {
     updateBoss();
     updateTimers();
 
-    // ✅ DRAW AFTER UPDATES
     drawStars();
     drawEnemies();
     drawPlayer();
 
-    // (Bullets are already drawn inside updateBullets)
-
-    // ✅ HIT FLASH LAST
     if (hitFlash > 0) {
         ctx.fillStyle = `rgba(255,0,0,${hitFlash * 0.1})`;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         hitFlash--;
     }
 
-    // ✅ LOOP AT VERY END
     window.gameLoopId = requestAnimationFrame(gameLoop);
 }
 
