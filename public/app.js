@@ -393,17 +393,12 @@ let imagesLoaded = false;
 let imagesToLoad = [playerImg, enemyImg, bgImg, bossImg, explosionImg, coinImg, 
                     enemyFastImg, enemyTankImg, enemyShooterImg, healthImg, rapidImg, shieldImg];
 
-function checkImagesLoaded() {
-    return imagesToLoad.every(img => img.complete && img.naturalWidth > 0);
-}
-
+const imgFlags = {};
 imagesToLoad.forEach(img => {
-    img.addEventListener('error', () => {
-        console.error("FAILED TO LOAD:", img.src);
-    });
-    img.addEventListener('load', () => {
-        console.log("Loaded OK:", img.src);
-    });
+    const key = img.src;
+    imgFlags[key] = img.complete; // might be true already
+    img.addEventListener('load', () => { imgFlags[img.src] = true; });
+    img.addEventListener('error', () => { imgFlags[img.src] = true; }); // allow even on error
 });
 
 const ENEMY_NORMAL = 0;
@@ -979,7 +974,7 @@ function startGame(){
         resizeGame();
         lastTime = 0;
         window.gameLoopId = requestAnimationFrame(gameLoop);
-    }, 50);
+    }, 300);
     
     console.log("=== GAME STARTED SUCCESSFULLY ===");
 }
@@ -1960,18 +1955,7 @@ function updatePlayer(){
 }
 
 function drawPlayer(){
-    if(playerImg.complete && playerImg.naturalWidth > 0) {
-        ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
-    } else {
-        ctx.fillStyle = "cyan";
-        ctx.beginPath();
-        ctx.moveTo(player.x + player.width/2, player.y);
-        ctx.lineTo(player.x, player.y + player.height);
-        ctx.lineTo(player.x + player.width, player.y + player.height);
-        ctx.closePath();
-        ctx.fill();
-    }
-
+    ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
     ctx.fillStyle = "cyan";
     ctx.fillRect(player.x + player.width/2 - 3, player.y + player.height, 6, 10);
 
@@ -2266,7 +2250,7 @@ function updateEnemies(){
         if(e.type === ENEMY_TANK) img = enemyTankImg;
         if(e.type === ENEMY_SHOOTER) img = enemyShooterImg;
 
-        if(img.complete && img.naturalWidth > 0){
+        if(img.complete){
             ctx.drawImage(img, e.x, e.y, e.w, e.h);
         } else {
             ctx.fillStyle = e.type === ENEMY_FAST ? "#ff4444" : 
