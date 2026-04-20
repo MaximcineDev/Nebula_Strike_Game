@@ -270,37 +270,67 @@ if (AdMob) {
 
 /* ---------- IMAGES ---------- */
 
-const playerImg = new Image();
-playerImg.src = "assets/player.png";
+function loadImage(src) {
+    const img = new Image();
+    img.src = src;
+    return img;
+}
 
-const enemyImg = new Image();
-enemyImg.src = "assets/enemy.png";
+const playerImg = loadImage("assets/player.png");
+const enemyImg = loadImage("assets/enemy.png");
+const enemyFastImg = loadImage("assets/enemies/enemy-fast.png");
+const enemyTankImg = loadImage("assets/enemies/enemy-tank.png");
+const enemyShooterImg = loadImage("assets/enemies/enemy-shooter.png");
+const bossImg = loadImage("assets/boss.png");
+const bgImg = loadImage("assets/background.png");
+const explosionImg = loadImage("assets/effects/explosion.png");
+const coinImg = loadImage("assets/ui/coin-icon.png");
+const healthImg = loadImage("assets/ui/health.png");
+const rapidImg = loadImage("assets/ui/rapid.png");
+const shieldImg = loadImage("assets/ui/shield.png");
 
-const enemyFastImg = new Image();
-enemyFastImg.src = "assets/enemies/enemy-fast.png";
+/* ---------- LOAD TRACKING ---------- */
 
-const enemyTankImg = new Image();
-enemyTankImg.src = "assets/enemies/enemy-tank.png";
+const imagesToLoad = [
+    playerImg,
+    enemyImg,
+    enemyFastImg,
+    enemyTankImg,
+    enemyShooterImg,
+    bossImg,
+    bgImg,
+    explosionImg,
+    coinImg,
+    healthImg,
+    rapidImg,
+    shieldImg
+];
 
-const enemyShooterImg = new Image();
-enemyShooterImg.src = "assets/enemies/enemy-shooter.png";
+let loadedCount = 0;
+let imagesLoaded = false;
 
-const bossImg = new Image();
-bossImg.src = "assets/boss.png";
+imagesToLoad.forEach(img => {
+    img.onload = () => {
+        loadedCount++;
+        checkAllImagesLoaded();
+    };
 
-const bgImg = new Image();
-bgImg.src = "assets/background.png";
+    img.onerror = () => {
+        console.error("FAILED TO LOAD:", img.src);
+        loadedCount++; // still count it so game doesn’t hang
+        checkAllImagesLoaded();
+    };
+});
 
-bgImg.onerror = function() {
-    console.error("Background image failed to load!");
-    window.bgGradient = true;
-};
+function checkAllImagesLoaded() {
+    if (loadedCount === imagesToLoad.length) {
+        imagesLoaded = true;
+        console.log("ALL IMAGES READY");
+        startGame();   // ✅ ONLY start here
+    }
+}
 
-const explosionImg = new Image();
-explosionImg.src = "assets/effects/explosion.png";
-
-const coinImg = new Image();
-coinImg.src = "assets/ui/coin-icon.png";
+/* ---------- SKINS ---------- */
 
 let currentSkin = 0;
 
@@ -316,6 +346,11 @@ function updateSkin(){
     playerImg.src = skins[currentSkin];
 }
 updateSkin();
+
+const ENEMY_NORMAL = 0;
+const ENEMY_FAST = 1;
+const ENEMY_TANK = 2;
+const ENEMY_SHOOTER = 3;
 
 /* ---------- REVIVE UI ---------- */
 
@@ -377,34 +412,6 @@ function showReviveScreen() {
 function hideReviveScreen() {
   reviveScreen.style.display = "none";
 }
-
-/* ---------- POWERUPS ---------- */
-
-const healthImg = new Image();
-healthImg.src = "assets/ui/health.png";
-
-const rapidImg = new Image();
-rapidImg.src = "assets/ui/rapid.png";
-
-const shieldImg = new Image();
-shieldImg.src = "assets/ui/shield.png";
-
-let imagesLoaded = false;
-let imagesToLoad = [playerImg, enemyImg, bgImg, bossImg, explosionImg, coinImg, 
-                    enemyFastImg, enemyTankImg, enemyShooterImg, healthImg, rapidImg, shieldImg];
-
-const imgFlags = {};
-imagesToLoad.forEach(img => {
-    const key = img.src;
-    imgFlags[key] = img.complete; // might be true already
-    img.addEventListener('load', () => { imgFlags[img.src] = true; });
-    img.addEventListener('error', () => { imgFlags[img.src] = true; }); // allow even on error
-});
-
-const ENEMY_NORMAL = 0;
-const ENEMY_FAST = 1;
-const ENEMY_TANK = 2;
-const ENEMY_SHOOTER = 3;
 
 /* ---------- SOUNDS ---------- */
 
@@ -895,6 +902,12 @@ function quitGame(){
 /* ---------- START GAME ---------- */
 
 function startGame(){
+    if (!imagesLoaded) {
+        console.warn("Images not loaded yet, delaying start...");
+        setTimeout(startGame, 100);
+        return;
+    }
+
     hideBannerAd();
    
     console.log("=== startGame() CALLED ===");
@@ -970,11 +983,10 @@ function startGame(){
         window.gameLoopId = null;
     }
    
-    setTimeout(() => {
-        resizeGame();
-        lastTime = 0;
-        window.gameLoopId = requestAnimationFrame(gameLoop);
-    }, 300);
+    resizeGame();
+    lastTime = 0;
+    draw();
+    window.gameLoopId = requestAnimationFrame(gameLoop);
     
     console.log("=== GAME STARTED SUCCESSFULLY ===");
 }
@@ -1913,6 +1925,7 @@ function gameLoop(currentTime) {
 
     // ✅ DRAW AFTER UPDATES
     drawStars();
+    drawEnemies();
     drawPlayer();
 
     // (Bullets are already drawn inside updateBullets)
@@ -1955,7 +1968,14 @@ function updatePlayer(){
 }
 
 function drawPlayer(){
-    ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
+    if (playerImg.complete && playerImg.naturalWidth > 0) {
+        ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
+    } else {
+        // fallback so player is always visible
+        ctx.fillStyle = "red";
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+    }
+
     ctx.fillStyle = "cyan";
     ctx.fillRect(player.x + player.width/2 - 3, player.y + player.height, 6, 10);
 
@@ -1977,6 +1997,26 @@ function drawPlayer(){
         ctx.stroke();
         ctx.restore();
     }
+}
+
+function drawEnemies(){
+    enemies.forEach(e => {
+
+        let img = enemyImg;
+        if(e.type === ENEMY_FAST) img = enemyFastImg;
+        if(e.type === ENEMY_TANK) img = enemyTankImg;
+        if(e.type === ENEMY_SHOOTER) img = enemyShooterImg;
+
+        if(img.complete && img.naturalWidth > 0){
+            ctx.drawImage(img, e.x, e.y, e.w, e.h);
+        } else {
+            ctx.fillStyle =
+                e.type === ENEMY_FAST ? "#ff4444" :
+                e.type === ENEMY_TANK ? "#ff8800" : "#ff0000";
+
+            ctx.fillRect(e.x, e.y, e.w, e.h);
+        }
+    });
 }
 
 /* ---------- BULLETS ---------- */
@@ -2249,14 +2289,6 @@ function updateEnemies(){
         if(e.type === ENEMY_FAST) img = enemyFastImg;
         if(e.type === ENEMY_TANK) img = enemyTankImg;
         if(e.type === ENEMY_SHOOTER) img = enemyShooterImg;
-
-        if(img.complete){
-            ctx.drawImage(img, e.x, e.y, e.w, e.h);
-        } else {
-            ctx.fillStyle = e.type === ENEMY_FAST ? "#ff4444" : 
-                            e.type === ENEMY_TANK ? "#ff8800" : "#ff0000";
-            ctx.fillRect(e.x, e.y, e.w, e.h);
-        }
 
         if(e.y > canvas.height + 50){
             enemies.splice(i, 1);
