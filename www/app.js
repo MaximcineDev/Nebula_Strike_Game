@@ -268,6 +268,20 @@ if (AdMob) {
     });
 }
 
+/* ---------- IMAGES ---------- */
+const playerImg = new Image(); playerImg.src = "assets/player.png";
+const enemyImg = new Image(); enemyImg.src = "assets/enemy.png";
+const enemyFastImg = new Image(); enemyFastImg.src = "assets/enemies/enemy-fast.png";
+const enemyTankImg = new Image(); enemyTankImg.src = "assets/enemies/enemy-tank.png";
+const enemyShooterImg = new Image(); enemyShooterImg.src = "assets/enemies/enemy-shooter.png";
+const bossImg = new Image(); bossImg.src = "assets/boss.png";
+const bgImg = new Image(); bgImg.src = "assets/background.png";
+const explosionImg = new Image(); explosionImg.src = "assets/effects/explosion.png";
+const coinImg = new Image(); coinImg.src = "assets/ui/coin-icon.png";
+const healthImg = new Image(); healthImg.src = "assets/ui/health.png";
+const rapidImg = new Image(); rapidImg.src = "assets/ui/rapid.png";
+const shieldImg = new Image(); shieldImg.src = "assets/ui/shield.png";
+
 /* ---------- LOAD TRACKING ---------- */
 
 const imagesToLoad = [
@@ -2276,14 +2290,6 @@ function updateEnemies(){
         if(e.y > canvas.height + 50){
             enemies.splice(i, 1);
             continue;
-        }
-
-        if(img.complete && img.naturalWidth > 0){
-            ctx.drawImage(img, e.x, e.y, e.w, e.h);
-        } else {
-            ctx.fillStyle = e.type === ENEMY_FAST ? "#ff4444" : 
-                            e.type === ENEMY_TANK ? "#ff8800" : "#ff0000";
-            ctx.fillRect(e.x, e.y, e.w, e.h);
         }
 
         // GUARANTEED shooting - every 2 seconds per enemy
