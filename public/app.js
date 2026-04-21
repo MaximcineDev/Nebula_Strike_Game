@@ -269,6 +269,7 @@ if (AdMob) {
 }
 
 /* ---------- IMAGES ---------- */
+
 const playerImg = new Image(); playerImg.src = "assets/player.png";
 const enemyImg = new Image(); enemyImg.src = "assets/enemy.png";
 const enemyFastImg = new Image(); enemyFastImg.src = "assets/enemies/enemy-fast.png";
@@ -302,31 +303,36 @@ const imagesToLoad = [
 let loadedCount = 0;
 let imagesLoaded = false;
 
-function checkAllImagesLoaded() {
-    if (loadedCount >= imagesToLoad.length && !imagesLoaded) {
-        imagesLoaded = true;
-        console.log("ALL IMAGES READY");
-    }
-}
-
-// ✅ FIX: Check both onload AND already-complete images
 imagesToLoad.forEach(img => {
-    if (img.complete && img.naturalWidth > 0) {
-        // Image already loaded (cached)
+    img.addEventListener('load', () => {
         loadedCount++;
-        checkAllImagesLoaded();
-    } else {
-        img.onload = () => {
-            loadedCount++;
-            checkAllImagesLoaded();
-        };
-        img.onerror = () => {
-            console.error("FAILED TO LOAD:", img.src);
-            loadedCount++; // still count it so game doesn't hang
-            checkAllImagesLoaded();
-        };
+        if (loadedCount >= imagesToLoad.length) {
+            imagesLoaded = true;
+            console.log("ALL IMAGES READY");
+        }
+    });
+    img.addEventListener('error', () => {
+        loadedCount++;
+        if (loadedCount >= imagesToLoad.length) {
+            imagesLoaded = true;
+        }
+    });
+    // If already cached/complete, count immediately
+    if (img.complete) {
+        loadedCount++;
+        if (loadedCount >= imagesToLoad.length) {
+            imagesLoaded = true;
+        }
     }
 });
+
+// Safety fallback — if images take too long, start anyway after 3 seconds
+setTimeout(() => {
+    if (!imagesLoaded) {
+        console.warn("Image load timeout — starting anyway");
+        imagesLoaded = true;
+    }
+}, 3000);
 
 /* ---------- SKINS ---------- */
 
@@ -846,37 +852,44 @@ function resumeGame(){
 function quitGame(){
     console.log("Quitting game...");
     
-    try {
-        saveGame();
-    } catch(e) {
-        console.log("Save failed:", e);
+    gameRunning = false;
+    paused = false;
+    gameState = "menu";
+    
+    if (window.gameLoopId) {
+        cancelAnimationFrame(window.gameLoopId);
+        window.gameLoopId = null;
     }
     
+    // Stop auto-shoot
+    if(autoShootTimeout) {
+        clearTimeout(autoShootTimeout);
+        autoShootTimeout = null;
+    }
+    
+    try { saveGame(); } catch(e) {}
+    
+    // Audio cleanup
     try {
         gameMusic.pause();
+        gameMusic.currentTime = 0;
         menuMusic.currentTime = 0;
-        if(soundOn) menuMusic.play().catch(e => console.log("Menu music failed"));
-    } catch(e) {
-        console.log("Audio error:", e);
-    }
+        if(soundOn) menuMusic.play().catch(()=>{});
+    } catch(e) {}
     
-    paused = false;
-    gameRunning = false;
+    // Hide ALL game UI elements
+    const elements = [
+        "pauseMenu", "gameCanvas", "hud", "bossBar", 
+        "bossWarning", "levelComplete", "gameOverScreen",
+        "reviveScreen"
+    ];
     
-    const elements = {
-        pauseMenu: document.getElementById("pauseMenu"),
-        gameCanvas: document.getElementById("gameCanvas"),
-        hud: document.getElementById("hud"),
-        bossBar: document.getElementById("bossBar"),
-        bossWarning: document.getElementById("bossWarning"),
-        levelComplete: document.getElementById("levelComplete"),
-        gameOverScreen: document.getElementById("gameOverScreen")
-    };
-    
-    for(let [name, el] of Object.entries(elements)){
+    elements.forEach(id => {
+        const el = document.getElementById(id);
         if(el) el.style.display = "none";
-    }
+    });
     
+    // Show main menu
     const menu = document.getElementById("main-menu");
     if(menu){
         menu.style.display = "flex";
@@ -885,6 +898,7 @@ function quitGame(){
         menu.classList.add("show");
     }
     
+    // Reset game entities
     enemies = [];
     bullets = [];
     enemyBullets = [];
@@ -901,31 +915,38 @@ function quitGame(){
 
 function startGame(){
     if (!imagesLoaded) {
-        console.warn("Images not loaded yet, delaying start...");
         setTimeout(startGame, 100);
         return;
     }
 
     hideBannerAd();
-   
     console.log("=== startGame() CALLED ===");
+    
+    if (window.gameLoopId) {
+        cancelAnimationFrame(window.gameLoopId);
+        window.gameLoopId = null;
+    }
+    
+    if(autoShootTimeout) {
+        clearTimeout(autoShootTimeout);
+        autoShootTimeout = null;
+    }
     
     unlockAudio();
     resizeGame();
 
     if(!canvas || canvas.width === 0 || canvas.height === 0){
-        console.error("Canvas not ready, retrying...");
         setTimeout(startGame, 100);
         return;
     }
 
-    if(player){
-        player.x = canvas.width / 2 - player.width / 2;
-        player.y = canvas.height - 150;
-    }
+    // Reset player position
+    player.x = canvas.width / 2 - player.width / 2;
+    player.y = canvas.height - 150;
    
     setTimeout(() => resizeGame(), 100);
 
+    // Reset ALL game state variables
     health = maxHearts;
     score = 0;
     level = 1;
@@ -945,13 +966,14 @@ function startGame(){
     reviveUsed = false;
 
     playerPerformance = { shotsFired: 0, shotsHit: 0, damageTaken: 0 };
-
     lastWaveTime = performance.now();
     lastEnemySpawnTime = performance.now();
+    lastTime = 0;
 
     updateHUD();
     updateHeartsUI();
 
+    // Hide menu, show game
     const menu = document.getElementById("main-menu");
     if(menu){
         menu.style.display = "none";
@@ -961,31 +983,24 @@ function startGame(){
     const gameCanvas = document.getElementById("gameCanvas");
     const hud = document.getElementById("hud");
 
-    if(gameCanvas) gameCanvas.style.display = "block";
+    if(gameCanvas) {
+        gameCanvas.style.display = "block";
+        gameCanvas.style.pointerEvents = "auto";
+    }
     if(hud) hud.style.display = "flex";
 
     if(menuMusic) menuMusic.pause();
 
     if(soundOn && gameMusic){
         gameMusic.currentTime = 0;
-        gameMusic.play().catch((e) => console.log("Game music play failed:", e));
+        gameMusic.play().catch(()=>{});
     }
    
     startAutoShoot();
     startWave();
 
-    lastTime = 0;
-    
-    if(window.gameLoopId){
-        cancelAnimationFrame(window.gameLoopId);
-        window.gameLoopId = null;
-    }
-   
-    setTimeout(() => {
-        resizeGame();
-        lastTime = 0;
-        window.gameLoopId = requestAnimationFrame(gameLoop);
-    }, 50);
+    // Single, clean loop start
+    window.gameLoopId = requestAnimationFrame(gameLoop);
     
     console.log("=== GAME STARTED SUCCESSFULLY ===");
 }
@@ -1883,8 +1898,14 @@ async function setCoins(amount) {
 /* ---------- MAIN GAME LOOP ---------- */
 
 function gameLoop(currentTime) {
-    if (!gameRunning || gameState !== "playing") return;
+    if (!gameRunning) return;
+    
     if (paused) {
+        window.gameLoopId = requestAnimationFrame(gameLoop);
+        return;
+    }
+    
+    if (gameState !== "playing") {
         window.gameLoopId = requestAnimationFrame(gameLoop);
         return;
     }
@@ -1961,7 +1982,7 @@ function updatePlayer(){
 }
 
 function drawPlayer(){
-    if(playerImg.complete && playerImg.naturalWidth > 0) {
+    if(playerImg.complete) {
         ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
     } else {
         ctx.fillStyle = "cyan";
@@ -2004,7 +2025,7 @@ function drawEnemies(){
         if(e.type === ENEMY_TANK) img = enemyTankImg;
         if(e.type === ENEMY_SHOOTER) img = enemyShooterImg;
 
-        if(img.complete && img.naturalWidth > 0){
+        if(img.complete){
             ctx.drawImage(img, e.x, e.y, e.w, e.h);
         } else {
             ctx.fillStyle =
@@ -3108,6 +3129,7 @@ function restartGame(){
     powerups = [];
     boss = null;
     waveInProgress = false;
+    autoShootTimeout = null;
     
     startGame();
 }
