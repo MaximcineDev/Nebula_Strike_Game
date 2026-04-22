@@ -332,32 +332,39 @@ function retryFailedImages() {
     const toRetry = [...failedImages];
     failedImages = [];
     
+    if (toRetry.length === 0) {
+        imagesLoaded = true;
+        return;
+    }
+    
+    let retryCount = 0;
+    const totalToRetry = toRetry.length;
+    
     toRetry.forEach(imgObj => {
         console.log(`🔄 Retrying ${imgObj.name}...`);
-        // Force reload by creating new Image with cache-buster
         const retryImg = new Image();
         retryImg.src = imgObj.img.src + "?retry=" + Date.now();
         
         retryImg.addEventListener('load', () => {
-            imgObj.img.src = retryImg.src; // Update original
+            imgObj.img.src = retryImg.src;
             loadedCount++;
+            retryCount++;
             console.log(`✅ ${imgObj.name} retry succeeded`);
-            checkAllDone();
+            if (retryCount >= totalToRetry) {
+                imagesLoaded = true;
+                console.log("ALL IMAGES READY AFTER RETRY ✅");
+            }
         });
         
         retryImg.addEventListener('error', () => {
             console.error(`❌ ${imgObj.name} retry failed`);
-            failedImages.push(imgObj);
-            checkAllDone();
+            retryCount++;
+            if (retryCount >= totalToRetry) {
+                imagesLoaded = true;
+                console.log("ALL IMAGES READY (with failures) ✅");
+            }
         });
     });
-}
-
-function checkAllDone() {
-    if (loadedCount >= imagesToLoad.length) {
-        imagesLoaded = true;
-        console.log("ALL IMAGES READY AFTER RETRY ✅");
-    }
 }
 
 // Set up listeners
@@ -370,14 +377,6 @@ imagesToLoad.forEach(imgObj => {
         onImageLoad(imgObj);
     }
 });
-
-// Safety fallback
-setTimeout(() => {
-    if (!imagesLoaded) {
-        console.warn("Image load timeout — starting anyway (some images may be missing)");
-        imagesLoaded = true;
-    }
-}, 5000);
 
 /* ---------- SKINS ---------- */
 
@@ -1991,6 +1990,10 @@ function gameLoop(currentTime) {
     // CLEAR SCREEN
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.globalAlpha = 1.0;  // ✅ RESET ALPHA
+    ctx.shadowBlur = 0;     // ✅ RESET SHADOW
+    ctx.shadowColor = "transparent";
+    
 
     // DRAW BACKGROUND
     if (bgImg && bgImg.complete && bgImg.naturalWidth > 0) {
@@ -2066,9 +2069,19 @@ function updatePlayer(){
 }
 
 function drawPlayer(){
+    ctx.save();  // ✅ SAVE STATE
+    
+    // EMERGENCY: Always draw a visible fallback first
+    ctx.fillStyle = "#00ff00";  // Bright green - impossible to miss
+    ctx.globalAlpha = 1.0;  // Ensure full opacity
+    ctx.shadowBlur = 0;  // Clear any shadows
+    ctx.fillRect(player.x, player.y, player.width, player.height);
+    
+    // Then try the image on top
     if(playerImg.complete && playerImg.naturalWidth > 0) {
         ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
     } else {
+        // fallback triangle
         ctx.fillStyle = "cyan";
         ctx.beginPath();
         ctx.moveTo(player.x + player.width/2, player.y);
@@ -2078,9 +2091,11 @@ function drawPlayer(){
         ctx.fill();
     }
 
+    // Engine flame
     ctx.fillStyle = "cyan";
     ctx.fillRect(player.x + player.width/2 - 3, player.y + player.height, 6, 10);
 
+    // Shield
     if(shieldActive){
         ctx.save();
         ctx.globalAlpha = 0.6;
@@ -2099,10 +2114,20 @@ function drawPlayer(){
         ctx.stroke();
         ctx.restore();
     }
+    
+    ctx.restore();  // ✅ RESTORE STATE
 }
 
 function drawEnemies(){
+    ctx.save();  // ✅ SAVE STATE
+    ctx.globalAlpha = 1.0;  // Ensure full opacity
+    ctx.shadowBlur = 0;  // Clear any shadows
+    
     enemies.forEach(e => {
+        // EMERGENCY: Always draw visible fallback
+        ctx.fillStyle = "#ff0000";  // Bright red
+        ctx.fillRect(e.x, e.y, e.w, e.h);
+        
         let img = enemyImg;
         if(e.type === ENEMY_FAST) img = enemyFastImg;
         if(e.type === ENEMY_TANK) img = enemyTankImg;
@@ -2117,6 +2142,8 @@ function drawEnemies(){
             ctx.fillRect(e.x, e.y, e.w, e.h);
         }
     });
+    
+    ctx.restore();  // ✅ RESTORE STATE
 }
 
 /* ---------- BULLETS ---------- */
