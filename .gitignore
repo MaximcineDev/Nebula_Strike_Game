@@ -65,6 +65,8 @@ keystore.properties
 # Android
 android/local.properties
 android/app/google-services.json
+android/**/google-services.json
+
 
 # General
 .env
