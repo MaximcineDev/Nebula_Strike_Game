@@ -2027,7 +2027,7 @@ function updatePlayer(){
 }
 
 function drawPlayer(){
-    if(playerImg.complete && playerImg.naturalWidth > 0) {
+    if(playerImg.complete) {
         ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
     } else {
         ctx.fillStyle = "cyan";
@@ -2069,7 +2069,7 @@ function drawEnemies(){
         if(e.type === ENEMY_TANK) img = enemyTankImg;
         if(e.type === ENEMY_SHOOTER) img = enemyShooterImg;
 
-        if(img.complete && img.naturalWidth > 0){
+        if(img.complete){
             ctx.drawImage(img, e.x, e.y, e.w, e.h);
         } else {
             ctx.fillStyle =
