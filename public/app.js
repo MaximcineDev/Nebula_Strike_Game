@@ -270,80 +270,125 @@ if (AdMob) {
 
 /* ---------- IMAGES ---------- */
 
-const playerImg = new Image(); playerImg.src = "assets/player.png";
-const enemyImg = new Image(); enemyImg.src = "assets/enemy.png";
-const enemyFastImg = new Image(); enemyFastImg.src = "assets/enemies/enemy-fast.png";
-const enemyTankImg = new Image(); enemyTankImg.src = "assets/enemies/enemy-tank.png";
-const enemyShooterImg = new Image(); enemyShooterImg.src = "assets/enemies/enemy-shooter.png";
-const bossImg = new Image(); bossImg.src = "assets/boss.png";
-const bgImg = new Image(); bgImg.src = "assets/background.png";
-const explosionImg = new Image(); explosionImg.src = "assets/effects/explosion.png";
-const coinImg = new Image(); coinImg.src = "assets/ui/coin-icon.png";
-const healthImg = new Image(); healthImg.src = "assets/ui/health.png";
-const rapidImg = new Image(); rapidImg.src = "assets/ui/rapid.png";
-const shieldImg = new Image(); shieldImg.src = "assets/ui/shield.png";
+const playerImg = new Image(); playerImg.src = "/assets/player.png";
+const enemyImg = new Image(); enemyImg.src = "/assets/enemy.png";
+const enemyFastImg = new Image(); enemyFastImg.src = "/assets/enemies/enemy-fast.png";
+const enemyTankImg = new Image(); enemyTankImg.src = "/assets/enemies/enemy-tank.png";
+const enemyShooterImg = new Image(); enemyShooterImg.src = "/assets/enemies/enemy-shooter.png";
+const bossImg = new Image(); bossImg.src = "/assets/boss.png";
+const bgImg = new Image(); bgImg.src = "/assets/background.png";
+const explosionImg = new Image(); explosionImg.src = "/assets/effects/explosion.png";
+const coinImg = new Image(); coinImg.src = "/assets/ui/coin-icon.png";
+const healthImg = new Image(); healthImg.src = "/assets/ui/health.png";
+const rapidImg = new Image(); rapidImg.src = "/assets/ui/rapid.png";
+const shieldImg = new Image(); shieldImg.src = "/assets/ui/shield.png";
 
 /* ---------- LOAD TRACKING ---------- */
 
 const imagesToLoad = [
-    playerImg,
-    enemyImg,
-    enemyFastImg,
-    enemyTankImg,
-    enemyShooterImg,
-    bossImg,
-    bgImg,
-    explosionImg,
-    coinImg,
-    healthImg,
-    rapidImg,
-    shieldImg
+    { img: playerImg, name: "player" },
+    { img: enemyImg, name: "enemy" },
+    { img: enemyFastImg, name: "enemyFast" },
+    { img: enemyTankImg, name: "enemyTank" },
+    { img: enemyShooterImg, name: "enemyShooter" },
+    { img: bossImg, name: "boss" },
+    { img: bgImg, name: "background" },
+    { img: explosionImg, name: "explosion" },
+    { img: coinImg, name: "coin" },
+    { img: healthImg, name: "health" },
+    { img: rapidImg, name: "rapid" },
+    { img: shieldImg, name: "shield" }
 ];
 
 let loadedCount = 0;
 let imagesLoaded = false;
+let failedImages = [];
 
-imagesToLoad.forEach(img => {
-    img.addEventListener('load', () => {
+function checkImageActuallyLoaded(imgObj) {
+    return imgObj.img.complete && imgObj.img.naturalWidth > 0;
+}
+
+function onImageLoad(imgObj) {
+    if (checkImageActuallyLoaded(imgObj)) {
         loadedCount++;
-        if (loadedCount >= imagesToLoad.length) {
+        console.log(`✅ ${imgObj.name} loaded successfully (${imgObj.img.naturalWidth}x${imgObj.img.naturalHeight})`);
+    } else {
+        console.error(`❌ ${imgObj.name} failed to load (complete=${imgObj.img.complete}, naturalWidth=${imgObj.img.naturalWidth})`);
+        failedImages.push(imgObj);
+    }
+    
+    if (loadedCount + failedImages.length >= imagesToLoad.length) {
+        if (failedImages.length === 0) {
             imagesLoaded = true;
-            console.log("ALL IMAGES READY");
+            console.log("ALL IMAGES READY ✅");
+        } else {
+            console.warn(`${failedImages.length} images failed, retrying...`);
+            retryFailedImages();
         }
+    }
+}
+
+function retryFailedImages() {
+    const toRetry = [...failedImages];
+    failedImages = [];
+    
+    toRetry.forEach(imgObj => {
+        console.log(`🔄 Retrying ${imgObj.name}...`);
+        // Force reload by creating new Image with cache-buster
+        const retryImg = new Image();
+        retryImg.src = imgObj.img.src + "?retry=" + Date.now();
+        
+        retryImg.addEventListener('load', () => {
+            imgObj.img.src = retryImg.src; // Update original
+            loadedCount++;
+            console.log(`✅ ${imgObj.name} retry succeeded`);
+            checkAllDone();
+        });
+        
+        retryImg.addEventListener('error', () => {
+            console.error(`❌ ${imgObj.name} retry failed`);
+            failedImages.push(imgObj);
+            checkAllDone();
+        });
     });
-    img.addEventListener('error', () => {
-        loadedCount++;
-        if (loadedCount >= imagesToLoad.length) {
-            imagesLoaded = true;
-        }
-    });
-    // If already cached/complete, count immediately
-    if (img.complete) {
-        loadedCount++;
-        if (loadedCount >= imagesToLoad.length) {
-            imagesLoaded = true;
-        }
+}
+
+function checkAllDone() {
+    if (loadedCount >= imagesToLoad.length) {
+        imagesLoaded = true;
+        console.log("ALL IMAGES READY AFTER RETRY ✅");
+    }
+}
+
+// Set up listeners
+imagesToLoad.forEach(imgObj => {
+    imgObj.img.addEventListener('load', () => onImageLoad(imgObj));
+    imgObj.img.addEventListener('error', () => onImageLoad(imgObj));
+    
+    // If already cached/complete, verify it actually loaded
+    if (imgObj.img.complete) {
+        onImageLoad(imgObj);
     }
 });
 
-// Safety fallback — if images take too long, start anyway after 3 seconds
+// Safety fallback
 setTimeout(() => {
     if (!imagesLoaded) {
-        console.warn("Image load timeout — starting anyway");
+        console.warn("Image load timeout — starting anyway (some images may be missing)");
         imagesLoaded = true;
     }
-}, 3000);
+}, 5000);
 
 /* ---------- SKINS ---------- */
 
 let currentSkin = 0;
 
 const skins = [
-    "assets/player.png",
-    "assets/skins/skin1.png",
-    "assets/skins/skin2.png",
-    "assets/skins/skin3.png",
-    "assets/skins/skin4.png"
+    "/assets/player.png",
+    "/assets/skins/skin1.png",
+    "/assets/skins/skin2.png",
+    "/assets/skins/skin3.png",
+    "/assets/skins/skin4.png"
 ];
 
 function updateSkin(){
@@ -1982,7 +2027,7 @@ function updatePlayer(){
 }
 
 function drawPlayer(){
-    if(playerImg.complete) {
+    if(playerImg.complete && playerImg.naturalWidth > 0) {
         ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
     } else {
         ctx.fillStyle = "cyan";
@@ -2019,19 +2064,17 @@ function drawPlayer(){
 
 function drawEnemies(){
     enemies.forEach(e => {
-
         let img = enemyImg;
         if(e.type === ENEMY_FAST) img = enemyFastImg;
         if(e.type === ENEMY_TANK) img = enemyTankImg;
         if(e.type === ENEMY_SHOOTER) img = enemyShooterImg;
 
-        if(img.complete){
+        if(img.complete && img.naturalWidth > 0){
             ctx.drawImage(img, e.x, e.y, e.w, e.h);
         } else {
             ctx.fillStyle =
                 e.type === ENEMY_FAST ? "#ff4444" :
                 e.type === ENEMY_TANK ? "#ff8800" : "#ff0000";
-
             ctx.fillRect(e.x, e.y, e.w, e.h);
         }
     });
@@ -2215,20 +2258,21 @@ async function bossDefeated(){
 function updateExplosions(){
     for(let i = explosions.length - 1; i >= 0; i--){
         let ex = explosions[i];
-
-        // Animate size
         let size = 20 + ex.frame * 4;
-
         ctx.save();
         ctx.globalAlpha = 1 - (ex.frame / ex.maxFrame);
-        ctx.drawImage(explosionImg, ex.x - size/2, ex.y - size/2, size, size);
-        ctx.restore();
-
-        ex.frame++;
-
-        if(ex.frame > ex.maxFrame){
-            explosions.splice(i, 1);
+        
+        if(explosionImg.complete && explosionImg.naturalWidth > 0) {
+            ctx.drawImage(explosionImg, ex.x - size/2, ex.y - size/2, size, size);
+        } else {
+            ctx.fillStyle = `rgba(255, 165, 0, ${1 - ex.frame / ex.maxFrame})`;
+            ctx.beginPath();
+            ctx.arc(ex.x, ex.y, size/2, 0, Math.PI*2);
+            ctx.fill();
         }
+        ctx.restore();
+        ex.frame++;
+        if(ex.frame > ex.maxFrame) explosions.splice(i, 1);
     }
 }
 
@@ -2281,17 +2325,23 @@ function drawStars(){
 }
 
 function updateCoinFX(){
-    for(let i=coinFX.length-1;i>=0;i--){
-        let c = coinFX[i];
-        c.x += c.vx;
-        c.y += c.vy;
-        c.life--;
+    for(let i = coinFX.length - 1; i >= 0; i--){
+        let ex = coinFX[i];
+        let size = 20 + ex.frame * 4;
+        ctx.save();
+        ctx.globalAlpha = 1 - (ex.frame / ex.maxFrame);
         
-        ctx.drawImage(coinImg, c.x, c.y, 16, 16);
-        
-        if(c.life <= 0){
-            coinFX.splice(i,1);
+        if(coinImg.complete && coinImg.naturalWidth > 0) {
+            ctx.drawImage(coinImg, ex.x - size/2, ex.y - size/2, size, size);
+        } else {
+            ctx.fillStyle = `rgba(255, 165, 0, ${1 - ex.frame / ex.maxFrame})`;
+            ctx.beginPath();
+            ctx.arc(ex.x, ex.y, size/2, 0, Math.PI*2);
+            ctx.fill();
         }
+        ctx.restore();
+        ex.frame++;
+        if(ex.frame > ex.maxFrame) coinFX.splice(i, 1);
     }
 }
 
@@ -2441,15 +2491,43 @@ function updateEnemyBullets(){
 /* ---------- POWERUPS ---------- */
 
 function updatePowerups(){
-    for(let i=powerups.length-1;i>=0;i--){
-        let p=powerups[i];
+    for(let i = powerups.length - 1; i >= 0; i--){
+        let p = powerups[i];
         p.y += 2;
         
         let img = healthImg;
-        if(p.type === 1) img = rapidImg;
-        if(p.type === 2) img = shieldImg;
+        let fallbackColor = "#00ff00"; // Green for health
+        let label = "+";
         
-        ctx.drawImage(img, p.x, p.y, 32, 32);
+        if(p.type === 1) {
+            img = rapidImg;
+            fallbackColor = "#ff6600"; // Orange for rapid fire
+            label = "⚡";
+        }
+        if(p.type === 2) {
+            img = shieldImg;
+            fallbackColor = "#00ccff"; // Cyan for shield
+            label = "🛡";
+        }
+        
+        if(img.complete && img.naturalWidth > 0){
+            ctx.drawImage(img, p.x, p.y, 32, 32);
+        } else {
+            ctx.fillStyle = fallbackColor;
+            ctx.beginPath();
+            ctx.arc(p.x + 16, p.y + 16, 16, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.strokeStyle = "white";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            ctx.fillStyle = "white";
+            ctx.font = "bold 14px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(label, p.x + 16, p.y + 16);
+        }
         
         if(p.x < player.x + player.width &&
            p.x + 32 > player.x &&
@@ -2468,11 +2546,7 @@ function updatePowerups(){
             }
             else if(p.type === 2){
                 shieldActive = true;
-
-                // duration scales with upgrade
                 shieldTimer = 300 + (shieldLevel * 150);
-
-                // visual feedback
                 screenShake = 5;
                 hitFlash = 3;
 
