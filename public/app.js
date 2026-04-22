@@ -2,11 +2,11 @@
    NEBULA STRIKE
 ========================= */
 
-if (location.hostname !== "localhost") {
-    console.log = () => {};
-    console.warn = () => {};
-    console.error = () => {};
-}
+// if (location.hostname !== "localhost") {
+    // console.log = () => {};
+    // console.warn = () => {};
+    // console.error = () => {};
+//}
 
 console.log("APP STARTED - FINAL VERSION");
 
@@ -267,6 +267,8 @@ if (AdMob) {
         }
     });
 }
+
+const DEBUG = false;
 
 /* ---------- IMAGES ---------- */
 
@@ -1763,10 +1765,10 @@ function spawnBoss(){
 
         speed: 2 + level * 0.1,
 
-        // ✅ AI SYSTEM
+        // AI SYSTEM
         vx: 2,
         attackCooldown: 0,
-        attackRate: 60, // frames between attacks
+        attackRate: 60,
 
         pattern: getBossPattern()
     };
@@ -1776,6 +1778,7 @@ function spawnBoss(){
     document.getElementById("bossBar").style.display = "block";
     const bossWarning = document.getElementById("bossWarning");
 
+    const bossBar = document.getElementById("bossBar");
     if(bossBar) bossBar.style.display = "block";
 
     if(bossWarning){
@@ -1972,71 +1975,49 @@ function gameLoop(currentTime) {
         return;
     }
 
-    if (currentTime % 1000 < 20) { // log once per second
-        console.log("Canvas:", canvas.width, "x", canvas.height, 
-                    "Player:", player.x, player.y,
-                    "Stars:", stars.length,
-                    "Enemies:", enemies.length);
-    }
-
-    const deltaTime = currentTime - lastTime;
-    if (deltaTime < frameInterval) {
-        window.gameLoopId = requestAnimationFrame(gameLoop);
-        return;
-    }
-
-    lastTime = currentTime;
-
-    // CLEAR SCREEN
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.globalAlpha = 1.0;  // ✅ RESET ALPHA
-    ctx.shadowBlur = 0;     // ✅ RESET SHADOW
-    ctx.shadowColor = "transparent";
-    
-
-    // DRAW BACKGROUND
-    if (bgImg && bgImg.complete && bgImg.naturalWidth > 0) {
-        ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-    } else {
-        ctx.fillStyle = "#0a0a1a";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-
-    // UPDATE & DRAW EVERYTHING
-    updateSpawning(currentTime);
-    updatePlayer();
-    updateBullets();
-    updateEnemies();
-    updateEnemyBullets();
-    updateExplosions();
-    updateCoinFX();
-    updatePowerups();
-    updateBoss();
-    updateTimers();
-
-    drawStars();
-    drawEnemies();
-    drawPlayer();
-
-    if (hitFlash > 0) {
-        ctx.fillStyle = `rgba(255,0,0,${hitFlash * 0.1})`;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        hitFlash--;
-    }
-
-        // DEBUG - log once per second
-    if (Math.floor(currentTime / 1000) !== Math.floor((currentTime - deltaTime) / 1000)) {
-        console.log("=== FRAME DEBUG ===");
-        console.log("Canvas:", canvas.width, "x", canvas.height);
-        console.log("Player:", "x=" + player.x, "y=" + player.y, "img.complete=" + playerImg.complete, "naturalWidth=" + playerImg.naturalWidth);
-        console.log("Enemies count:", enemies.length);
-        if (enemies.length > 0) {
-            console.log("First enemy:", "x=" + enemies[0].x, "y=" + enemies[0].y, "img.complete=" + enemyImg.complete, "naturalWidth=" + enemyImg.naturalWidth);
+    try {
+        const deltaTime = currentTime - lastTime;
+        if (deltaTime < frameInterval) {
+            window.gameLoopId = requestAnimationFrame(gameLoop);
+            return;
         }
-        console.log("Stars:", stars.length);
-        console.log("Bullets:", bullets.length);
-        console.log("gameRunning:", gameRunning, "paused:", paused, "gameState:", gameState);
+        lastTime = currentTime;
+
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.globalAlpha = 1.0;
+        ctx.shadowBlur = 0;
+        ctx.shadowColor = "transparent";
+
+        if (bgImg && bgImg.complete && bgImg.naturalWidth > 0) {
+            ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+        } else {
+            ctx.fillStyle = "#0a0a1a";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        updateSpawning(currentTime);
+        updatePlayer();
+        updateBullets();
+        updateEnemies();
+        updateEnemyBullets();
+        updateExplosions();
+        updateCoinFX();
+        updatePowerups();
+        updateBoss();
+        updateTimers();
+
+        drawStars();
+        drawEnemies();
+        drawPlayer();
+
+        if (hitFlash > 0) {
+            ctx.fillStyle = `rgba(255,0,0,${hitFlash * 0.1})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            hitFlash--;
+        }
+    } catch (err) {
+        console.error("GAME LOOP CRASH:", err);
     }
 
     window.gameLoopId = requestAnimationFrame(gameLoop);
@@ -2069,26 +2050,13 @@ function updatePlayer(){
 }
 
 function drawPlayer(){
-    ctx.save();  // ✅ SAVE STATE
+    ctx.save();
+    ctx.globalAlpha = 1.0;
+    ctx.shadowBlur = 0;
     
-    // EMERGENCY: Always draw a visible fallback first
-    ctx.fillStyle = "#00ff00";  // Bright green - impossible to miss
-    ctx.globalAlpha = 1.0;  // Ensure full opacity
-    ctx.shadowBlur = 0;  // Clear any shadows
-    ctx.fillRect(player.x, player.y, player.width, player.height);
-    
-    // Then try the image on top
+    // Draw ship image only
     if(playerImg.complete && playerImg.naturalWidth > 0) {
         ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
-    } else {
-        // fallback triangle
-        ctx.fillStyle = "cyan";
-        ctx.beginPath();
-        ctx.moveTo(player.x + player.width/2, player.y);
-        ctx.lineTo(player.x, player.y + player.height);
-        ctx.lineTo(player.x + player.width, player.y + player.height);
-        ctx.closePath();
-        ctx.fill();
     }
 
     // Engine flame
@@ -2115,19 +2083,15 @@ function drawPlayer(){
         ctx.restore();
     }
     
-    ctx.restore();  // ✅ RESTORE STATE
+    ctx.restore();
 }
 
 function drawEnemies(){
-    ctx.save();  // ✅ SAVE STATE
-    ctx.globalAlpha = 1.0;  // Ensure full opacity
-    ctx.shadowBlur = 0;  // Clear any shadows
+    ctx.save();
+    ctx.globalAlpha = 1.0;
+    ctx.shadowBlur = 0;
     
     enemies.forEach(e => {
-        // EMERGENCY: Always draw visible fallback
-        ctx.fillStyle = "#ff0000";  // Bright red
-        ctx.fillRect(e.x, e.y, e.w, e.h);
-        
         let img = enemyImg;
         if(e.type === ENEMY_FAST) img = enemyFastImg;
         if(e.type === ENEMY_TANK) img = enemyTankImg;
@@ -2135,15 +2099,10 @@ function drawEnemies(){
 
         if(img.complete && img.naturalWidth > 0){
             ctx.drawImage(img, e.x, e.y, e.w, e.h);
-        } else {
-            ctx.fillStyle =
-                e.type === ENEMY_FAST ? "#ff4444" :
-                e.type === ENEMY_TANK ? "#ff8800" : "#ff0000";
-            ctx.fillRect(e.x, e.y, e.w, e.h);
         }
     });
     
-    ctx.restore();  // ✅ RESTORE STATE
+    ctx.restore();
 }
 
 /* ---------- BULLETS ---------- */

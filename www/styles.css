@@ -1196,25 +1196,134 @@ body {
 ========================= */
 
 #levelComplete {
-
     position: fixed;
-
-    width: 100vw;
-    height: 100vh;
-
-    background: black;
-
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);   /* Semi-transparent dark overlay */
     display: none;
-
     z-index: 900;
-
     justify-content: center;
     align-items: center;
-
     flex-direction: column;
+    backdrop-filter: blur(4px);
 }
 
+/* Inner content box */
+.level-complete-box {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border: 3px solid #00ff88;
+    border-radius: 25px;
+    padding: 30px 40px;
+    text-align: center;
+    box-shadow: 
+        0 0 40px rgba(0, 255, 136, 0.4),
+        inset 0 0 20px rgba(0, 255, 136, 0.1);
+    min-width: 280px;
+    max-width: 85vw;
+    max-height: 70vh;
+    animation: pop 0.4s ease;
+}
 
+.level-complete-box h2 {
+    color: #00ff88;
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(24px, 6vw, 36px);
+    margin: 0 0 15px 0;
+    text-shadow: 0 0 20px rgba(0, 255, 136, 0.8);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.reward-text {
+    color: #ffd700;
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(16px, 4vw, 20px);
+    margin: 0 0 25px 0;
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+}
+
+.reward-text .coin-icon {
+    font-size: 1.2em;
+}
+
+/* Buttons container */
+.level-complete-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 280px;
+    margin: 0 auto;
+}
+
+/* Double Reward button */
+.double-reward-btn {
+    padding: 16px 30px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(14px, 3.5vw, 18px);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #ffcc00;
+    background: transparent;
+    border: 2px solid #ffcc00;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 
+        0 0 20px rgba(255, 204, 0, 0.3),
+        inset 0 0 10px rgba(255, 204, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.double-reward-btn:hover {
+    background: rgba(255, 204, 0, 0.15);
+    box-shadow: 
+        0 0 30px rgba(255, 204, 0, 0.5),
+        inset 0 0 20px rgba(255, 204, 0, 0.2);
+    transform: scale(1.03);
+}
+
+.double-reward-btn:active {
+    transform: scale(0.97);
+}
+
+/* Next Level button */
+.next-level-btn {
+    padding: 14px 30px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(14px, 3.5vw, 18px);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #00ffff;
+    background: transparent;
+    border: 2px solid #00ffff;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 
+        0 0 20px rgba(0, 255, 255, 0.3),
+        inset 0 0 10px rgba(0, 255, 255, 0.1);
+}
+
+.next-level-btn:hover {
+    background: rgba(0, 255, 255, 0.15);
+    box-shadow: 
+        0 0 30px rgba(0, 255, 255, 0.5),
+        inset 0 0 20px rgba(0, 255, 255, 0.2);
+    transform: scale(1.03);
+}
+
+.next-level-btn:active {
+    transform: scale(0.97);
+}
+
+.next-level-btn .arrow {
+    margin-left: 8px;
+}
 
 /* =========================
            SHOP
@@ -1793,10 +1902,12 @@ body {
     border-radius: 3px;
     outline: none;
     -webkit-appearance: none;
+    appearance: none;
 }
 
 .settingItem input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
+    appearance: none;
     width: 20px;
     height: 20px;
     background: #00ffff;
