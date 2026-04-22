@@ -270,18 +270,18 @@ if (AdMob) {
 
 /* ---------- IMAGES ---------- */
 
-const playerImg = new Image(); playerImg.src = "/assets/player.png";
-const enemyImg = new Image(); enemyImg.src = "/assets/enemy.png";
-const enemyFastImg = new Image(); enemyFastImg.src = "/assets/enemies/enemy-fast.png";
-const enemyTankImg = new Image(); enemyTankImg.src = "/assets/enemies/enemy-tank.png";
-const enemyShooterImg = new Image(); enemyShooterImg.src = "/assets/enemies/enemy-shooter.png";
-const bossImg = new Image(); bossImg.src = "/assets/boss.png";
-const bgImg = new Image(); bgImg.src = "/assets/background.png";
-const explosionImg = new Image(); explosionImg.src = "/assets/effects/explosion.png";
-const coinImg = new Image(); coinImg.src = "/assets/ui/coin-icon.png";
-const healthImg = new Image(); healthImg.src = "/assets/ui/health.png";
-const rapidImg = new Image(); rapidImg.src = "/assets/ui/rapid.png";
-const shieldImg = new Image(); shieldImg.src = "/assets/ui/shield.png";
+const playerImg = new Image(); playerImg.src = "assets/player.png";
+const enemyImg = new Image(); enemyImg.src = "assets/enemy.png";
+const enemyFastImg = new Image(); enemyFastImg.src = "assets/enemies/enemy-fast.png";
+const enemyTankImg = new Image(); enemyTankImg.src = "assets/enemies/enemy-tank.png";
+const enemyShooterImg = new Image(); enemyShooterImg.src = "assets/enemies/enemy-shooter.png";
+const bossImg = new Image(); bossImg.src = "assets/boss.png";
+const bgImg = new Image(); bgImg.src = "assets/background.png";
+const explosionImg = new Image(); explosionImg.src = "assets/effects/explosion.png";
+const coinImg = new Image(); coinImg.src = "assets/ui/coin-icon.png";
+const healthImg = new Image(); healthImg.src = "assets/ui/health.png";
+const rapidImg = new Image(); rapidImg.src = "assets/ui/rapid.png";
+const shieldImg = new Image(); shieldImg.src = "assets/ui/shield.png";
 
 /* ---------- LOAD TRACKING ---------- */
 
@@ -384,11 +384,11 @@ setTimeout(() => {
 let currentSkin = 0;
 
 const skins = [
-    "/assets/player.png",
-    "/assets/skins/skin1.png",
-    "/assets/skins/skin2.png",
-    "/assets/skins/skin3.png",
-    "/assets/skins/skin4.png"
+    "assets/player.png",
+    "assets/skins/skin1.png",
+    "assets/skins/skin2.png",
+    "assets/skins/skin3.png",
+    "assets/skins/skin4.png"
 ];
 
 function updateSkin(){
@@ -1992,7 +1992,7 @@ function gameLoop(currentTime) {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // DRAW BACKGROUND (with fallback)
+    // DRAW BACKGROUND
     if (bgImg && bgImg.complete && bgImg.naturalWidth > 0) {
         ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
     } else {
@@ -2020,6 +2020,20 @@ function gameLoop(currentTime) {
         ctx.fillStyle = `rgba(255,0,0,${hitFlash * 0.1})`;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         hitFlash--;
+    }
+
+        // DEBUG - log once per second
+    if (Math.floor(currentTime / 1000) !== Math.floor((currentTime - deltaTime) / 1000)) {
+        console.log("=== FRAME DEBUG ===");
+        console.log("Canvas:", canvas.width, "x", canvas.height);
+        console.log("Player:", "x=" + player.x, "y=" + player.y, "img.complete=" + playerImg.complete, "naturalWidth=" + playerImg.naturalWidth);
+        console.log("Enemies count:", enemies.length);
+        if (enemies.length > 0) {
+            console.log("First enemy:", "x=" + enemies[0].x, "y=" + enemies[0].y, "img.complete=" + enemyImg.complete, "naturalWidth=" + enemyImg.naturalWidth);
+        }
+        console.log("Stars:", stars.length);
+        console.log("Bullets:", bullets.length);
+        console.log("gameRunning:", gameRunning, "paused:", paused, "gameState:", gameState);
     }
 
     window.gameLoopId = requestAnimationFrame(gameLoop);
@@ -2052,7 +2066,7 @@ function updatePlayer(){
 }
 
 function drawPlayer(){
-    if(playerImg.complete) {
+    if(playerImg.complete && playerImg.naturalWidth > 0) {
         ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
     } else {
         ctx.fillStyle = "cyan";
@@ -2094,7 +2108,7 @@ function drawEnemies(){
         if(e.type === ENEMY_TANK) img = enemyTankImg;
         if(e.type === ENEMY_SHOOTER) img = enemyShooterImg;
 
-        if(img.complete){
+        if(img.complete && img.naturalWidth > 0){
             ctx.drawImage(img, e.x, e.y, e.w, e.h);
         } else {
             ctx.fillStyle =

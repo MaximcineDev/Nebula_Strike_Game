@@ -551,7 +551,6 @@ for(let i=0;i<80;i++){
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// FIXED: Proper pause button handler
 document.getElementById("pauseBtn").onclick = () => {
     if(!gameRunning) return;
     togglePause();
@@ -587,6 +586,11 @@ function resizeGame(){
     canvas.height = height;
     canvas.style.width = width + "px";
     canvas.style.height = height + "px";
+
+    // Re-init stars on resize so they fill the new canvas
+    if (stars.length === 0 || stars[0].x > width) {
+        initStars();
+    }
 
     if(player && typeof player.x === 'number' && typeof player.y === 'number'){
         player.x = Math.min(Math.max(player.x, 0), canvas.width - player.width);
@@ -978,18 +982,40 @@ function startGame(){
     }
     
     unlockAudio();
+
+    // SHOW CANVAS FIRST
+    const gameCanvas = document.getElementById("gameCanvas");
+    const hud = document.getElementById("hud");
+    
+    if(gameCanvas) {
+        gameCanvas.style.display = "block";
+        gameCanvas.style.pointerEvents = "auto";
+    }
+    if(hud) hud.style.display = "flex";
+
+    // FORCE BROWSER TO CALCULATE LAYOUT
+    document.body.offsetHeight; // trigger reflow
+    
+    // NOW resize (canvas will have correct dimensions)
     resizeGame();
 
+    // GUARD: if canvas still 0, retry
     if(!canvas || canvas.width === 0 || canvas.height === 0){
+        console.warn("Canvas not ready, retrying...");
         setTimeout(startGame, 100);
         return;
     }
 
-    // Reset player position
+    // INITIALIZE STARS WITH CORRECT CANVAS SIZE
+    initStars();
+
+    // RESET PLAYER POSITION BASED ON ACTUAL CANVAS SIZE
     player.x = canvas.width / 2 - player.width / 2;
     player.y = canvas.height - 150;
-   
-    setTimeout(() => resizeGame(), 100);
+    
+    // Ensure player is within bounds
+    player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+    player.y = Math.max(0, Math.min(canvas.height - player.height, player.y));
 
     // Reset ALL game state variables
     health = maxHearts;
@@ -1018,21 +1044,12 @@ function startGame(){
     updateHUD();
     updateHeartsUI();
 
-    // Hide menu, show game
+    // Hide menu
     const menu = document.getElementById("main-menu");
     if(menu){
         menu.style.display = "none";
         menu.classList.remove("show");
     }
-
-    const gameCanvas = document.getElementById("gameCanvas");
-    const hud = document.getElementById("hud");
-
-    if(gameCanvas) {
-        gameCanvas.style.display = "block";
-        gameCanvas.style.pointerEvents = "auto";
-    }
-    if(hud) hud.style.display = "flex";
 
     if(menuMusic) menuMusic.pause();
 
@@ -1047,7 +1064,8 @@ function startGame(){
     // Single, clean loop start
     window.gameLoopId = requestAnimationFrame(gameLoop);
     
-    console.log("=== GAME STARTED SUCCESSFULLY ===");
+    console.log("=== GAME STARTED === Canvas:", canvas.width, "x", canvas.height);
+    console.log("Player at:", player.x, player.y);
 }
 
 /* ---------- DAILY REWARD FUNCTIONS ---------- */
@@ -1955,6 +1973,13 @@ function gameLoop(currentTime) {
         return;
     }
 
+    if (currentTime % 1000 < 20) { // log once per second
+        console.log("Canvas:", canvas.width, "x", canvas.height, 
+                    "Player:", player.x, player.y,
+                    "Stars:", stars.length,
+                    "Enemies:", enemies.length);
+    }
+
     const deltaTime = currentTime - lastTime;
     if (deltaTime < frameInterval) {
         window.gameLoopId = requestAnimationFrame(gameLoop);
@@ -1963,11 +1988,11 @@ function gameLoop(currentTime) {
 
     lastTime = currentTime;
 
-    // ✅ CLEAR SCREEN
+    // CLEAR SCREEN
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // ✅ DRAW BACKGROUND (with fallback)
+    // DRAW BACKGROUND (with fallback)
     if (bgImg && bgImg.complete && bgImg.naturalWidth > 0) {
         ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
     } else {
@@ -1975,7 +2000,7 @@ function gameLoop(currentTime) {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
-    // ✅ UPDATE & DRAW EVERYTHING
+    // UPDATE & DRAW EVERYTHING
     updateSpawning(currentTime);
     updatePlayer();
     updateBullets();
@@ -2322,6 +2347,20 @@ function drawStars(){
         }
         ctx.fillRect(s.x, s.y, s.s, s.s);
     }
+}
+
+function initStars() {
+    stars = [];
+    if (!canvas || canvas.width === 0) return;
+    
+    for(let i=0; i<80; i++){
+        stars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            s: Math.random()*3+1
+        });
+    }
+    console.log("Stars initialized:", stars.length);
 }
 
 function updateCoinFX(){
