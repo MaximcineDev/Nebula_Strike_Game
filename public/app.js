@@ -1181,7 +1181,6 @@ function claimDailyReward(useDoubleReward = false){
 }
 
 function getDailyReward(streakDay){
-    // Rewards for days 1-6 (day 7 is special chest)
     const rewards = [50, 100, 150, 200, 300, 400];
     const index = Math.min(Math.max(streakDay - 1, 0), 5);
     return rewards[index];
@@ -1217,76 +1216,6 @@ function loadDailyData(){
             streak: 1
         };
     }
-}
-
-// Open normal chest (days 1-6)
-function openChest(){
-    console.log("Opening normal chest...");
-    
-    if (chestOpened) return;
-    chestOpened = true;
-    
-    // Show reward amount
-    const rewardAmount = getDailyReward(dailyData.streak);
-    const amountDisplay = document.getElementById("rewardAmount");
-    if (amountDisplay) {
-        amountDisplay.innerText = `+${rewardAmount} 🪙`;
-        amountDisplay.style.display = "block";
-    }
-    
-    // Enable buttons
-    const claimBtn = document.querySelector(".claimBtn");
-    const doubleBtn = document.querySelector(".doubleRewardBtn");
-    if (claimBtn) claimBtn.disabled = false;
-    if (doubleBtn) doubleBtn.disabled = false;
-    
-    // Update reward text
-    const rewardText = document.getElementById("rewardText");
-    if (rewardText) {
-        rewardText.innerText = `You found ${rewardAmount} coins!`;
-    }
-}
-
-// Open BIG chest (day 7)
-function openBigChest(){
-    console.log("Opening BIG chest for day 7!");
-    
-    if (chestOpened) return;
-    chestOpened = true;
-    
-    const bigChest = document.getElementById("bigRewardChest");
-    if (bigChest) {
-        bigChest.innerText = "✨";
-        bigChest.style.transform = "scale(1.3)";
-    }
-    
-    // Show reward info
-    const rewardInfo = document.getElementById("rewardInfo");
-    const rewardText = document.getElementById("rewardText");
-    if (rewardInfo) {
-        rewardInfo.style.display = "flex";
-        rewardInfo.innerHTML = `
-            <span class="big-reward">🎉 MEGA CHEST! 🎉</span>
-            <span>1000 coins + Weapon + Shield</span>
-        `;
-    }
-    
-    // Enable buttons
-    const claimBtn = document.querySelector(".claimBtn");
-    const doubleBtn = document.querySelector(".doubleRewardBtn");
-    if (claimBtn) {
-        claimBtn.disabled = false;
-        claimBtn.innerText = "CLAIM MEGA REWARD!";
-    }
-    if (doubleBtn) {
-        doubleBtn.disabled = false;
-        doubleBtn.innerText = "🎥 WATCH AD FOR 2X COINS";
-    }
-    
-    // Hide chest after animation
-    setTimeout(() => {
-        if (bigChest) bigChest.style.display = "none";
-    }, 500);
 }
 
 function updateDailyRewardUI(){
@@ -1382,7 +1311,6 @@ function updateDailyRewardUI(){
                 dayEl.innerHTML += "<br>✓";
             }
         } else if (i === dailyData.streak) {
-            // Today's reward
             dayEl.classList.add("active", "today");
         }
     }
@@ -1552,7 +1480,7 @@ function createBullet(x, y, dx, dy){
         dx: dx,
         dy: dy || -10,
         active: true,
-        skin: currentSkin   // ✅ lock skin at fire time
+        skin: currentSkin
     });
 }
 
@@ -1667,7 +1595,6 @@ function updateSpawning(currentTime){
     if(boss) return;
 
     if(!waveInProgress){
-        // Time between waves
         if(currentTime - lastWaveTime > 2000){
             startWave();
             lastWaveTime = currentTime;
@@ -1714,7 +1641,7 @@ async function endWave(){
     updateHUD();
     coinPulse();
 
-    // ✅ GUARANTEED next wave
+    // GUARANTEED next wave
     setTimeout(() => {
         startWave();
     }, 1500);
@@ -1765,7 +1692,6 @@ function spawnBoss(){
 
         speed: 2 + level * 0.1,
 
-        // AI SYSTEM
         vx: 2,
         attackCooldown: 0,
         attackRate: 60,
@@ -1899,7 +1825,6 @@ function closeBossReward(){
 }
 
 async function loadCoins() {
-    // Try native plugin first
     if (window.FirebaseFirestore) {
         try {
             const { snapshot } = await window.FirebaseFirestore.getDocument({
@@ -1913,7 +1838,6 @@ async function loadCoins() {
         }
     }
     
-    // Fallback to localStorage
     coins = parseInt(localStorage.getItem("coins") || "0");
     updateHUD();
 }
@@ -1921,7 +1845,6 @@ async function loadCoins() {
 async function addCoins(amount) {
     const newAmount = coins + amount;
     
-    // Try native plugin first
     if (window.FirebaseFirestore) {
         try {
             await window.FirebaseFirestore.setDocument({
@@ -1934,7 +1857,6 @@ async function addCoins(amount) {
             localStorage.setItem("coins", newAmount);
         }
     } else {
-        // No plugin, use localStorage
         localStorage.setItem("coins", newAmount);
     }
     
@@ -1956,7 +1878,6 @@ async function setCoins(amount) {
         }
     }
     
-    // Fallback to localStorage
     localStorage.setItem("coins", amount);
 }
 
@@ -2173,10 +2094,10 @@ function updateBullets(){
                     });
                     
                     // REWARD CALCULATION
-                    let reward = 50;
-                    if(e.type === ENEMY_FAST) reward = 8;
-                    if(e.type === ENEMY_TANK) reward = 15;
-                    if(e.type === ENEMY_SHOOTER) reward = 12;
+                    let reward = 10;
+                    if(e.type === ENEMY_FAST) reward = 15;
+                    if(e.type === ENEMY_TANK) reward = 25;
+                    if(e.type === ENEMY_SHOOTER) reward = 30;
                     
                     addCoins(reward).then(() => {
                     });
@@ -2602,6 +2523,41 @@ function updatePowerups(){
     }
 }
 
+/* ---------- SHIELD METER ---------- */
+
+function updateShieldMeter() {
+    const meter = document.getElementById("shieldMeter");
+    const bar = document.getElementById("shieldBar");
+    const text = document.getElementById("shieldText");
+    
+    if (!meter || !bar || !text) return;
+    
+    if (!shieldActive) {
+        meter.style.display = "none";
+        meter.classList.remove("low-shield");
+        return;
+    }
+    
+    // Show meter
+    meter.style.display = "flex";
+
+    const maxShieldTime = 300 + (shieldLevel * 150);
+    const percentage = Math.max(0, Math.min(100, (shieldTimer / maxShieldTime) * 100));
+    
+    // Update bar width
+    bar.style.width = percentage + "%";
+    
+    // Update text
+    text.innerText = Math.round(percentage) + "%";
+    
+    // Warning color when low
+    if (percentage < 25) {
+        meter.classList.add("low-shield");
+    } else {
+        meter.classList.remove("low-shield");
+    }
+}
+
 /* ---------- TIMERS ---------- */
 
 function updateTimers(){
@@ -2624,6 +2580,8 @@ function updateTimers(){
             shieldActive = false;
         }
     }
+
+    updateShieldMeter();
 
     // COMBO
     if(comboTimer > 0){
@@ -2682,7 +2640,7 @@ function selectSkin(id){
     updateSkin();
     saveGame();
 
-    // 🔥 RESET ALL BUTTONS
+    // RESET ALL BUTTONS
     document.querySelectorAll('.skinBtn').forEach(btn => {
         btn.style.borderColor = '#444';
         btn.style.boxShadow = 'none';
@@ -2691,7 +2649,7 @@ function selectSkin(id){
         if(badge) badge.remove();
     });
 
-    // ✅ TARGET CORRECT BUTTON
+    // TARGET CORRECT BUTTON
     const skinBtn = document.getElementById('skin' + id);
 
     if(!skinBtn){
@@ -2699,11 +2657,11 @@ function selectSkin(id){
         return;
     }
 
-    // 🟢 APPLY GREEN BORDER
+    // APPLY GREEN BORDER
     skinBtn.style.borderColor = "#00ff88";
     skinBtn.style.boxShadow = "0 0 15px #00ff88";
 
-    // 🏷️ ADD EQUIPPED BADGE
+    // ADD EQUIPPED BADGE
     const badge = document.createElement("div");
     badge.className = "equippedBadge";
     badge.innerText = "EQUIPPED";
@@ -2741,12 +2699,12 @@ async function tryBuySkin(id, price){
     // Unlock
     unlockedSkins.push(id);
 
-    // ✅ FORCE UI UPDATE FIRST
+    // FORCE UI UPDATE FIRST
     updateHUD();
     updateShopCoins();
     saveGame();
 
-    // ✅ UPDATE BUTTON UI
+    // UPDATE BUTTON UI
     const skinBtn = document.getElementById('skin' + id);
 
     if(skinBtn){
@@ -2766,12 +2724,10 @@ async function tryBuySkin(id, price){
             priceLabel.style.color = "#00ff88";
         }
 
-        // 🔥 Small pop effect
         skinBtn.style.transform = "scale(1.1)";
         setTimeout(() => skinBtn.style.transform = "scale(1)", 200);
     }
 
-    // ✅ VERY IMPORTANT → EQUIP AFTER UI UPDATE
     setTimeout(() => {
         selectSkin(id);
     }, 50);
@@ -2814,7 +2770,6 @@ function openShop(){
 
     shop.style.display = "flex";
 
-    // ✅ ADD THIS
     updateShopUI();
     updateShopCoins();
 }
@@ -2847,7 +2802,7 @@ async function buyShield(){
         return;
     }
 
-    // ✅ Deduct coins
+    // Deduct coins
     await addCoins(-shieldCost);
     showCoinSpend(shieldCost);
     shieldLevel++;
@@ -2883,10 +2838,8 @@ async function buyWeapon() {
         showCoinSpend(weaponCost);
         weaponLevel++;
 
-        // ✅ Correct damage system
         damage += 1;
 
-        // ✅ Faster shooting (lower = faster)
         fireRate = Math.max(80, fireRate - 40);
 
         updateHUD();
@@ -2922,6 +2875,26 @@ async function buyCoins(amount) {
     updateHUD();
     coinPulse();
     showCoinGain(amount);
+}
+
+function openShopUpgrades() {
+    if (gameRunning || gameState === "playing" || gameState === "paused") {
+        resumeGame();
+    }
+
+    openShop();
+
+    setTimeout(() => {
+        const upgrades = document.getElementById("upgradesSection");
+        if (upgrades) {
+            upgrades.scrollIntoView({ behavior: "smooth", block: "center" });
+            upgrades.style.transition = "box-shadow 0.3s ease";
+            upgrades.style.boxShadow = "0 0 25px rgba(0, 255, 255, 0.5)";
+            setTimeout(() => {
+                upgrades.style.boxShadow = "";
+            }, 1200);
+        }
+    }, 200);
 }
 
 function watchAdReward(){
@@ -2960,7 +2933,7 @@ function showCoinSpend(amount){
     popup.style.top = "50%";
     popup.style.left = "50%";
     popup.style.transform = "translate(-50%, -50%)";
-    popup.style.color = "#ff4444"; // red for spending
+    popup.style.color = "#ff4444";
     popup.style.fontSize = "26px";
     popup.style.fontWeight = "bold";
     popup.style.zIndex = "9999";
@@ -2982,7 +2955,7 @@ function showCoinWarning(message = "Something went wrong"){
     const warn = document.getElementById("coinWarning");
     if(!warn) return;
 
-    warn.innerText = message; // 🔥 dynamic message
+    warn.innerText = message;
     warn.classList.add("show");
 
     setTimeout(() => {
@@ -3063,8 +3036,8 @@ function toggleSound(){
         explosionSound.volume = 0;
     } else {
         console.log("Unmuting audio");
-        shootSound.volume = sfxVolume; // Use sfxVolume, not 1
-        explosionSound.volume = sfxVolume; // Use sfxVolume, not 1
+        shootSound.volume = sfxVolume;
+        explosionSound.volume = sfxVolume;
         
         if(gameRunning && gameMusic.paused){
             gameMusic.play().catch(e => console.log("Game music failed"));
@@ -3094,60 +3067,40 @@ function setSFXVolume(val){
 /* ---------- LEVEL & GAME OVER ---------- */
 
 function levelComplete(){
-
     gameRunning = false;
     paused = false;
     
     if(gameMusic) gameMusic.pause();
 
-    let reward = 50 + (level * 10); // 🔥 better scaling
+    let reward = 50 + (level * 10);
 
     const levelCompleteScreen = document.getElementById("levelComplete");
 
     if(levelCompleteScreen) {
         levelCompleteScreen.innerHTML = `
-            <div style="
-                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-                border: 3px solid #00ff80;
-                border-radius: 20px;
-                padding: 40px;
-                text-align: center;
-                box-shadow: 0 0 40px rgba(0, 255, 128, 0.5);
-                animation: pop 0.5s ease;
-            ">
-                <h1 style="
-                    color: #00ff80;
-                    font-family: 'Orbitron', sans-serif;
-                    font-size: 32px;
-                    margin: 0 0 20px 0;
-                    text-shadow: 0 0 20px rgba(0, 255, 128, 0.8);
-                ">LEVEL ${level} COMPLETE!</h1>
+            <div class="level-complete-box">
+                <h2>LEVEL ${level}<br>COMPLETE!</h2>
                 
-                <p style="color:#ffd700;font-size:20px;margin:20px 0;">
+                <div class="reward-text">
                     Reward: +${reward} 🪙
-                </p>
+                </div>
 
-                <!-- 🔥 ADD THIS -->
-                <button onclick="doubleLevelReward(${reward})" class="menu-btn rewardBtn">
-                    🎥 DOUBLE REWARD
-                </button>
-
-                <br><br>
-
-                <button onclick="nextLevel()" class="menu-btn">
-                    NEXT LEVEL →
-                </button>
+                <div class="level-complete-buttons">
+                    <button onclick="doubleLevelReward(${reward})" class="double-reward-btn">
+                        🎥 DOUBLE REWARD
+                    </button>
+                    
+                    <button onclick="nextLevel()" class="next-level-btn">
+                        NEXT LEVEL →
+                    </button>
+                </div>
             </div>
         `;
 
         levelCompleteScreen.style.display = "flex";
-        levelCompleteScreen.style.justifyContent = "center";
-        levelCompleteScreen.style.alignItems = "center";
     }
 
-    // Give base reward
     giveReward(reward);
-
     saveGame();
 }
 
@@ -3232,8 +3185,9 @@ function gameOver(){
 function restartGame(){
     document.getElementById("gameOverScreen").style.display = "none";
     
+    const currentLevel = level;
+
     health = maxHearts;
-    level = 1;
     score = 0;
     reviveUsed = false;
     enemies = [];
@@ -3243,8 +3197,11 @@ function restartGame(){
     boss = null;
     waveInProgress = false;
     autoShootTimeout = null;
-    
+
     startGame();
+
+    level = currentLevel;
+    updateHUD();
 }
 
 function backToMenu(){
@@ -3308,7 +3265,7 @@ window.addEventListener("load", async () => {
     // Hide game at start
     if(canvas){
         canvas.style.display = "none";
-        canvas.style.pointerEvents = "auto"; // 🔥 IMPORTANT FIX
+        canvas.style.pointerEvents = "auto";
     }
 
     if(hud) hud.style.display = "none";
@@ -3334,7 +3291,7 @@ window.addEventListener("load", async () => {
 
     tapOverlay.innerHTML = `
         <div style="font-size: 30px; margin-bottom: 20px;">⚡ NEBULA STRIKE ⚡</div>
-        <div style="font-size: 18px; color: #ffffff;">TAP TO START</div>
+        <div style="font-size: 20px; color: #ffffff;">MENU</div>
     `;
 
     document.body.appendChild(tapOverlay);
@@ -3389,7 +3346,7 @@ window.addEventListener("load", async () => {
     let fallbackTriggered = false;
 
     const fallbackTimer = setTimeout(() => {
-        if (started || fallbackTriggered) return;  // Don't run if already started
+        if (started || fallbackTriggered) return;
         fallbackTriggered = true;
     
         console.log("Fallback timer running...");

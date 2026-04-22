@@ -126,7 +126,7 @@
 
         <!-- Right: Coins -->
         <div class="hud-right">
-            <div class="coin-display">
+            <div class="coin-display" onclick="openShopUpgrades()">
                 <img src="assets/ui/coin-icon.png" alt="coins">
                 <span id="coinText">0</span>
             </div>
@@ -141,6 +141,15 @@
 
     <!-- Pause Button (bottom right) -->
     <button id="pauseBtn">Pause</button>
+
+    <!-- Shield Meter (bottom left) -->
+    <div id="shieldMeter">
+        <div class="shield-icon">🛡️</div>
+        <div class="shield-bar-container">
+            <div class="shield-bar" id="shieldBar"></div>
+        </div>
+        <div class="shield-text" id="shieldText">0%</div>
+    </div>
 
     <!-- Hidden legacy elements (for JS compatibility) -->
     <div id="levelText" style="display: none;">Lv 1</div>
@@ -292,8 +301,8 @@
         </div>
     </div> <!-- Close shopSection for Skins -->
 
-    <!-- UPGRADES SECTION (separate, not nested) -->
-    <div class="shopSection">
+    <!-- UPGRADES SECTION -->
+    <div class="shopSection" id="upgradesSection">
         <h2>Upgrades</h2>
         <div class="shopControls">
             <div class="shopBtn" onclick="buyWeapon()">
@@ -304,7 +313,7 @@
                 <span>Buy Shield (150 🪙)</span>
             </div>
         </div>
-    </div> <!-- Close shopSection for Upgrades -->
+    </div>
 
     <button class="menu-btn" onclick="closeShop()" style="margin-top: auto; align-self: center; width: 85%; max-width: 320px; border-radius: 50px; border: 3px solid #00ffff; margin-bottom: 20px;">
         <span class="btn-text">Back</span>
