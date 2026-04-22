@@ -1,88 +1,168 @@
 # 🚀 Nebula Strike
 
-[![Platform](https://img.shields.io/badge/platform-Web%20%7C%20PWA-blue.svg)](https://github.com/chinabel/nebula-strike)  
-[![Language](https://img.shields.io/badge/JavaScript-ES2022-orange.svg)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)  
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)  
-[![PWA](https://img.shields.io/badge/PWA-Ready-5A0FC8?logo=pwa)](https://web.dev/progressive-web-apps/)
+[![Platform](https://img.shields.io/badge/platform-Android%20%7C%20Web-blue.svg)](https://github.com/Chinabel/Nebula_Strike)
+[![Language](https://img.shields.io/badge/JavaScript-ES2022-orange.svg)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![Built With](https://img.shields.io/badge/Built%20With-Capacitor%208-4A90D9?logo=capacitor)](https://capacitorjs.com/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-**A 2D sci-fi space shooter with arcade gameplay, and cross-platform progression. Play instantly in your browser or mobile.**
+**A 2D sci-fi space shooter built with vanilla JavaScript and Capacitor. Battle waves of enemies, defeat bosses, upgrade your ship, and earn rewards — on Android or in your browser.**
 
 <p align="center">
-  <img src="src/assets/imgs/logo.png" alt="Nebula Strike" width="400">
+  <img src="public/assets/icon.png" alt="Nebula Strike" width="120">
 </p>
 
 ---
 
-## 🎮 Game Features
+## 🎮 Gameplay
 
-### Core Gameplay
-- **Fast-Paced 3D Action** — Smooth 60fps using WebGL  
-- **Touch & Mouse Controls** — Drag-to-move with realistic ship physics  
-- **Procedural Enemies** — Dynamic asteroids and enemy patterns  
-- **Stunning Visuals** — Explosions, sparks, glowing particle effects  
-- **Immersive Starfield** — Multi-layer parallax for depth perception  
-
-### Progression & Economy
-- **Cross-Platform Save** — Sync progress via QR code  
-- **Levels & Bosses** — 9 challenging levels with unique bosses  
-- **Dual Economy** — Earn coins in-game or purchase premium currency  
-- **Achievements & Rewards** — Unlock badges and exclusive ships  
-
-### Platform Highlights
-
-| Feature | Web / PWA |
-|---------|-----------|
-| **Graphics** | WebGL 2.0 (fallback to 1.0) |
-| **Install** | Browser install, PWA ready |
-| **Offline Play** | Cached levels 1–3 offline |
-| **IAP** | Stripe / Web Payments API |
-| **Notifications** | Web Push API |
-| **Vibration** | Limited vibration API |
-| **Updates** | Instant via Service Worker |
+- **Wave-based combat** — Survive escalating enemy waves with increasing difficulty
+- **4 enemy types** — Normal, Fast, Tank, and Shooter enemies with unique behaviors
+- **Boss fights** — Challenging bosses every 3 waves with Spray, Burst, and Laser attack patterns
+- **Dynamic difficulty** — Game adapts based on your accuracy and damage taken
+- **Auto-shoot system** — Continuous firing with upgradeable weapon patterns (levels 1–5)
+- **Touch controls** — Drag-to-move on Android; keyboard arrows on desktop
+- **60fps game loop** — Smooth canvas rendering with delta-time capping
 
 ---
 
-## 📱 Play Now
+## ⚡ Features
 
-🌐 **[Play Instantly](https://nebulastrike.app)** — No install required  
+### Combat & Progression
+- 5 weapon upgrade levels — from single shot to 5-bullet spread
+- Shield system with upgradeable duration
+- Health, Rapid Fire, and Shield power-up drops
+- Combo multiplier system
+- Revive system via rewarded ads (one per game session)
+- Persistent coin economy saved to Firebase Firestore (with localStorage fallback)
 
-**Install as App:**  
-- **Chrome/Edge:** Click "Install" in address bar  
-- **Safari iOS:** Share → Add to Home Screen  
-- **Samsung:** Menu → Add to Home Screen  
+### Rewards & Economy
+- Daily login reward streak (Days 1–6: coins; Day 7: Mega Chest with weapon + shield upgrade)
+- Boss defeat rewards with optional double-reward ad
+- Level complete rewards with optional double-reward ad
+- Watch-ad-for-coins system
+- In-game shop: weapon upgrades, shield upgrades, ship skins
 
----
-
-## 💎 Premium Assets
-- **UI Pack:** `ui/premium-screen.png`, `ui/upgrade-button.png`, `ui/coin-icon.png`, `ui/premium-badge.png`, `ui/locked-level.png`, `ui/shop-premium.png`  
-- **Exclusive Ships & Skins** — Unlockable via in-game achievements or IAP  
+### Ship Skins
+- 5 unlockable skins purchasable with in-game coins
+- Equipped skin persists across sessions
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Web / PWA (JavaScript)
-- **Language:** ES2022+ (vanilla JS modules)  
-- **Graphics:** WebGL 2.0 (with fallback to 1.0)  
-- **Storage:** IndexedDB + localStorage  
-- **Sync:** Background Sync API  
-- **Install:** Web App Manifest + Service Worker  
+| Layer | Technology |
+|-------|-----------|
+| Game Engine | Vanilla JavaScript (Canvas 2D API) |
+| Mobile Wrapper | Capacitor 8 |
+| Backend / Sync | Firebase Firestore (native `@capacitor-firebase/firestore`) |
+| Ads | `@capacitor-community/admob` 8.0.0 |
+| Build Tool | Vite |
+| Android Build | Gradle + JDK 21 |
+| Audio | HTML5 Audio API |
 
-### Shared Pipeline
-- **Assets:** `shared-assets/raw/`  
-- **Textures:** PNG → WebP  
-- **Audio:** WAV → MP3  
-- **Models:** Blender → JSON  
-- **Data:** JSON with platform-specific converters  
+---
+
+## 📁 Project Structure
+
+```
+Nebula_Strike/
+├── index.html                  ← Vite entry point (root)
+├── vite.config.ts
+├── capacitor.config.json
+├── package.json
+├── public/
+│   ├── app.js                  ← Main game file
+│   ├── styles.css
+│   └── assets/
+│       ├── player.png
+│       ├── enemy.png
+│       ├── boss.png
+│       ├── background.png
+│       ├── enemies/            ← enemy-fast, enemy-tank, enemy-shooter
+│       ├── effects/            ← explosion
+│       ├── skins/              ← skin1–skin4
+│       ├── sounds/             ← shoot.wav, explosion.wav, menu.mp3, music.mp3
+│       └── ui/                 ← coin-icon, health, rapid, shield, hearts
+├── www/                        ← Vite build output (Capacitor reads this)
+└── android/                    ← Capacitor Android project
+```
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-| Tool | Web | Both |
-|------|-----|------|
-| Node.js 18+ | ✅ | |
-| Python 3.9+ | | ✅ |
-| FFmpeg | | ✅ (audio) |
-| ImageMagick | | ✅ (textures) |
+
+- Node.js 22 (via nvm)
+- JDK 21
+- Android SDK
+- Android Studio (for AVD / emulator)
+
+### Environment Setup (Windows)
+
+```cmd
+nvm use 22
+set JAVA_HOME=C:\Users\<you>\Java\jdk-21
+set PATH=%JAVA_HOME%\bin;%PATH%
+set ANDROID_HOME=C:\Users\<you>\AndroidSdk
+set PATH=%PATH%;%ANDROID_HOME%\platform-tools
+```
+
+### Build & Deploy
+
+```cmd
+npm run sync:android
+cd android
+.\gradlew assembleDebug
+adb install -r app\build\outputs\apk\debug\app-debug.apk
+```
+
+### Dev Server (browser testing)
+
+```cmd
+npm run dev
+```
+
+---
+
+## 📱 Android Emulator
+
+AVD Name: `NebulaTest` (android-33, google_apis, x86_64)
+
+```cmd
+# Start emulator
+C:\Users\<you>\AndroidSdk\emulator\emulator -avd NebulaTest -no-snapshot-load
+
+# If device goes offline
+adb kill-server
+adb start-server
+adb devices
+```
+
+---
+
+## 🔥 Firebase Setup
+
+- **Android:** Firebase initialized natively via `@capacitor-firebase/firestore` plugin
+- **Web:** Firebase Web SDK via CDN with App Check
+- Player data stored at Firestore path: `players/{playerId}`
+- Coins, weapon level, skins, and daily streak are persisted
+
+---
+
+## 🎯 Game Balance
+
+| Enemy Type | Speed | HP | Reward |
+|-----------|-------|-----|--------|
+| Normal | Base | Base | 50 coins |
+| Fast | Base +2 | Base -1 | 8 coins |
+| Tank | Base -1 | Base ×2 | 15 coins |
+| Shooter | Base | Base +1 | 12 coins |
+
+Boss spawns every 3rd wave from level 5 onwards. Boss HP scales as `100 + level × 25`.
+
+---
+
+## 📜 License
+
+MIT © Chinabel — see [LICENSE](LICENSE) for details.
