@@ -26,23 +26,6 @@ ehthumbs.db
 *.iml
 
 # ---------------------------
-# MacOS
-# ---------------------------
-
-.AppleDouble
-.LSOverride
-
-# ---------------------------
-# Windows
-# ---------------------------
-
-*.cab
-*.msi
-*.msm
-*.msp
-*.lnk
-
-# ---------------------------
 # Linux
 # ---------------------------
 
@@ -83,23 +66,10 @@ keystore.properties
 android/local.properties
 android/app/google-services.json
 
-# iOS (if applicable)
-ios/GoogleService-Info.plist
-
 # General
 .env
 .env.local
 secrets.properties
-
-# ---------------------------
-# Fastlane
-# ---------------------------
-
-fastlane/report.xml
-fastlane/Preview.html
-fastlane/screenshots
-fastlane/test_output
-fastlane/readme.md
 
 # ---------------------------
 # PWA / App specific
@@ -112,12 +82,6 @@ tmp/
 .navigation/
 captures/
 
-# Optional: Comment these if you want to keep mapping / builds for Android
 # app/release/
 # app/debug/
 # *.mapping
-
-# ---------------------------
-# Nebula Strike assets you want to keep
-# ---------------------------
-
