@@ -3317,7 +3317,7 @@ window.addEventListener("load", async () => {
     `;
 
     tapOverlay.innerHTML = `
-        <div style="font-size: 30px; margin-bottom: 20px;">⚡ NEBULA STRIKE ⚡</div>
+        <div style="font-size: 25px; margin-bottom: 20px;">⚡ NEBULA STRIKE ⚡</div>
         <div style="font-size: 20px; color: #ffffff;">MENU</div>
     `;
 
