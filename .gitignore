@@ -71,6 +71,7 @@ android/**/google-services.json
 # General
 .env
 .env.local
+.env.*.local
 secrets.properties
 
 # ---------------------------

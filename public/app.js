@@ -3217,7 +3217,7 @@ function nextLevel(){
     saveGame();
 }
 
-function gameOver(){
+async function gameOver(){
     console.log("=== GAME OVER ===");
 
     gameState = "gameover";
@@ -3227,6 +3227,8 @@ function gameOver(){
     if (window.gameLoopId) {
         cancelAnimationFrame(window.gameLoopId);
     }
+
+    await submitScore(level, totalKills);
 
     // Show UI
     const screen = document.getElementById("gameOverScreen");
@@ -3240,6 +3242,72 @@ function gameOver(){
         }, 10);
     }
 }
+
+async function submitScore(levelReached, kills) {
+    if (!window.FirebaseFirestore) return;
+    try {
+        await window.FirebaseFirestore.setDocument({
+            reference: `leaderboard/${playerId}`,
+            data: {
+                playerId,
+                level: levelReached,
+                kills,
+                coins,
+                timestamp: Date.now()
+            },
+            merge: false
+        });
+        console.log("Score submitted");
+    } catch(e) {
+        console.warn("Score submit failed:", e);
+    }
+}
+
+/* ---------- LEADERBOARD ---------- */
+
+async function loadLeaderboard() {
+    const screen = document.getElementById("leaderboardScreen");
+    if(screen) screen.style.display = "flex";
+
+    if (!window.FirebaseFirestore) {
+        showCoinWarning("Leaderboard requires internet");
+        return;
+    }
+
+    try {
+        const { snapshot } = await window.FirebaseFirestore.getCollection({
+            reference: "leaderboard"
+        });
+
+        const entries = snapshot.documents
+            .map(doc => doc.data)
+            .sort((a, b) => b.level - a.level || b.kills - a.kills)
+            .slice(0, 10); // top 10
+
+        renderLeaderboard(entries);
+    } catch(e) {
+        console.warn("Leaderboard load failed:", e);
+        showCoinWarning("Could not load leaderboard");
+    }
+}
+
+function renderLeaderboard(entries) {
+    const list = document.getElementById("leaderboardList");
+    if (!list) return;
+
+    list.innerHTML = entries.map((entry, i) => {
+        const isMe = entry.playerId === playerId;
+        return `
+            <div class="lb-row ${isMe ? 'lb-me' : ''}">
+                <span class="lb-rank">#${i + 1}</span>
+                <span class="lb-name">${isMe ? 'YOU' : 'Player'}</span>
+                <span class="lb-level">Lv ${entry.level}</span>
+                <span class="lb-kills">${entry.kills} kills</span>
+            </div>
+        `;
+    }).join('');
+}
+
 
 function restartGame(){
     document.getElementById("gameOverScreen").style.display = "none";
@@ -3271,12 +3339,12 @@ function backToMenu(){
 
 /* ---------- FIREBASE CONFIG ---------- */
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "nebula-strike-2c357.firebaseapp.com",
-    projectId: "nebula-strike-2c357",
-    storageBucket: "nebula-strike-2c357.firebasestorage.app",
-    messagingSenderId: "656562876567",
-    appId: "1:656562876567:android:38aef3fff6b0dff2abb9d2"
+    apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+    authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.REACT_APP_FIREBASE_APP_ID
 };
 
 /* ---------- INITIALIZATION ---------- */
