@@ -1006,6 +1006,13 @@ function startGame(){
     }
     if(hud) hud.style.display = "flex";
 
+    const coinDisplay = document.querySelector('.coin-display');
+    if (coinDisplay) {
+        coinDisplay.addEventListener('touchstart', () => {
+            if (navigator.vibrate) navigator.vibrate(10);
+        }, { passive: true });
+    }
+
     // FORCE BROWSER TO CALCULATE LAYOUT
     document.body.offsetHeight; // trigger reflow
     
@@ -2906,6 +2913,9 @@ async function buyCoins(amount) {
 }
 
 function openShopUpgrades() {
+    const coinDisplay = document.querySelector('.coin-display');
+    if(coinDisplay) coinDisplay.classList.add('clicked');
+
     window.shopOpenedFromGame = (gameState === "playing" || gameRunning);
 
     if(gameRunning && !paused) {
@@ -2925,6 +2935,28 @@ function openShopUpgrades() {
             upgrades.scrollIntoView({ behavior: "smooth", block: "center" });
         }
     }, 200);
+}
+
+function showCoinHint() {
+    // Only show once per session
+    if (sessionStorage.getItem('coinHintShown')) return;
+    
+    const coinDisplay = document.querySelector('.coin-display');
+    if (!coinDisplay) return;
+    
+    const hint = document.createElement('div');
+    hint.className = 'coin-tooltip';
+    hint.innerHTML = 'Tap for upgrades! ⬆️';
+    
+    coinDisplay.appendChild(hint);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        hint.style.opacity = '0';
+        setTimeout(() => hint.remove(), 500);
+    }, 3000);
+    
+    sessionStorage.setItem('coinHintShown', 'true');
 }
 
 function watchAdReward(){
