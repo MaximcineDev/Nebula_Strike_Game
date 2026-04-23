@@ -365,22 +365,22 @@ body {
 ========================= */
 
 .menu-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
     z-index: 3000;
     position: relative;
     pointer-events: auto;
-    width: 100%;
-    max-width: 320px;
-    align-items: center;
+    width: 90%;
+    max-width: 400px;
+    align-items: stretch;
+    margin-top: 20px;
 }
 
 .menu-btn {
     position: relative;
     width: 100%;
-    max-width: 280px;
-    padding: 18px 50px;
+    padding: 18px 20px;
     font-family: 'Orbitron', 'Arial Black', sans-serif;
     font-size: clamp(18px, 4vw, 24px);
     font-weight: 700;
@@ -441,6 +441,7 @@ body {
         0 0 20px rgba(0, 255, 128, 0.3),
         inset 0 0 20px rgba(0, 255, 128, 0.1);
     animation: playPulse 2s ease-in-out infinite;
+    grid-column: span 2;
 }
 
 @keyframes playPulse {
@@ -478,6 +479,7 @@ body {
     box-shadow: 
         0 0 20px rgba(200, 0, 255, 0.3),
         inset 0 0 20px rgba(200, 0, 255, 0.1);
+    grid-column: span 2
 }
 
 .settings-btn:hover {

@@ -87,12 +87,11 @@
             <span class="btn-text">SHOP</span>
             <div class="btn-shine"></div>
         </button>
+        <button class="menu-btn" onclick="loadLeaderboard()" style="border-color:#ffd700;">
+            <span class="btn-text">🏆 LEADERBOARD</span>
+        </button>
         <button class="menu-btn settings-btn" onclick="openSettings()">
             <span class="btn-text">SETTINGS</span>
-            <div class="btn-shine"></div>
-        </button>
-        <button class="menu-btn settings-btn" onclick="closeApp()">
-            <span class="btn-text">CLOSE</span>
             <div class="btn-shine"></div>
         </button>
     </div>
@@ -428,6 +427,23 @@
 
     </div>
 
+</div>
+
+<!-- LEADERBOARD -->
+<div id="leaderboardScreen" style="display:none; position:fixed; inset:0; 
+     background:rgba(0,0,0,0.95); z-index:8000; flex-direction:column; 
+     align-items:center; padding:20px; overflow-y:auto;">
+    
+    <h2 style="color:#00ffff; font-family:Orbitron; margin:20px 0;">
+        🏆 LEADERBOARD
+    </h2>
+    
+    <div id="leaderboardList" style="width:100%; max-width:400px;"></div>
+    
+    <button class="menu-btn" onclick="document.getElementById('leaderboardScreen').style.display='none'"
+            style="margin-top:20px;">
+        ← BACK
+    </button>
 </div>
 
 <div id="coinWarning">NOT ENOUGH COINS</div>
