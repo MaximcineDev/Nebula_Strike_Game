@@ -208,6 +208,18 @@ function handleReward(success) {
             claimDailyReward(false);
             break;
 
+        case 'doubleBoss':
+            coins += rewardAmount;
+            updateHUD();
+            coinPulse();
+            showCoinGain(rewardAmount);
+            
+            const bossPopup = document.getElementById("bossRewardPopup");
+            if(bossPopup) bossPopup.remove();
+            
+            setTimeout(() => levelComplete(), 300);
+            break;
+
         default:
             console.log("Unknown reward action:", action);
     }
@@ -1619,32 +1631,26 @@ function updateSpawning(currentTime){
 async function endWave(){
     waveInProgress = false;
     waveSpawnTimer = 0;
-
-    console.log("Wave ended:", waveNumber);
-
-    // Safety cleanup
     enemies = [];
 
-   // Boss FIRST
-   if(level >= 5 && waveNumber % 3 === 0){
-      setTimeout(() => spawnBoss(), 1500);
-      return;
-   }
-   
-   // Then level complete
-   if(waveNumber % 3 === 0){
-      setTimeout(() => levelComplete(), 1000);
-      return;
-   }
+    console.log("Wave ended:", waveNumber, "Level:", level);
+
+    if(waveNumber % 3 === 0){
+        // Boss level - spawn boss first, level complete comes after boss dies
+        if(level % 5 === 0){
+            setTimeout(() => spawnBoss(), 1500);
+            return;
+        }
+        // Normal level complete
+        setTimeout(() => levelComplete(), 1000);
+        return;
+    }
 
     await addCoins(20 + level * 5);
     updateHUD();
     coinPulse();
 
-    // GUARANTEED next wave
-    setTimeout(() => {
-        startWave();
-    }, 1500);
+    setTimeout(() => startWave(), 1500);
 }
 
 function showWaveNotification(waveNum){
@@ -1778,10 +1784,11 @@ function bossAttack(){
 async function giveBossReward(){
     let baseReward = 200 + (level * 50);
     let reward = Math.floor(baseReward * 1.2);
-    await addCoins(reward);  // ✅ Now valid
-    showBossRewardPopup(reward);
+    await addCoins(reward);
     updateHUD();
     saveGame();
+
+    showBossRewardPopup(reward);
 }
 
 function showBossRewardPopup(amount){
@@ -1811,17 +1818,19 @@ function showBossRewardPopup(amount){
 }
 
 function doubleBossReward(amount){
-   coins += amount;
-   pendingRewardAction = 'doubleBoss';
-   showRewardAd().catch(err => {
-       console.log("Ad failed:", err);
-       pendingRewardAction = null;
-   });
+    rewardAmount = amount;
+    pendingRewardAction = 'doubleBoss';
+    showRewardAd().catch(err => {
+        console.log("Ad failed:", err);
+        pendingRewardAction = null;
+    });
 }
 
 function closeBossReward(){
     const popup = document.getElementById("bossRewardPopup");
     if(popup) popup.remove();
+
+    setTimeout(() => levelComplete(), 300);
 }
 
 async function loadCoins() {
@@ -2776,14 +2785,33 @@ function openShop(){
 
 function closeShop(){
     const shop = document.getElementById("shop");
-    const menu = document.getElementById("main-menu");
+    if(shop) shop.style.display = "none";
 
-    shop.style.display = "none";
+    if(window.shopOpenedFromGame) {
+        window.shopOpenedFromGame = false;
 
-    menu.style.display = "flex";
-    setTimeout(() => {
-        menu.classList.add("show");
-    }, 10);
+        // Resume game
+        paused = false;
+        gameState = "playing";
+        gameRunning = true;
+
+        if(soundOn && gameMusic) gameMusic.play().catch(()=>{});
+
+        lastTime = 0;
+        window.gameLoopId = requestAnimationFrame(gameLoop);
+
+        const gameCanvas = document.getElementById("gameCanvas");
+        const hud = document.getElementById("hud");
+        if(gameCanvas) gameCanvas.style.display = "block";
+        if(hud) hud.style.display = "flex";
+
+    } else {
+        const menu = document.getElementById("main-menu");
+        if(menu) {
+            menu.style.display = "flex";
+            setTimeout(() => menu.classList.add("show"), 10);
+        }
+    }
 }
 
 async function buyShield(){
@@ -2878,21 +2906,23 @@ async function buyCoins(amount) {
 }
 
 function openShopUpgrades() {
-    if (gameRunning || gameState === "playing" || gameState === "paused") {
-        resumeGame();
+    window.shopOpenedFromGame = (gameState === "playing" || gameRunning);
+
+    if(gameRunning && !paused) {
+        paused = true;
+        if(gameMusic) gameMusic.pause();
+        if(window.gameLoopId) {
+            cancelAnimationFrame(window.gameLoopId);
+            window.gameLoopId = null;
+        }
     }
 
     openShop();
 
     setTimeout(() => {
         const upgrades = document.getElementById("upgradesSection");
-        if (upgrades) {
+        if(upgrades) {
             upgrades.scrollIntoView({ behavior: "smooth", block: "center" });
-            upgrades.style.transition = "box-shadow 0.3s ease";
-            upgrades.style.boxShadow = "0 0 25px rgba(0, 255, 255, 0.5)";
-            setTimeout(() => {
-                upgrades.style.boxShadow = "";
-            }, 1200);
         }
     }, 200);
 }
@@ -3069,7 +3099,8 @@ function setSFXVolume(val){
 function levelComplete(){
     gameRunning = false;
     paused = false;
-    
+    gameState = "levelcomplete";
+
     if(gameMusic) gameMusic.pause();
 
     let reward = 50 + (level * 10);
@@ -3115,46 +3146,42 @@ function doubleLevelReward(baseReward){
 
 function nextLevel(){
     level++;
+    if(level > 100) level = 100;
+    if(level > highestLevel) highestLevel = level;
+
     const levelCompleteScreen = document.getElementById("levelComplete");
-    if(levelCompleteScreen) {
+    if(levelCompleteScreen){
         levelCompleteScreen.style.display = "none";
-        // Reset innerHTML for next time
         levelCompleteScreen.innerHTML = '';
     }
-    
-    if(level > 50) level = 50;
-    if(level > highestLevel){
-        highestLevel = level;
-    }
-    
-    // Reset game state
+
+    // Reset wave count for the new level
+    waveNumber = 0;
+
     enemies = [];
     enemyBullets = [];
     bullets = [];
     powerups = [];
     boss = null;
     waveInProgress = false;
-    waveNumber = 0;
-    
+
     gameRunning = true;
     paused = false;
-    
+    gameState = "playing";
+
     updateHUD();
-    
-    // Restart music
+
     if(soundOn && gameMusic){
         gameMusic.currentTime = 0;
         gameMusic.play().catch(()=>{});
     }
-    
-    // Start first wave
-    setTimeout(() => startWave(), 500);
-    
+
     lastTime = 0;
-    lastWaveTime = 0;
-    lastEnemySpawnTime = 0;
-    
-    requestAnimationFrame(gameLoop);
+    lastWaveTime = performance.now();
+    lastEnemySpawnTime = performance.now();
+
+    setTimeout(() => startWave(), 500);
+    window.gameLoopId = requestAnimationFrame(gameLoop);
     saveGame();
 }
 
