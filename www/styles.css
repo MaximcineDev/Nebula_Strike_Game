@@ -82,7 +82,7 @@ body {
     height: 100dvh;
     min-height: -webkit-fill-available;
     background: url("assets/ui/splash-screen.png") center center no-repeat;
-    background-size: cover;
+    background-size: 100% 100%;
     background-color: #000;
     display: flex;
     justify-content: center;
@@ -105,13 +105,65 @@ body {
     100% {opacity:1}
 }
 
+/* ========== SPLASH SHIP ANIMATION ========== */
 
+.splash-ship-container {
+    position: absolute;
+    bottom: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.splash-ship {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 20px #00ffff) drop-shadow(0 0 40px #0088ff);
+    animation: shipHover 2s ease-in-out infinite, shipGlow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes shipHover {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-20px); }
+}
+
+@keyframes shipGlow {
+    0%   { filter: drop-shadow(0 0 15px #00ffff) drop-shadow(0 0 30px #0066ff); }
+    100% { filter: drop-shadow(0 0 30px #00ffff) drop-shadow(0 0 60px #00aaff) drop-shadow(0 0 80px #0044ff); }
+}
+
+.splash-glow {
+    width: 80px;
+    height: 20px;
+    background: radial-gradient(ellipse, rgba(0, 200, 255, 0.6) 0%, transparent 70%);
+    border-radius: 50%;
+    margin-top: 10px;
+    animation: shadowPulse 2s ease-in-out infinite;
+    filter: blur(4px);
+}
+
+@keyframes shadowPulse {
+    0%, 100% { 
+        transform: scaleX(1); 
+        opacity: 0.6; 
+    }
+    50% { 
+        transform: scaleX(0.6); 
+        opacity: 0.2; 
+    }
+}
 
 /* =========================
         MAIN MENU
 ========================= */
 
 #main-menu {
+    background: 
+        radial-gradient(ellipse at center, rgba(20, 0, 40, 0.5) 0%, rgba(0, 0, 0, 0.6) 100%),
+        url("assets/ui/splash-screen.png") center center / 100% 100% no-repeat;
     position: fixed;
     top: 0;
     left: 0;
@@ -121,9 +173,6 @@ body {
     height: 100vh;
     height: 100dvh;
     min-height: -webkit-fill-available;
-    background: 
-        radial-gradient(ellipse at center, rgba(20, 0, 40, 0.9) 0%, rgba(0, 0, 0, 1) 100%),
-        url("assets/background.png") center center / cover no-repeat;
     display: none;
     flex-direction: column;
     justify-content: center;
@@ -144,25 +193,7 @@ body {
 }
 
 #main-menu::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: 
-        radial-gradient(2px 2px at 20px 30px, white, transparent),
-        radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
-        radial-gradient(1px 1px at 90px 40px, white, transparent),
-        radial-gradient(2px 2px at 160px 120px, rgba(255,255,255,0.9), transparent),
-        radial-gradient(1px 1px at 230px 80px, white, transparent);
-    background-size: 250px 250px;
-    animation: twinkle 5s ease-in-out infinite;
-}
-
-@keyframes twinkle {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 1; }
+    display: none;
 }
 
 .ranks-btn {
@@ -1611,9 +1642,21 @@ body {
 }
 
 .coinCard.noAdsCard .badge.premium {
-    background: #ff66cc;
-    color: white;
-    box-shadow: 0 0 10px rgba(255,102,204,0.8);
+    top: -12px;
+    right: -12px;
+    background: transparent;
+    padding: 0;
+    width: 60px;
+    height: 60px;
+    box-shadow: none;
+    z-index: 10; 
+}
+
+.badge.premium img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 0 6px rgba(255, 102, 204, 0.6));
 }
 
 .coinCard.noAdsCard .noAdsIcon {

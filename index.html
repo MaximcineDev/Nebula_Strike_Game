@@ -54,7 +54,10 @@
 <!-- ================= SPLASH ================= -->
 
 <div id="splashScreen">
-    <p id="loadingText">Loading....</p>
+    <div class="splash-ship-container">
+        <img src="assets/player.png" alt="ship" class="splash-ship">
+        <div class="splash-glow"></div>
+    </div>
 </div>
 
 <!-- ================= MAIN MENU ================= -->
@@ -153,7 +156,7 @@
 <!-- ================= LEVEL COMPLETE ================= -->
 
 <div id="levelComplete">
-    <div class="level-complete-box">  <!-- Add this wrapper -->
+    <div class="level-complete-box">
         <h2>Level 1<br>Complete!</h2>
         <div class="reward-text">Reward: +60 🪙</div>
         <div class="level-complete-buttons">
@@ -200,7 +203,9 @@
 
             <!-- NO ADS PURCHASE -->
             <div class="coinCard noAdsCard" id="noAdsCard" onclick="buyNoAds()">
-                <div class="badge premium">PREMIUM</div>
+                <div class="badge premium">
+                    <img src="assets/ui/premium-badge.png" onerror="this.style.display='none'">
+                </div>
                 <div class="noAdsIcon">🚫🎬</div>
                 <div class="coinLabel" style="color:#ff99dd; font-weight:bold; font-size:14px;">Remove Ads</div>
                 <div class="coinPrice" style="color:#ff66cc; font-size:18px; font-weight:bold;">$12.99</div>
@@ -226,7 +231,7 @@
             </div>
             
             <!-- Skin 1 - Locked -->
-            <div class="skinBtn locked" id="skin1" onclick="tryBuySkin(1, 250)">
+            <div class="skinBtn locked" id="skin1" onclick="tryBuySkin(1, 500)">
                 <!-- SKIN IMAGE -->
                 <img 
                     src="assets/skins/skin1.png" 
@@ -238,11 +243,11 @@
                     <img src="assets/ui/locked-level.png" onerror="this.style.display='none'">
                 </div>
                 <!-- 💰 PRICE / STATUS -->
-                <div class="skinPrice">250 🪙</div>
+                <div class="skinPrice">500 🪙</div>
             </div>
             
             <!-- Skin 2 - Locked -->
-            <div class="skinBtn locked" id="skin2" onclick="tryBuySkin(2, 450)">
+            <div class="skinBtn locked" id="skin2" onclick="tryBuySkin(2, 1000)">
                 <!-- SKIN IMAGE -->
                 <img 
                     src="assets/skins/skin2.png" 
@@ -254,11 +259,11 @@
                     <img src="assets/ui/locked-level.png" onerror="this.style.display='none'">
                 </div>
                 <!-- 💰 PRICE / STATUS -->
-                <div class="skinPrice">450 🪙</div>
+                <div class="skinPrice">1,000 🪙</div>
             </div>
             
             <!-- Skin 3 - Locked -->
-            <div class="skinBtn locked" id="skin3" onclick="tryBuySkin(3,600)">
+            <div class="skinBtn locked" id="skin3" onclick="tryBuySkin(3,1500)">
                 <!-- SKIN IMAGE -->
                 <img 
                     src="assets/skins/skin3.png" 
@@ -270,11 +275,11 @@
                     <img src="assets/ui/locked-level.png" onerror="this.style.display='none'">
                 </div>
                 <!-- 💰 PRICE / STATUS -->
-                <div class="skinPrice">600 🪙</div>
+                <div class="skinPrice">1,500 🪙</div>
             </div>
 
             <!-- Skin 4 - Locked -->
-            <div class="skinBtn locked" id="skin4" onclick="tryBuySkin(4, 950)">
+            <div class="skinBtn locked" id="skin4" onclick="tryBuySkin(4, 2000)">
                 <!-- SKIN IMAGE -->
                 <img 
                     src="assets/skins/skin4.png" 
@@ -286,10 +291,10 @@
                     <img src="assets/ui/locked-level.png" onerror="this.style.display='none'">
                 </div>
                 <!-- 💰 PRICE / STATUS -->
-                <div class="skinPrice">950 🪙</div>
+                <div class="skinPrice">2,000 🪙</div>
             </div>
         </div>
-    </div> <!-- Close shopSection for Skins -->
+    </div>
 
     <!-- UPGRADES SECTION -->
     <div class="shopSection" id="upgradesSection">

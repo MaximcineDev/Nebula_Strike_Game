@@ -569,7 +569,8 @@ function startGame() {
     player.y = Math.max(0, Math.min(canvas.height - 150, canvas.height - player.height));
 
     // Reset state
-    health = maxHearts; score = 0; level = 1;
+    health = maxHearts; score = 0;
+    level = (highestLevel > 1) ? highestLevel : 1;
     gameRunning = true; paused = false; gameState = "playing";
     enemies = []; bullets = []; enemyBullets = []; powerups = []; boss = null;
     waveInProgress = false; waveNumber = 0; enemiesInWave = 0; reviveUsed = false;
@@ -1151,6 +1152,9 @@ async function setCoins(amount) {
 async function saveGame() {
     await setCoins(coins);
     localStorage.setItem("nebulaSave", JSON.stringify({ weaponLevel, currentSkin, unlockedSkins, dailyData, noAds }));
+    savedLevel: level,
+    highestLevel,
+    totalKills
 }
 
 async function loadGame() {
@@ -1163,6 +1167,13 @@ async function loadGame() {
     unlockedSkins = d.unlockedSkins || [0];
     dailyData     = d.dailyData     || dailyData;
     noAds = d.noAds || false;
+    highestLevel  = d.highestLevel  || 1;
+    totalKills    = d.totalKills    || 0;
+
+    if (d.savedLevel && d.savedLevel > 1) {
+        level = d.savedLevel;
+    }
+
     updateSkin();
     if (noAds) updateNoAdsUI();
 }
@@ -1680,8 +1691,6 @@ window.addEventListener("load", async () => {
     // Tap-to-start overlay
     const overlay = document.createElement("div");
     overlay.id = "tapToStart";
-    overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;justify-content:center;align-items:center;z-index:10000;color:#00ffff;font-family:Orbitron,sans-serif;text-align:center;cursor:pointer;flex-direction:column;";
-    overlay.innerHTML = `<div style="font-size:25px;margin-bottom:20px;">⚡ NEBULA STRIKE ⚡</div><div style="font-size:18px;color:#fff;">TAP TO CONTINUE</div>`;
     document.body.appendChild(overlay);
 
     let fallbackTriggered = false;
@@ -1704,7 +1713,7 @@ window.addEventListener("load", async () => {
     ["click","touchstart"].forEach(evt => overlay.addEventListener(evt, handleStart, { once: true, passive: false }));
 
     attachButtonSounds();
-    
+
     const fallbackTimer = setTimeout(() => {
         if (started || fallbackTriggered) return;
         fallbackTriggered = true;
