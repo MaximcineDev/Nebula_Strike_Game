@@ -1348,24 +1348,78 @@ async function buyCoins(amount) {
 
 /* ---------- NO ADS PURCHASE ---------- */
 
-async function buyNoAds() {
-    if (noAds) {
-        showCoinWarning("No Ads already active!");
+let storeReady = false;
+
+function initStore() {
+    if (typeof CdvPurchase === 'undefined') {
+        console.warn('Billing plugin not loaded');
         return;
     }
 
-    // NOTE: Replace this confirm() with real store purchase logic
-    // (Capacitor IAP, Google Play Billing, or StoreKit)
-    if (confirm("Purchase Remove Ads for $12.99?")) {
+    const store = CdvPurchase.store;
+
+    store.register({
+        id: 'remove_ads_premium',
+        type: CdvPurchase.ProductType.NON_CONSUMABLE,
+        platform: CdvPurchase.Platform.GOOGLE_PLAY
+    });
+
+    store.when().productUpdated(p => {
+        // Update UI with real price from Play Console
+        const priceEl = document.querySelector('#noAdsCard .coinPrice');
+        if (priceEl) priceEl.textContent = p.price;
+        storeReady = true;
+    });
+
+    store.when().approved(t => {
         noAds = true;
-        await saveGame();
-        
+        saveGame();
         hideBannerAd();
         updateNoAdsUI();
-
         showCoinGain("NO ADS ACTIVATED!");
-        console.log("No Ads purchased");
+        t.finish();
+    });
+
+    store.when().cancelled(() => {
+        showCoinWarning("Purchase cancelled");
+    });
+
+    store.when().error(err => {
+        console.error('Store error:', err);
+        showCoinWarning("Purchase failed");
+    });
+
+    store.initialize([CdvPurchase.Platform.GOOGLE_PLAY]);
+}
+
+async function buyNoAds() {
+    if (noAds) { showCoinWarning("No Ads already active!"); return; }
+
+    if (typeof CdvPurchase === 'undefined') {
+        // Fallback for browser testing
+        if (confirm("Test: Purchase Remove Ads for $12.99?")) {
+            noAds = true;
+            await saveGame();
+            hideBannerAd();
+            updateNoAdsUI();
+            showCoinGain("NO ADS ACTIVATED! (TEST)");
+        }
+        return;
     }
+
+    if (!storeReady) {
+        showCoinWarning("Store loading... try again");
+        return;
+    }
+
+    const store = CdvPurchase.store;
+    const product = store.get('remove_ads_premium');
+    if (!product) {
+        showCoinWarning("Product not available");
+        return;
+    }
+
+    await store.order(product);
 }
 
 function updateNoAdsUI() {
@@ -1682,6 +1736,7 @@ window.addEventListener("load", async () => {
 
     resizeGame();
     checkDailyReward();
+    // initStore();
 
     const canvas = document.getElementById("gameCanvas");
     const hud    = document.getElementById("hud");
