@@ -1151,29 +1151,60 @@ async function setCoins(amount) {
 // ─── SAVE / LOAD ──────────────────────────────────────────────
 async function saveGame() {
     await setCoins(coins);
-    localStorage.setItem("nebulaSave", JSON.stringify({ weaponLevel, currentSkin, unlockedSkins, dailyData, noAds }));
-    savedLevel: level,
-    highestLevel,
-    totalKills
+    const saveData = {
+        weaponLevel, currentSkin, unlockedSkins, dailyData, noAds,
+        savedLevel: level, highestLevel, totalKills,
+        lastSaved: Date.now()
+    };
+    
+    // Save locally
+    localStorage.setItem("nebulaSave", JSON.stringify(saveData));
+    
+    // Save to cloud
+    if (window.FirebaseFirestore) {
+        try {
+            await window.FirebaseFirestore.setDocument({
+                reference: `players/${playerId}`,
+                data: saveData,
+                merge: true
+            });
+        } catch (e) { console.warn("Cloud save failed:", e); }
+    }
 }
 
 async function loadGame() {
+    // Try cloud first
+    if (window.FirebaseFirestore) {
+        try {
+            const { snapshot } = await window.FirebaseFirestore.getDocument({
+                reference: `players/${playerId}`
+            });
+            if (snapshot?.data) {
+                applySaveData(snapshot.data);
+                return;
+            }
+        } catch (e) { console.warn("Cloud load failed:", e); }
+    }
+    
+    // Fallback to local
     const raw = localStorage.getItem("nebulaSave");
-    if (!raw) return;
-    const d = JSON.parse(raw);
-    await loadCoins();
-    weaponLevel   = d.weaponLevel   || 1;
-    currentSkin   = d.currentSkin   || 0;
-    unlockedSkins = d.unlockedSkins || [0];
-    dailyData     = d.dailyData     || dailyData;
-    noAds = d.noAds || false;
-    highestLevel  = d.highestLevel  || 1;
-    totalKills    = d.totalKills    || 0;
+    if (raw) applySaveData(JSON.parse(raw));
+}
 
-    if (d.savedLevel && d.savedLevel > 1) {
+function applySaveData(d) {
+    weaponLevel = d.weaponLevel || 1;
+    currentSkin = d.currentSkin || 0;
+    unlockedSkins = d.unlockedSkins || [0];
+    dailyData = d.dailyData || { lastLogin: null, streak: 0 };
+    noAds = d.noAds || false;
+    highestLevel = d.highestLevel || 1;
+    totalKills = d.totalKills || 0;
+    
+    // Always restore level if it exists, regardless of value
+    if (typeof d.savedLevel === 'number') {
         level = d.savedLevel;
     }
-
+    
     updateSkin();
     if (noAds) updateNoAdsUI();
 }

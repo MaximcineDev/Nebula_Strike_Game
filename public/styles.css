@@ -170,7 +170,7 @@ body {
     background-image: 
         linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)),
         url("assets/ui/splash-screen.png");
-    background-size: cover;
+    background-size: 100% 100%;
     background-position: center;
     background-repeat: no-repeat;
 }
@@ -1373,7 +1373,6 @@ body {
 #shop {
     position: fixed;
     inset: 0;
-    background: transparent;
     color: white;
     font-family: 'Orbitron', Arial, sans-serif;
     display: none;
@@ -1647,7 +1646,7 @@ body {
     min-width: 100%;
     margin-top: 8px;
     border-color: #ff66cc;
-    background: linear-gradient(135deg, rgba(255,102,204,0.15) 0%, rgba(150,50,150,0.15) 100%);
+    background: linear-gradient(135deg, rgba(249, 3, 167, 0.15) 0%, rgba(239, 5, 239, 0.15) 100%);
     box-shadow: 0 0 20px rgba(255,102,204,0.3), inset 0 0 20px rgba(255,102,204,0.1);
     flex: none;
     position: relative;
@@ -1657,13 +1656,13 @@ body {
 
 .coinCard.noAdsCard:active {
     transform: scale(0.98);
-    box-shadow: 0 0 30px rgba(255,102,204,0.6);
+    box-shadow: 0 0 50px rgba(255,102,204,0.6);
 }
 
 .coinCard.noAdsCard .badge.premium {
     top: -12px;
     right: -12px;
-    background: transparent;
+    background: #ff66cc;
     padding: 0;
     width: 60px;
     height: 60px;
@@ -1889,11 +1888,10 @@ body {
     height: 100vh;
     height: 100dvh;
     min-height: -webkit-fill-available;
-    display: none; /* Hidden by default */
+    display: none;
     justify-content: center;
     align-items: center;
-    background: rgba(0, 0, 0, 0.95);
-    z-index: 4000; /* ABOVE MAIN MENU */
+    z-index: 4000;
     padding: 20px;
     pointer-events: auto;
 }
