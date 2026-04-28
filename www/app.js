@@ -458,6 +458,13 @@ function showReviveScreen() {
 }
 function hideReviveScreen() { reviveScreen.style.display = "none"; }
 
+function updateLevelBadge(level) {
+    const badge = document.getElementById('levelBadge');
+    if (badge) {
+        badge.textContent = level;
+    }
+}
+
 // ─── HUD ──────────────────────────────────────────────────────
 function updateHUD() {
     const coinText = document.getElementById("coinText");
@@ -468,6 +475,8 @@ function updateHUD() {
 
     const levelText = document.getElementById("levelText");
     if (levelText) levelText.innerText = "Lv " + level;
+
+    updateLevelBadge(level);
 
     const comboText = document.getElementById("comboText");
     if (comboText) comboText.innerText = combo > 1 ? "x" + combo : "";

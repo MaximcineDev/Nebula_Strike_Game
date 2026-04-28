@@ -461,7 +461,7 @@ function hideReviveScreen() { reviveScreen.style.display = "none"; }
 function updateLevelBadge(level) {
     const badge = document.getElementById('levelBadge');
     if (badge) {
-        badge.textContent = 'Lv ' + level;
+        badge.textContent = level;
     }
 }
 
