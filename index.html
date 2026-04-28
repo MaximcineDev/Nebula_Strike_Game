@@ -55,7 +55,7 @@
 
 <div id="splashScreen">
     <div class="splash-ship-container">
-        <img src="assets/player.png" alt="ship" class="splash-ship">
+        <img src="assets/player1.png" alt="ship" class="splash-ship">
         <div class="splash-glow"></div>
     </div>
 </div>
@@ -99,7 +99,7 @@
         <!-- Left: Health/Energy -->
         <div class="hud-left">
             <div class="ship-icon">
-                <img src="assets/player.png" alt="ship">
+                <img src="assets/player1.png" alt="ship">
             </div>
             <div class="energy-section">
                 <div class="energy-text" id="energyText">2160 / 2400</div>
@@ -169,8 +169,8 @@
 
 <!-- ================= SHOP ================= -->
 <div id="shop" style="display: none;">
-    <!-- CLOSE BUTTON -->
-    <button class="shop-close-btn" onclick="closeShop()">✕</button>
+    <div class="shopPanel">
+        <button class="shop-close-btn" onclick="closeShop()">✕</button>
     
      <!-- COIN PACKS -->
     <div class="shopSection">
@@ -311,6 +311,7 @@
             </div>
         </div>
     </div>
+    </div>
 </div>
 
 <!-- ================= PAUSE MENU ================= -->
@@ -375,8 +376,11 @@
 </div>
 
 <!-- ================= SETTINGS ================= -->
-<div id="settings" style="display: none;">
+<div id="settings" style="display: none;">    
     <div class="settingsPanel">
+        <!-- CLOSE BUTTON -->
+        <button class="settings-close-btn" onclick="closeSettings()">✕</button>
+
         <h2>Settings</h2>
         
         <div class="settingsButtons">
@@ -395,9 +399,6 @@
                 <label>SFX Volume</label>
                 <input type="range" min="0" max="100" value="100" id="sfxVol" onchange="setSFXVolume(this.value)">
             </div>
-            <button class="settingsBtn backBtn" onclick="closeSettings()">
-                <span>← Back</span>
-            </button>
         </div>
     </div>
 </div>
@@ -427,16 +428,14 @@
 <div id="leaderboardScreen" style="display:none; position:fixed; inset:0; 
      z-index:8000; flex-direction:column; align-items:center; padding:20px; overflow-y:auto;">
     
+    <!-- CLOSE BUTTON -->
+    <button class="ranks-close-btn back-arrow" onclick="closeRanks()"></button>
+    
     <h2 style="color:#00ffff; font-family:Orbitron; margin:20px 0;">
-        🏆 LEADERBOARD
+        🏆 RANKS
     </h2>
     
     <div id="leaderboardList" style="width:100%; max-width:400px;"></div>
-    
-    <button class="menu-btn" onclick="document.getElementById('leaderboardScreen').style.display='none'"
-            style="margin-top:20px;">
-        ← BACK
-    </button>
 </div>
 
 <div id="coinWarning">NOT ENOUGH COINS</div>

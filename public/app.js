@@ -239,7 +239,7 @@ const skins = [
     "assets/skins/skin1.png",
     "assets/skins/skin2.png",
     "assets/skins/skin3.png",
-    "assets/skins/skin4.png"
+    "assets/skins/skin4.png",
 ];
 function updateSkin() { playerImg.src = skins[currentSkin]; }
 updateSkin();
@@ -1260,6 +1260,15 @@ function renderLeaderboard(entries) {
                 <span class="lb-kills">${e.kills} kills</span>
             </div>`;
     }).join('');
+}
+
+function closeRanks() {
+    document.getElementById('leaderboardScreen').style.display = 'none';
+    const menu = document.getElementById('main-menu');
+    if (menu) {
+        menu.style.display = 'flex';
+        menu.classList.add('show');
+    }
 }
 
 // ─── SHOP ─────────────────────────────────────────────────────

@@ -230,6 +230,44 @@ body {
     box-shadow: 0 10px 30px rgba(255,215,0,0.5), 0 0 50px rgba(255,215,0,0.4) !important;
 }
 
+.ranks-close-btn {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid #00ffff;
+    background: rgba(0, 0, 0, 0.6);
+    color: #00ffff;
+    font-size: 22px;
+    font-family: 'Orbitron', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    backdrop-filter: blur(10px);
+    -webkit-tap-highlight-color: transparent;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+}
+
+.ranks-close-btn:active {
+    transform: scale(0.9);
+    background: rgba(0, 255, 255, 0.2);
+}
+
+.ranks-close-btn.back-arrow {
+    font-size: 0;
+}
+
+.ranks-close-btn.back-arrow::before {
+    content: '←';
+    font-size: 24px;
+    color: #00ffff;
+}
+
 .lb-row {
     display: flex;
     gap: 12px;
@@ -379,16 +417,15 @@ body {
 
 .shop-close-btn {
     position: absolute;
-    top: 15px;
-    left: 15px;
-    width: 44px;
-    height: 44px;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     border: 2px solid #00ffff;
     background: rgba(0, 0, 0, 0.6);
     color: #00ffff;
-    font-size: 22px;
-    font-family: 'Orbitron', sans-serif;
+    font-size: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1414,6 +1451,18 @@ body {
     z-index: 9999;
 }
 
+.shopPanel {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    background: rgba(10, 10, 30, 0.7);
+    border: 2px solid #00ffff;
+    border-radius: 20px;
+    padding: 20px;
+    margin-top: 20px;
+    backdrop-filter: blur(10px);
+}
+
 #shop[style*="flex"] {
     display: flex !important;
 }
@@ -1922,9 +1971,16 @@ body {
     z-index: 4000;
     padding: 20px;
     pointer-events: auto;
+    background-image: 
+        linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)),
+        url("assets/ui/splash-screen.png");
+    background-size: cover;
+    background-position: center;
+    background-color: #000;
 }
 
 .settingsPanel {
+    position: relative;
     width: 100%;
     max-width: 400px;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
@@ -1950,12 +2006,41 @@ body {
 /* HORIZONTAL BUTTON CONTAINER */
 .settingsButtons {
     display: flex;
-    flex-direction: row; /* Horizontal layout */
+    flex-direction: row;
     gap: 15px;
     width: 100%;
     justify-content: center;
     margin-bottom: 30px;
-    flex-wrap: wrap; /* Wrap on small screens */
+    flex-wrap: wrap;
+}
+
+.settings-close-btn {
+    position: absolute;
+    top: 12px;          /* slightly inside the border */
+    right: 12px;        /* ← move to RIGHT side for balance, or keep left */
+    left: auto;         /* override any left value */
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid #00ffff;
+    background: rgba(0, 0, 0, 0.6);
+    color: #00ffff;
+    font-size: 18px;
+    font-family: 'Orbitron', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    backdrop-filter: blur(10px);
+    -webkit-tap-highlight-color: transparent;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+}
+
+.settings-close-btn:active {
+    transform: scale(0.9);
+    background: rgba(0, 255, 255, 0.2);
 }
 
 .settingsBtn {
@@ -2190,7 +2275,7 @@ body {
 /* ========== 3D MECHANICAL BUTTONS ========== */
 
 .menu-btn,
-.ranks-btn
+.ranks-btn,
 .pauseBtn,
 .settingsBtn,
 .claimBtn,
@@ -2231,7 +2316,7 @@ body {
 
 /* Hover lifts slightly higher than rest */
 .menu-btn:hover,
-.ranks-btn:hover
+.ranks-btn:hover,
 .shop-btn:hover,
 .settings-btn:hover,
 .pauseBtn:hover,
