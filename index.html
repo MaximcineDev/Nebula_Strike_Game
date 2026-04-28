@@ -99,7 +99,8 @@
         <!-- Left: Health/Energy -->
         <div class="hud-left">
             <div class="ship-icon">
-                <img src="assets/player1.png" alt="ship">
+                <img src="assets/player.png" alt="ship">
+                <div class="level-badge" id="levelBadge">Lv 1</div>
             </div>
             <div class="energy-section">
                 <div class="energy-text" id="energyText">2160 / 2400</div>
@@ -427,7 +428,7 @@
 <!-- LEADERBOARD -->
 <div id="leaderboardScreen" style="display:none; position:fixed; inset:0; 
      background-image: linear-gradient(rgba(0,0,0,0.85),rgba(0,0,0,0.85)), url('assets/ui/splash-screen.png');
-     background-size: cover; background-position: center;
+     background-size: 100% 100%; background-position: center;
      z-index:8000; flex-direction:column; align-items:center; padding:20px; overflow-y:auto;">
     
     <!-- CLOSE BUTTON -->

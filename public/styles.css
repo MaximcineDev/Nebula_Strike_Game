@@ -936,6 +936,7 @@ body {
 }
 
 .ship-icon {
+    position: relative;
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -952,6 +953,29 @@ body {
     width: 100%;
     height: 100%;
     object-fit: contain;
+}
+
+/* Level badge on ship icon */
+.level-badge {
+    position: absolute;
+    bottom: -6px;
+    right: -6px;
+    background: linear-gradient(135deg, #00aaff 0%, #0066cc 100%);
+    color: #fff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 9px;
+    font-weight: 900;
+    padding: 2px 6px;
+    border-radius: 8px;
+    border: 2px solid #00ffff;
+    box-shadow: 0 0 10px rgba(0, 170, 255, 0.6), 
+                inset 0 0 5px rgba(255, 255, 255, 0.2);
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+    letter-spacing: 0.5px;
+    z-index: 2;
+    white-space: nowrap;
+    min-width: 28px;
+    text-align: center;
 }
 
 .energy-section {
@@ -1449,6 +1473,12 @@ body {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     z-index: 9999;
+    background-image: 
+        linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)),
+        url("assets/ui/splash-screen.png");
+    background-size: 100% 100%;
+    background-position: center;
+    background-color: #000;
 }
 
 .shopPanel {
@@ -1974,7 +2004,7 @@ body {
     background-image: 
         linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)),
         url("assets/ui/splash-screen.png");
-    background-size: cover;
+    background-size: 100% 100%;
     background-position: center;
     background-color: #000;
 }

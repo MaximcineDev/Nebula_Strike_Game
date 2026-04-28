@@ -1449,6 +1449,12 @@ body {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     z-index: 9999;
+    background-image: 
+        linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)),
+        url("assets/ui/splash-screen.png");
+    background-size: 100% 100%;
+    background-position: center;
+    background-color: #000;
 }
 
 .shopPanel {
@@ -1974,7 +1980,7 @@ body {
     background-image: 
         linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)),
         url("assets/ui/splash-screen.png");
-    background-size: cover;
+    background-size: 100% 100%;
     background-position: center;
     background-color: #000;
 }
