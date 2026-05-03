@@ -1,17 +1,8 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCf-8mnm77vLl5qSAQVv3Ffk3BNE0rLSws",
-  authDomain: "nebula-strike-2c357.firebaseapp.com",
-  projectId: "nebula-strike-2c357",
-  storageBucket: "nebula-strike-2c357.firebasestorage.app",
-  messagingSenderId: "656562876567",
-  appId: "1:656562876567:web:b394b02ba3b03dfbabb9d2"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
