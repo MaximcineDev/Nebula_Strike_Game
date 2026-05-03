@@ -67,6 +67,8 @@ android/local.properties
 android/app/google-services.json
 android/**/google-services.json
 
+# Firebase
+src/firebase.js
 
 # General
 .env
