@@ -494,6 +494,9 @@ function updateHUD() {
         const killed = Math.max(0, (waveNumber - 1) * 6 + (6 - enemiesInWave));
         missionProgress.innerText = killed + " / " + (waveNumber * 6);
     }
+
+    const upCoins = document.getElementById('upgradesCoinText');
+    if (upCoins) upCoins.textContent = coins;
 }
 
 function coinPulse() {
@@ -514,6 +517,30 @@ function updateHeartsUI() {
             : "linear-gradient(90deg,#cc0000,#ff4444)";
     }
     if (txt) txt.innerText = (health * 480) + " / " + (maxHearts * 480);
+}
+
+// ─── UPGRADES PANEL (in-game HUD button) ──────────────────────
+
+function openUpgradesPanel() {
+    if (gameRunning && !paused) {
+        paused = true;
+        if (gameMusic) gameMusic.pause();
+        if (window.gameLoopId) { cancelAnimationFrame(window.gameLoopId); window.gameLoopId = null; }
+    }
+    const el = document.getElementById('upgradesCoinText');
+    if (el) el.textContent = coins;
+ 
+    document.getElementById('upgradesPanel').style.display = 'flex';
+}
+ 
+function closeUpgradesPanel() {
+    document.getElementById('upgradesPanel').style.display = 'none';
+    if (gameRunning && paused) {
+        paused = false;
+        if (soundOn && gameMusic) gameMusic.play().catch(() => {});
+        lastTime = 0;
+        if (!window.gameLoopId) window.gameLoopId = requestAnimationFrame(gameLoop);
+    }
 }
 
 // ─── PAUSE ────────────────────────────────────────────────────
@@ -1303,8 +1330,7 @@ function closeShop() {
     }
 }
 
-function openShopUpgrades() {
-    document.querySelector('.coin-display')?.classList.add('clicked');
+function openShopCoins() {
     window.shopOpenedFromGame = (gameState === "playing" || gameRunning);
     if (gameRunning && !paused) {
         paused = true;
@@ -1312,7 +1338,6 @@ function openShopUpgrades() {
         if (window.gameLoopId) { cancelAnimationFrame(window.gameLoopId); window.gameLoopId = null; }
     }
     openShop();
-    setTimeout(() => document.getElementById("upgradesSection")?.scrollIntoView({ behavior: "smooth", block: "center" }), 200);
 }
 
 function updateShopCoins() {

@@ -30,11 +30,9 @@
   background: rgba(0,0,0,0.85);
   z-index: 9999;
 ">
-
   <h2 style="color: white; margin-bottom: 20px;">
     ⚡ Out of Energy
   </h2>
-
   <button id="reviveBtn" style="
     padding: 15px 25px;
     font-size: 18px;
@@ -50,9 +48,7 @@
     
 <body>
 
-
 <!-- ================= SPLASH ================= -->
-
 <div id="splashScreen">
     <div class="splash-ship-container">
         <img src="assets/player1.png" alt="ship" class="splash-ship">
@@ -87,12 +83,10 @@
 
 
 <!-- ================= CANVAS ================= -->
-
 <canvas id="gameCanvas"></canvas>
 
 
 <!-- ================= HUD ================= -->
-
 <div id="hud">
     <!-- Top curved bar container -->
     <div class="hud-top-bar">
@@ -112,21 +106,27 @@
 
         <!-- Right: Coins -->
         <div class="hud-right">
-            <div class="coin-display" onclick="openShopUpgrades()">
+            <div class="coin-display" onclick="openShopCoins()">
                 <img src="assets/ui/coin-icon.png" alt="coins">
                 <span id="coinText">0</span>
             </div>
         </div>
     </div>
 
-    <!-- Mission Counter (below top bar) -->
-    <div class="mission-counter">
-        <span class="mission-label">DESTROY ENEMIES</span>
-        <span class="mission-progress" id="missionProgress">0 / 25</span>
+    <!-- Mission Counter + Upgrades Button (below top bar) -->
+    <div class="mission-row">
+        <div class="mission-counter">
+            <span class="mission-label">DESTROY ENEMIES</span>
+            <span class="mission-progress" id="missionProgress">0 / 25</span>
+        </div>
+        <button class="upgrades-hud-btn" onclick="openUpgradesPanel()">
+            <span class="upgrades-icon">⚔️</span>
+            <span class="upgrades-label">UPGRADES</span>
+        </button>
     </div>
 
-    <!-- Pause Button (bottom right) -->
-    <button id="pauseBtn">Pause</button>
+    <!-- Pause Button (bottom right) — icon only -->
+    <button id="pauseBtn">⏸</button>
 
     <!-- Shield Meter (bottom left) -->
     <div id="shieldMeter">
@@ -143,8 +143,29 @@
 </div>
 
 
-<!-- ================= BOSS ================= -->
+<!-- ================= UPGRADES PANEL (in-game overlay) ================= -->
+<div id="upgradesPanel" style="display:none;">
+    <div class="upgradesPanelBox">
+        <button class="upgrades-close-btn" onclick="closeUpgradesPanel()">✕</button>
+        <h2>⚔️ UPGRADES</h2>
+        <div class="shopSection" style="border:none; background:transparent; padding:0; margin:0; width:100%;">
+            <div class="shopControls">
+                <div class="shopBtn" onclick="buyWeapon()">
+                    <span>🔫 Upgrade Weapon (2500 🪙)</span>
+                </div>
+                <div class="shopBtn" onclick="buyShield()">
+                    <span>🛡️ Buy Shield (1500 🪙)</span>
+                </div>
+            </div>
+        </div>
+        <div class="upgrades-coins-display">
+            🪙 <span id="upgradesCoinText">0</span> coins
+        </div>
+    </div>
+</div>
 
+
+<!-- ================= BOSS ================= -->
 <div id="bossBar">
     <div id="bossHealth"></div>
 </div>
@@ -155,7 +176,6 @@
 
 
 <!-- ================= LEVEL COMPLETE ================= -->
-
 <div id="levelComplete">
     <div class="level-complete-box">
         <h2>Level 1<br>Complete!</h2>
@@ -173,47 +193,68 @@
     <div class="shopPanel">
         <button class="shop-close-btn" onclick="closeShop()">✕</button>
     
-     <!-- COIN PACKS -->
-    <div class="shopSection">
-        <h2>Coin Packs</h2>
+        <!-- COIN PACKS — LIST LAYOUT -->
+        <div class="shopSection">
+            <h2>Coin Packs</h2>
 
-        <div class="coinPacks">
+            <div class="coinList">
 
-            <div class="coinCard" onclick="buyCoins(10000)">
-                <div class="coinAmount">10,000</div>
-                <div class="coinLabel">Coins</div>
-                <div class="coinPrice">$1.99</div>
-            </div>
-
-            <div class="coinCard" onclick="buyCoins(15000)">
-                <div class="coinAmount">15,000</div>
-                <div class="coinLabel">Coins</div>
-                <div class="coinPrice">$3.99</div>
-            </div>
-
-            <div class="coinCard popular" onclick="buyCoins(30000)">
-                <div class="badge">BEST</div>
-                <div class="coinAmount">30,000</div>
-                <div class="coinLabel">Coins</div>
-                <div class="coinPrice">$5.99</div>
-            </div>
-
-            <div class="coinCard" onclick="buyCoins(50000)">
-                <div class="coinAmount">50,000</div>
-                <div class="coinLabel">Coins</div>
-                <div class="coinPrice">$9.99</div>
-            </div>
-
-            <!-- NO ADS PURCHASE -->
-            <div class="coinCard noAdsCard" id="noAdsCard" onclick="buyNoAds()">
-                <div class="badge premium">
-                    <img src="assets/ui/premium-badge.png" onerror="this.style.display='none'">
+                <div class="coinListItem" onclick="buyCoins(10000)">
+                    <div class="coinListLeft">
+                        <span class="coinListIcon">🪙</span>
+                        <div>
+                            <div class="coinListAmount">10,000 Coins</div>
+                        </div>
+                    </div>
+                    <div class="coinListPrice">$1.99</div>
                 </div>
-                <div class="noAdsIcon">🚫🎬</div>
-                <div class="coinLabel" style="color:#ff99dd; font-weight:bold; font-size:14px;">Remove Ads</div>
-                <div class="coinPrice" style="color:#ff66cc; font-size:18px; font-weight:bold;">$12.99</div>
+
+                <div class="coinListItem" onclick="buyCoins(15000)">
+                    <div class="coinListLeft">
+                        <span class="coinListIcon">🪙</span>
+                        <div>
+                            <div class="coinListAmount">15,000 Coins</div>
+                        </div>
+                    </div>
+                    <div class="coinListPrice">$3.99</div>
+                </div>
+
+                <div class="coinListItem best" onclick="buyCoins(30000)">
+                    <div class="coinListLeft">
+                        <span class="coinListIcon">🪙</span>
+                        <div>
+                            <div class="coinListAmount">30,000 Coins</div>
+                            <div class="coinListBadge">BEST VALUE</div>
+                        </div>
+                    </div>
+                    <div class="coinListPrice">$5.99</div>
+                </div>
+
+                <div class="coinListItem" onclick="buyCoins(50000)">
+                    <div class="coinListLeft">
+                        <span class="coinListIcon">🪙</span>
+                        <div>
+                            <div class="coinListAmount">50,000 Coins</div>
+                        </div>
+                    </div>
+                    <div class="coinListPrice">$9.99</div>
+                </div>
+
+                <!-- NO ADS -->
+                <div class="coinListItem noAds" id="noAdsCard" onclick="buyNoAds()">
+                    <div class="coinListLeft">
+                        <span class="coinListIcon">🚫🎬</span>
+                        <div>
+                            <div class="coinListAmount" style="color:#ff99dd;">Remove Ads</div>
+                            <div class="coinListBadge" style="background:#ff66cc; color:#000;">PREMIUM</div>
+                        </div>
+                    </div>
+                    <div class="coinListPrice" style="color:#ff66cc;">$12.99</div>
+                </div>
+
             </div>
 
+            <!-- Watch Ad -->
             <div class="rewardAdBox">
                 <div class="rewardText">Need coins?</div>
                 <button class="menu-btn rewardBtn" onclick="watchAdReward()">
@@ -221,97 +262,51 @@
                 </button>
             </div>
         </div>
-    </div>
-    
-    <!-- BUY SKINS SECTION -->
-    <div class="shopSection">
-        <h2>Buy Skins</h2>
-        <div id="skins">
-            <!-- Default -->
-            <div class="skinBtn unlocked" onclick="selectSkin(0)">
-                <img src="assets/player.png" alt="Default Ship" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><rect fill=%22%23333%22 width=%2280%22 height=%2280%22/><text fill=%22%23fff%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>SHIP 1</text></svg>'">
-                <div class="skinLabel">Default</div>
-            </div>
-            
-            <!-- Skin 1 - Locked -->
-            <div class="skinBtn locked" id="skin1" onclick="tryBuySkin(1, 500)">
-                <!-- SKIN IMAGE -->
-                <img 
-                    src="assets/skins/skin1.png" 
-                    alt="Ship 1"
-                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><rect fill=%22%23444%22 width=%2280%22 height=%2280%22/><text fill=%22%23999%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>LOCKED</text></svg>'"
-                >
-                <!-- 🔒 LOCK ICON -->
-                <div class="lockIcon">
-                    <img src="assets/ui/locked-level.png" onerror="this.style.display='none'">
-                </div>
-                <!-- 💰 PRICE / STATUS -->
-                <div class="skinPrice">500 🪙</div>
-            </div>
-            
-            <!-- Skin 2 - Locked -->
-            <div class="skinBtn locked" id="skin2" onclick="tryBuySkin(2, 1000)">
-                <!-- SKIN IMAGE -->
-                <img 
-                    src="assets/skins/skin2.png" 
-                    alt="Ship 2"
-                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><rect fill=%22%23444%22 width=%2280%22 height=%2280%22/><text fill=%22%23999%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>LOCKED</text></svg>'"
-                >
-                <!-- 🔒 LOCK ICON -->
-                <div class="lockIcon">
-                    <img src="assets/ui/locked-level.png" onerror="this.style.display='none'">
-                </div>
-                <!-- 💰 PRICE / STATUS -->
-                <div class="skinPrice">1,000 🪙</div>
-            </div>
-            
-            <!-- Skin 3 - Locked -->
-            <div class="skinBtn locked" id="skin3" onclick="tryBuySkin(3,1500)">
-                <!-- SKIN IMAGE -->
-                <img 
-                    src="assets/skins/skin3.png" 
-                    alt="Ship 3"
-                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><rect fill=%22%23444%22 width=%2280%22 height=%2280%22/><text fill=%22%23999%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>LOCKED</text></svg>'"
-                >
-                <!-- 🔒 LOCK ICON -->
-                <div class="lockIcon">
-                    <img src="assets/ui/locked-level.png" onerror="this.style.display='none'">
-                </div>
-                <!-- 💰 PRICE / STATUS -->
-                <div class="skinPrice">1,500 🪙</div>
-            </div>
 
-            <!-- Skin 4 - Locked -->
-            <div class="skinBtn locked" id="skin4" onclick="tryBuySkin(4, 2000)">
-                <!-- SKIN IMAGE -->
-                <img 
-                    src="assets/skins/skin4.png" 
-                    alt="Ship 4"
-                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><rect fill=%22%23444%22 width=%2280%22 height=%2280%22/><text fill=%22%23999%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>LOCKED</text></svg>'"
-                >
-                <!-- 🔒 LOCK ICON -->
-                <div class="lockIcon">
-                    <img src="assets/ui/locked-level.png" onerror="this.style.display='none'">
+        <!-- BUY SKINS SECTION -->
+        <div class="shopSection">
+            <h2>Buy Skins</h2>
+            <div id="skins">
+                <!-- Default -->
+                <div class="skinBtn unlocked" onclick="selectSkin(0)">
+                    <img src="assets/player.png" alt="Default Ship" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><rect fill=%22%23333%22 width=%2280%22 height=%2280%22/><text fill=%22%23fff%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>SHIP 1</text></svg>'">
+                    <div class="skinLabel">Default</div>
                 </div>
-                <!-- 💰 PRICE / STATUS -->
-                <div class="skinPrice">2,000 🪙</div>
+                
+                <!-- Skin 1 -->
+                <div class="skinBtn locked" id="skin1" onclick="tryBuySkin(1, 500)">
+                    <img src="assets/skins/skin1.png" alt="Ship 1" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><rect fill=%22%23444%22 width=%2280%22 height=%2280%22/><text fill=%22%23999%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>LOCKED</text></svg>'">
+                    <div class="lockIcon"><img src="assets/ui/locked-level.png" onerror="this.style.display='none'"></div>
+                    <div class="skinPrice">500 🪙</div>
+                </div>
+                
+                <!-- Skin 2 -->
+                <div class="skinBtn locked" id="skin2" onclick="tryBuySkin(2, 1000)">
+                    <img src="assets/skins/skin2.png" alt="Ship 2" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><rect fill=%22%23444%22 width=%2280%22 height=%2280%22/><text fill=%22%23999%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>LOCKED</text></svg>'">
+                    <div class="lockIcon"><img src="assets/ui/locked-level.png" onerror="this.style.display='none'"></div>
+                    <div class="skinPrice">1,000 🪙</div>
+                </div>
+                
+                <!-- Skin 3 -->
+                <div class="skinBtn locked" id="skin3" onclick="tryBuySkin(3,1500)">
+                    <img src="assets/skins/skin3.png" alt="Ship 3" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><rect fill=%22%23444%22 width=%2280%22 height=%2280%22/><text fill=%22%23999%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>LOCKED</text></svg>'">
+                    <div class="lockIcon"><img src="assets/ui/locked-level.png" onerror="this.style.display='none'"></div>
+                    <div class="skinPrice">1,500 🪙</div>
+                </div>
+
+                <!-- Skin 4 -->
+                <div class="skinBtn locked" id="skin4" onclick="tryBuySkin(4, 2000)">
+                    <img src="assets/skins/skin4.png" alt="Ship 4" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22><rect fill=%22%23444%22 width=%2280%22 height=%2280%22/><text fill=%22%23999%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>LOCKED</text></svg>'">
+                    <div class="lockIcon"><img src="assets/ui/locked-level.png" onerror="this.style.display='none'"></div>
+                    <div class="skinPrice">2,000 🪙</div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- UPGRADES SECTION -->
-    <div class="shopSection" id="upgradesSection">
-        <h2>Upgrades</h2>
-        <div class="shopControls">
-            <div class="shopBtn" onclick="buyWeapon()">
-                <span>Upgrade Weapon (2500 🪙)</span>
-            </div>
-            
-            <div class="shopBtn" onclick="buyShield()">
-                <span>Buy Shield (1500 🪙)</span>
-            </div>
+        <!-- Coin display at bottom of shop -->
+        <div style="text-align:center; padding:10px 0; color:#ffd700; font-family:'Orbitron',sans-serif; font-size:16px;">
+            🪙 <span id="shopCoinText">0</span>
         </div>
-    </div>
     </div>
 </div>
 
@@ -335,9 +330,7 @@
 <div id="dailyReward" style="display:none;">
     <div class="dailyBox">
         <h2>🔥 Daily Reward 🔥</h2>
-        
         <div class="streakInfo">Current Streak: <span id="streakNumber">1 / 7</span></div>
-
         <div class="dailyGrid">
             <div class="day" id="day1">Day 1<br><b>50</b></div>
             <div class="day" id="day2">Day 2<br><b>100</b></div>
@@ -345,33 +338,18 @@
             <div class="day" id="day4">Day 4<br><b>200</b></div>
             <div class="day" id="day5">Day 5<br><b>300</b></div>
             <div class="day" id="day6">Day 6<br><b>400</b></div>
-            <!-- Special chest day -->
             <div class="day day7-chest" id="day7">Day 7<br><b>MEGA!</b></div>
         </div>
-
-        <!-- Normal reward display (days 1-6) -->
         <div id="normalReward" style="display:none;">
-            <div id="rewardAmount" style="color: #ffd700; font-size: 24px; font-family: 'Orbitron'; margin: 15px 0;">
-                +50 🪙
-            </div>
+            <div id="rewardAmount" style="color: #ffd700; font-size: 24px; font-family: 'Orbitron'; margin: 15px 0;">+50 🪙</div>
         </div>
-
-        <!-- Big chest for day 7 -->
         <div id="bigRewardChest" onclick="openBigChest()">🎁</div>
-        
-        <!-- Reward info text -->
         <div id="rewardInfo" style="display:none;">
             <span id="rewardText">Tap chest to open!</span>
         </div>
-
         <div class="dailyButtons">
-            <button class="claimBtn" onclick="claimDailyReward(false)" enabled>
-                CLAIM REWARD
-            </button>
-            
-            <button class="doubleRewardBtn" onclick="claimDailyReward(true)" enabled>
-                🎥 WATCH AD FOR 2X
-            </button>
+            <button class="claimBtn" onclick="claimDailyReward(false)" enabled>CLAIM REWARD</button>
+            <button class="doubleRewardBtn" onclick="claimDailyReward(true)" enabled>🎥 WATCH AD FOR 2X</button>
         </div>
     </div>
 </div>
@@ -379,18 +357,14 @@
 <!-- ================= SETTINGS ================= -->
 <div id="settings" style="display: none;">    
     <div class="settingsPanel">
-        <!-- CLOSE BUTTON -->
         <button class="settings-close-btn" onclick="closeSettings()">✕</button>
-
         <h2>Settings</h2>
-        
         <div class="settingsButtons">
             <button class="settingsBtn soundBtn" onclick="toggleSound()">
                 <span id="soundIcon">🔊</span>
                 <span id="soundText">Sound: ON</span>
             </button>
         </div>
-        
         <div class="settingsOptions">
             <div class="settingItem">
                 <label>Music Volume</label>
@@ -403,41 +377,23 @@
         </div>
     </div>
 </div>
-    
 
 <!-- ================= GAME OVER ================= -->
-
 <div id="gameOverScreen" style="display: none;">
-
     <div id="gameOverBox">
-
         <h1>GAME OVER</h1>
-
-        <button onclick="restartGame()">
-            Restart
-        </button>
-
-        <button onclick="quitGame()">
-            Menu
-        </button>
-
+        <button onclick="restartGame()">Restart</button>
+        <button onclick="quitGame()">Menu</button>
     </div>
-
 </div>
 
-<!-- LEADERBOARD -->
+<!-- ================= LEADERBOARD ================= -->
 <div id="leaderboardScreen" style="display:none; position:fixed; inset:0; 
      background-image: linear-gradient(rgba(0,0,0,0.85),rgba(0,0,0,0.85)), url('assets/ui/splash-screen.png');
      background-size: 100% 100%; background-position: center;
      z-index:8000; flex-direction:column; align-items:center; padding:20px; overflow-y:auto;">
-    
-    <!-- CLOSE BUTTON -->
     <button class="ranks-close-btn back-arrow" onclick="closeRanks()"></button>
-    
-    <h2 style="color:#00ffff; font-family:Orbitron; margin:20px 0;">
-        🏆 RANKS
-    </h2>
-    
+    <h2 style="color:#00ffff; font-family:Orbitron; margin:20px 0;">🏆 RANKS</h2>
     <div id="leaderboardList" style="width:100%; max-width:400px;"></div>
 </div>
 
@@ -446,5 +402,4 @@
 <script src="app.js"></script>
 
 </body>
-
 </html>

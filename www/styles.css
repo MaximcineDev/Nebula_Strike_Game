@@ -1099,21 +1099,23 @@ body {
     to { transform: translateY(0); opacity: 1; }
 }
 
-/* Mission Counter */
-.mission-counter {
+.mission-row {
     position: absolute;
     top: 75px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
     align-items: center;
-    gap: 12px;
-    background: rgba(0, 20, 40, 0.8);
-    padding: 8px 20px;
-    border-radius: 20px;
-    border: 1px solid rgba(0, 200, 255, 0.3);
-    backdrop-filter: blur(10px);
+    gap: 10px;
     pointer-events: auto;
+    z-index: 2001;
+}
+ 
+.mission-counter {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
 }
 
 .mission-label {
@@ -1131,34 +1133,47 @@ body {
     text-shadow: 0 0 10px rgba(0, 200, 255, 0.5);
 }
 
-/* Pause Button - repositioned to bottom right */
 #pauseBtn {
     position: fixed;
-    bottom: 20px;
-    right: 15px;
-    pointer-events: auto;
-    padding: 10px 20px;
-    font-size: clamp(12px, 3vw, 14px);
-    font-family: 'Orbitron', sans-serif;
-    background: rgba(0, 100, 200, 0.3);
+    bottom: max(20px, env(safe-area-inset-bottom) + 10px);
+    right: max(15px, env(safe-area-inset-right) + 10px);
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    font-size: 22px;
+    line-height: 48px;
+    text-align: center;
+    border-radius: 50%;
     border: 2px solid #00aaff;
+    background: rgba(0, 100, 200, 0.45);
     color: #00ffff;
-    border-radius: 25px;
+    box-shadow: 0 0 15px rgba(0, 170, 255, 0.5);
+    backdrop-filter: blur(6px);
     cursor: pointer;
-    transition: all 0.2s;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    box-shadow: 0 0 15px rgba(0, 170, 255, 0.3);
+    pointer-events: auto;
+    z-index: 2500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    border-bottom: 4px solid rgba(0, 0, 0, 0.3);
+    transform: translateY(-4px);
+    font-family: sans-serif;
+    letter-spacing: 0;
+    text-transform: none;
 }
-
-#pauseBtn:hover {
-    background: rgba(0, 170, 255, 0.4);
-    box-shadow: 0 0 25px rgba(0, 200, 255, 0.6);
-    transform: scale(1.05);
-}
-
+ 
 #pauseBtn:active {
-    transform: scale(0.95);
+    transform: translateY(0) scale(0.95);
+    border-bottom: 0 solid transparent;
+    box-shadow: 0 0 8px rgba(0, 170, 255, 0.3);
+}
+ 
+#pauseBtn:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 0 25px rgba(0, 200, 255, 0.7);
+    background: rgba(0, 170, 255, 0.5);
 }
 
 /* Shield Meter - Bottom Left */
@@ -2364,4 +2379,204 @@ body {
 #pauseBtn:hover,
 #gameOverScreen button:hover {
     transform: translateY(-5px) scale(1.03);
+}
+
+/* =========================
+   UPGRADES HUD BUTTON
+========================= */
+ 
+.upgrades-hud-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 14px;
+    background: rgba(0, 20, 40, 0.85);
+    border: 1px solid rgba(255, 165, 0, 0.6);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    color: #ffaa00;
+    font-size: clamp(9px, 2.5vw, 12px);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 0 12px rgba(255, 165, 0, 0.3);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+}
+ 
+.upgrades-hud-btn:active {
+    transform: scale(0.95);
+    box-shadow: 0 0 20px rgba(255, 165, 0, 0.6);
+    background: rgba(255, 165, 0, 0.15);
+}
+ 
+.upgrades-icon {
+    font-size: 16px;
+}
+ 
+.upgrades-label {
+    color: #ffaa00;
+}
+ 
+/* =========================
+   UPGRADES PANEL OVERLAY
+========================= */
+ 
+#upgradesPanel {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.88);
+    backdrop-filter: blur(8px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 7000;
+    animation: fadeIn 0.25s ease;
+}
+ 
+.upgradesPanelBox {
+    position: relative;
+    width: 90%;
+    max-width: 380px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border: 2px solid #ffaa00;
+    border-radius: 20px;
+    padding: 30px 25px 25px;
+    box-shadow:
+        0 0 40px rgba(255, 165, 0, 0.35),
+        inset 0 0 20px rgba(255, 165, 0, 0.08);
+    animation: pop 0.3s ease;
+    text-align: center;
+}
+ 
+.upgradesPanelBox h2 {
+    color: #ffaa00;
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(20px, 5vw, 26px);
+    margin: 0 0 20px;
+    text-shadow: 0 0 15px rgba(255, 165, 0, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+ 
+.upgrades-close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid #ffaa00;
+    background: rgba(0, 0, 0, 0.6);
+    color: #ffaa00;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+ 
+.upgrades-close-btn:active {
+    transform: scale(0.9);
+    background: rgba(255, 165, 0, 0.2);
+}
+ 
+/* Coin balance inside upgrades panel */
+.upgrades-coins-display {
+    margin-top: 18px;
+    color: #ffd700;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(255, 200, 0, 0.5);
+}
+ 
+/* =========================
+   COIN LIST (replaces coin grid)
+========================= */
+ 
+.coinList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+ 
+.coinListItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border: 2px solid rgba(0, 255, 255, 0.35);
+    border-radius: 14px;
+    padding: 14px 18px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+ 
+.coinListItem:active {
+    transform: scale(0.97);
+    border-color: #00ffff;
+    box-shadow: 0 0 18px rgba(0, 255, 255, 0.5);
+}
+ 
+.coinListItem.best {
+    border-color: #00ff88;
+    box-shadow: 0 0 12px rgba(0, 255, 136, 0.35);
+}
+ 
+.coinListItem.noAds {
+    border-color: #ff66cc;
+    box-shadow: 0 0 12px rgba(255, 102, 204, 0.3);
+}
+ 
+.coinListLeft {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+ 
+.coinListIcon {
+    font-size: 26px;
+    filter: drop-shadow(0 0 5px rgba(255, 200, 0, 0.6));
+    flex-shrink: 0;
+}
+ 
+.coinListAmount {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(14px, 4vw, 17px);
+    font-weight: 700;
+    color: #ffd700;
+    text-shadow: 0 0 8px rgba(255, 200, 0, 0.4);
+}
+ 
+.coinListBadge {
+    display: inline-block;
+    margin-top: 4px;
+    background: #00ff88;
+    color: #000;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    font-weight: 900;
+    padding: 2px 8px;
+    border-radius: 6px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+ 
+.coinListPrice {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(14px, 4vw, 18px);
+    font-weight: 700;
+    color: #00ffcc;
+    text-shadow: 0 0 8px rgba(0, 255, 200, 0.4);
+    flex-shrink: 0;
 }
