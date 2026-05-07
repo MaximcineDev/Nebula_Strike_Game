@@ -1,6 +1,0 @@
-<resources>
-    <string name="app_name">Nebula Strike</string>
-    <string name="firebase_database_url">YOUR_URL_HERE</string>
-    <string name="firebase_api_key">YOUR_KEY_HERE</string>
-    <!-- etc -->
-</resources>
