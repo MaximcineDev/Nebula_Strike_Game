@@ -90,3 +90,5 @@ captures/
 # app/release/
 # app/debug/
 # *.mapping
+
+android/keystore.properties
