@@ -1885,7 +1885,7 @@ window.addEventListener("load", async () => {
 
     resizeGame();
     checkDailyReward();
-    // initStore();
+    initStore();
 
     const canvas = document.getElementById("gameCanvas");
     const hud    = document.getElementById("hud");
