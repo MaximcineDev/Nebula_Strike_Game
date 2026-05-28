@@ -838,6 +838,10 @@ function showBossRewardPopup(amount) {
 }
 
 function doubleBossReward(amount) {
+    if (!admobReady) {
+        showCoinWarning("Ads not ready yet...Please wait a moment!");
+        return;
+    }
     rewardAmount = amount;
     pendingRewardAction = 'doubleBoss';
     showRewardAd();
@@ -1537,6 +1541,10 @@ function levelComplete() {
 }
 
 function doubleLevelReward(base) {
+    if (!admobReady) {
+        showCoinWarning("Ads not ready yet...Please wait a moment!");
+        return;
+    }
     rewardAmount = base;
     pendingRewardAction = 'doubleLevel';
     showRewardAd();
@@ -1708,7 +1716,7 @@ function updateDailyRewardUI() {
 
 function claimDailyReward(useDouble = false) {
     if (useDouble) {
-        if (!admobReady) { showCoinWarning("Ads not ready!"); claimDailyReward(false); return; }
+        if (!admobReady) { showCoinWarning("Ads not ready yet...Please wait a moment!"); claimDailyReward(false); return; }
         pendingRewardAction = 'dailyDouble'; showRewardAd(); return;
     }
 
@@ -1768,7 +1776,7 @@ function showCoinWarning(msg = "Something went wrong") {
 }
 
 function watchAdReward() {
-    if (!admobReady) { showCoinWarning("Ads not ready yet!"); return; }
+    if (!admobReady) { showCoinWarning("Ads not ready yet...Please wait a moment!"); return; }
     pendingRewardAction = 'freeCoins'; showRewardAd();
 }
 
