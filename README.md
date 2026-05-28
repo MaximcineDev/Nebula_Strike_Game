@@ -5,7 +5,7 @@
 [![Built With](https://img.shields.io/badge/Built%20With-Capacitor%208-4A90D9?logo=capacitor)](https://capacitorjs.com/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-**A 2D sci-fi space shooter built with vanilla JavaScript and Capacitor. Battle waves of enemies, defeat bosses, upgrade your ship, and earn rewards — on Android or in your browser.**
+**A 2D sci-fi space shooter built with vanilla JavaScript and Capacitor. Battle waves of enemies, defeat bosses, upgrade your ship, and earn rewards on Android.**
 
 <p align="center">
   <img src="public/assets/icon.png" alt="Nebula Strike" width="120">
