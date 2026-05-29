@@ -1429,83 +1429,110 @@ async function buyCoins(amount) {
 let storeReady = false;
 
 function initStore() {
+    // Defensive check 1: Plugin exists at all
     if (typeof CdvPurchase === 'undefined') {
         console.warn('Billing plugin not loaded');
         return;
     }
 
-    const store = CdvPurchase.store;
+    // Defensive check 2: Store object is actually available
+    if (!CdvPurchase.store) {
+        console.warn('CdvPurchase.store is not available');
+        return;
+    }
 
-    store.register([
-        {
-            id: 'remove_ads_premium',
-            type: CdvPurchase.ProductType.NON_CONSUMABLE,
-            platform: CdvPurchase.Platform.GOOGLE_PLAY
-        },
-        {
-            id: 'coins_pack_small',
-            type: CdvPurchase.ProductType.CONSUMABLE,
-            platform: CdvPurchase.Platform.GOOGLE_PLAY
-        },
-        {
-            id: 'coins_pack_medium',
-            type: CdvPurchase.ProductType.CONSUMABLE,
-            platform: CdvPurchase.Platform.GOOGLE_PLAY
-        },
-        {
-            id: 'coins_pack_large',
-            type: CdvPurchase.ProductType.CONSUMABLE,
-            platform: CdvPurchase.Platform.GOOGLE_PLAY
-        },
-        {
-            id: 'coins_pack_xl',
-            type: CdvPurchase.ProductType.CONSUMABLE,
-            platform: CdvPurchase.Platform.GOOGLE_PLAY
-        }
-    ]);
+    // Defensive check 3: Platform constant exists (fails in browser/emulator)
+    if (!CdvPurchase.Platform || !CdvPurchase.Platform.GOOGLE_PLAY) {
+        console.warn('Purchase platform not available (not Android?)');
+        return;
+    }
 
-    // Auto-update prices from Play Console
-    store.when().productUpdated(p => {
-        const el = document.getElementById('price_' + p.id);
-        if (el) el.textContent = p.pricing?.price || p.price;
-        storeReady = true;
-    });
+    try {
+        const store = CdvPurchase.store;
 
-    // Handle approved purchases
-    store.when().approved(t => {
-        const id = t.products[0].id;
+        store.register([
+            {
+                id: 'remove_ads_premium',
+                type: CdvPurchase.ProductType.NON_CONSUMABLE,
+                platform: CdvPurchase.Platform.GOOGLE_PLAY
+            },
+            {
+                id: 'coins_pack_small',
+                type: CdvPurchase.ProductType.CONSUMABLE,
+                platform: CdvPurchase.Platform.GOOGLE_PLAY
+            },
+            {
+                id: 'coins_pack_medium',
+                type: CdvPurchase.ProductType.CONSUMABLE,
+                platform: CdvPurchase.Platform.GOOGLE_PLAY
+            },
+            {
+                id: 'coins_pack_large',
+                type: CdvPurchase.ProductType.CONSUMABLE,
+                platform: CdvPurchase.Platform.GOOGLE_PLAY
+            },
+            {
+                id: 'coins_pack_xl',
+                type: CdvPurchase.ProductType.CONSUMABLE,
+                platform: CdvPurchase.Platform.GOOGLE_PLAY
+            }
+        ]);
 
-        if (id === 'remove_ads_premium') {
-            noAds = true;
-            saveGame();
-            hideBannerAd();
-            updateNoAdsUI();
-            showCoinGain("NO ADS ACTIVATED!");
-            t.finish();
+        // Defensive check 4: store.when() supports chaining
+        const when = store.when();
+        if (!when || typeof when.productUpdated !== 'function') {
+            console.warn('Store.when() API not ready');
             return;
         }
 
-        const coinRewards = {
-            'coins_pack_small':  10000,
-            'coins_pack_medium': 15000,
-            'coins_pack_large':  30000,
-            'coins_pack_xl':     50000
-        };
+        when.productUpdated(p => {
+            const el = document.getElementById('price_' + p.id);
+            if (el) el.textContent = p.pricing?.price || p.price;
+            storeReady = true;
+        });
 
-        const reward = coinRewards[id];
-        if (reward) {
-            buyCoins(reward);
-            t.finish();
-        }
-    });
+        when.approved(t => {
+            const id = t.products[0].id;
 
-    store.when().cancelled(() => showCoinWarning("Purchase cancelled"));
-    store.when().error(err => {
-        console.error('Store error:', err);
-        showCoinWarning("Purchase failed. Try again.");
-    });
+            if (id === 'remove_ads_premium') {
+                noAds = true;
+                saveGame();
+                hideBannerAd();
+                updateNoAdsUI();
+                showCoinGain("NO ADS ACTIVATED!");
+                t.finish();
+                return;
+            }
 
-    store.initialize([CdvPurchase.Platform.GOOGLE_PLAY]);
+            const coinRewards = {
+                'coins_pack_small':  10000,
+                'coins_pack_medium': 15000,
+                'coins_pack_large':  30000,
+                'coins_pack_xl':     50000
+            };
+
+            const reward = coinRewards[id];
+            if (reward) {
+                buyCoins(reward);
+                t.finish();
+            }
+        });
+
+        when.cancelled(() => showCoinWarning("Purchase cancelled"));
+        
+        when.error(err => {
+            console.error('Store error:', err);
+            showCoinWarning("Purchase failed. Try again.");
+        });
+
+        store.initialize([CdvPurchase.Platform.GOOGLE_PLAY]);
+        console.log("Store initialization requested");
+
+    } catch (err) {
+        console.error("initStore() crashed:", err);
+        storeReady = false;
+        // Don't rethrow — let the game continue
+    }
 }
 
 async function buyNoAds() {
