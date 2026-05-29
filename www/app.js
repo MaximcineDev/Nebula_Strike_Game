@@ -1436,35 +1436,73 @@ function initStore() {
 
     const store = CdvPurchase.store;
 
-    store.register({
-        id: 'remove_ads_premium',
-        type: CdvPurchase.ProductType.NON_CONSUMABLE,
-        platform: CdvPurchase.Platform.GOOGLE_PLAY
-    });
+    store.register([
+        {
+            id: 'remove_ads_premium',
+            type: CdvPurchase.ProductType.NON_CONSUMABLE,
+            platform: CdvPurchase.Platform.GOOGLE_PLAY
+        },
+        {
+            id: 'coins_pack_small',
+            type: CdvPurchase.ProductType.CONSUMABLE,
+            platform: CdvPurchase.Platform.GOOGLE_PLAY
+        },
+        {
+            id: 'coins_pack_medium',
+            type: CdvPurchase.ProductType.CONSUMABLE,
+            platform: CdvPurchase.Platform.GOOGLE_PLAY
+        },
+        {
+            id: 'coins_pack_large',
+            type: CdvPurchase.ProductType.CONSUMABLE,
+            platform: CdvPurchase.Platform.GOOGLE_PLAY
+        },
+        {
+            id: 'coins_pack_xl',
+            type: CdvPurchase.ProductType.CONSUMABLE,
+            platform: CdvPurchase.Platform.GOOGLE_PLAY
+        }
+    ]);
 
+    // Auto-update prices from Play Console
     store.when().productUpdated(p => {
-        // Update UI with real price from Play Console
-        const priceEl = document.querySelector('#noAdsCard .coinPrice');
-        if (priceEl) priceEl.textContent = p.price;
+        const el = document.getElementById('price_' + p.id);
+        if (el) el.textContent = p.pricing?.price || p.price;
         storeReady = true;
     });
 
+    // Handle approved purchases
     store.when().approved(t => {
-        noAds = true;
-        saveGame();
-        hideBannerAd();
-        updateNoAdsUI();
-        showCoinGain("NO ADS ACTIVATED!");
-        t.finish();
+        const id = t.products[0].id;
+
+        if (id === 'remove_ads_premium') {
+            noAds = true;
+            saveGame();
+            hideBannerAd();
+            updateNoAdsUI();
+            showCoinGain("NO ADS ACTIVATED!");
+            t.finish();
+            return;
+        }
+
+        const coinRewards = {
+            'coins_pack_small':  10000,
+            'coins_pack_medium': 15000,
+            'coins_pack_large':  30000,
+            'coins_pack_xl':     50000
+        };
+
+        const reward = coinRewards[id];
+        if (reward) {
+            buyCoins(reward);
+            t.finish();
+        }
     });
 
-    store.when().cancelled(() => {
-        showCoinWarning("Purchase cancelled");
-    });
-
+    store.when().cancelled(() => showCoinWarning("Purchase cancelled"));
     store.when().error(err => {
         console.error('Store error:', err);
-        showCoinWarning("Purchase failed");
+        showCoinWarning("Purchase failed. Try again.");
     });
 
     store.initialize([CdvPurchase.Platform.GOOGLE_PLAY]);
@@ -1492,6 +1530,35 @@ async function buyNoAds() {
 
     const store = CdvPurchase.store;
     const product = store.get('remove_ads_premium');
+    if (!product) {
+        showCoinWarning("Product not available");
+        return;
+    }
+
+    await store.order(product);
+}
+
+async function buyCoinsIAP(packId) {
+    if (typeof CdvPurchase === 'undefined') {
+        // Browser test mode — grants coins instantly
+        const testRewards = {
+            'coins_pack_small':  10000,
+            'coins_pack_medium': 15000,
+            'coins_pack_large':  30000,
+            'coins_pack_xl':     50000
+        };
+        const reward = testRewards[packId];
+        if (reward) { await buyCoins(reward); }
+        return;
+    }
+
+    if (!storeReady) {
+        showCoinWarning("Store loading... try again");
+        return;
+    }
+
+    const store = CdvPurchase.store;
+    const product = store.get(packId);
     if (!product) {
         showCoinWarning("Product not available");
         return;
@@ -1818,7 +1885,7 @@ window.addEventListener("load", async () => {
 
     resizeGame();
     checkDailyReward();
-    // initStore();
+    initStore();
 
     const canvas = document.getElementById("gameCanvas");
     const hud    = document.getElementById("hud");
