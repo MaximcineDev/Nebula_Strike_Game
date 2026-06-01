@@ -1505,10 +1505,10 @@ function initStore() {
             }
 
             const coinRewards = {
-                'coins_pack_small':  10000,
-                'coins_pack_medium': 15000,
-                'coins_pack_large':  30000,
-                'coins_pack_xl':     50000
+                'coins_pack_small':  2000,
+                'coins_pack_medium': 3500,
+                'coins_pack_large':  5000,
+                'coins_pack_xl':     7500
             };
 
             const reward = coinRewards[id];
@@ -1569,10 +1569,10 @@ async function buyCoinsIAP(packId) {
     if (typeof CdvPurchase === 'undefined') {
         // Browser test mode — grants coins instantly
         const testRewards = {
-            'coins_pack_small':  10000,
-            'coins_pack_medium': 15000,
-            'coins_pack_large':  30000,
-            'coins_pack_xl':     50000
+            'coins_pack_small':  2000,
+            'coins_pack_medium': 3500,
+            'coins_pack_large':  5000,
+            'coins_pack_xl':     7500
         };
         const reward = testRewards[packId];
         if (reward) { await buyCoins(reward); }
