@@ -1,6 +1,6 @@
 {
   "appId": "com.nebulastrike.game",
-  "appName": "Nebula Strike",
+  "appName": "Nebula Strike: Galactic Assault",
   "webDir": "www",
   "plugins": {
     "SplashScreen": {
