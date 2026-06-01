@@ -1914,40 +1914,56 @@ window.addEventListener("load", async () => {
     checkDailyReward();
     initStore();
 
+    // Hide game elements initially
     const canvas = document.getElementById("gameCanvas");
     const hud    = document.getElementById("hud");
     if (canvas) { canvas.style.display = "none"; canvas.style.pointerEvents = "auto"; }
     if (hud)    hud.style.display = "none";
 
-    // Show logo
-    const logo = document.getElementById("logoScreen");
-    logo.style.opacity = "1";
+    // Then hide menu initially
+    const menu = document.getElementById("main-menu");
+    if (menu) {
+        menu.style.display = "none";
+        menu.style.opacity = "0";
+    }
 
-    setTimeout(() => {
-        // Fade out logo
-        logo.style.transition = "opacity 0.8s ease";
-        logo.style.opacity = "0";
+    // === LOGO SEQUENCE ===
+    const logo = document.getElementById("logoScreen");
+    if (logo) {
+        logo.style.display = "flex";
+        logo.style.opacity = "1";
 
         setTimeout(() => {
-            logo.style.display = "none";
-
-            // Show splash screen
-            const splash = document.getElementById("splashScreen");
-            splash.style.opacity = "1";
+            logo.style.transition = "opacity 0.8s ease";
+            logo.style.opacity = "0";
 
             setTimeout(() => {
-                // Fade out splash
-                splash.style.transition = "opacity 0.8s ease";
-                splash.style.opacity = "0";
+                logo.style.display = "none";
 
-                setTimeout(() => {
-                    splash.style.display = "none";
-                    // Show menu
-                    const menu = document.getElementById("main-menu");
-                    menu.style.cssText += "display:flex;opacity:1;";
-                    menu.classList.add("show");
-                }, 800);
-            }, 2000);
+                // === SPLASH SEQUENCE ===
+                const splash = document.getElementById("splashScreen");
+                if (splash) {
+                    splash.style.display = "flex";
+                    splash.style.opacity = "1";
 
-        }, 800);
-    }, 1500);
+                    setTimeout(() => {
+                        splash.style.transition = "opacity 0.8s ease";
+                        splash.style.opacity = "0";
+
+                        setTimeout(() => {
+                            splash.style.display = "none";
+
+                            // === SHOW MENU ===
+                            if (menu) {
+                                menu.style.display = "flex";
+                                menu.style.opacity = "1";
+                                menu.classList.add("show");
+                            }
+                        }, 800);
+                    }, 5000); //
+
+                }
+            }, 800);
+        }, 3000);
+    }
+});

@@ -63,7 +63,7 @@
 </div>
 
 <!-- ================= SPLASH ================= -->
-<div id="splashScreen">
+<div id="splashScreen" style="opacity:0; transition: opacity 0.8s ease;">
     <div class="splash-ship-container">
         <img src="assets/player1.png" alt="ship" class="splash-ship">
         <div class="splash-glow"></div>
@@ -97,11 +97,11 @@
 
 
 <!-- ================= CANVAS ================= -->
-<canvas id="gameCanvas"></canvas>
+<canvas id="gameCanvas" style="display:none;"></canvas>
 
 
 <!-- ================= HUD ================= -->
-<div id="hud">
+<div id="hud" style="display:none;">
     <!-- Top curved bar container -->
     <div class="hud-top-bar">
         <!-- Left: Health/Energy -->

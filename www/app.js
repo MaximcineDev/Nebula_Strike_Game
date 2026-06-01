@@ -1,5 +1,5 @@
 /* =============================================================
-   NEBULA STRIKE  — Version: 1.0.0
+   NEBULA STRIKE : GALACTIC ASSAULT — Version: 5.0.0
    ============================================================= */
 
 // ─── LOGGING ──────────────────────────────────────────────────
@@ -1505,10 +1505,10 @@ function initStore() {
             }
 
             const coinRewards = {
-                'coins_pack_small':  10000,
-                'coins_pack_medium': 15000,
-                'coins_pack_large':  30000,
-                'coins_pack_xl':     50000
+                'coins_pack_small':  2000,
+                'coins_pack_medium': 3500,
+                'coins_pack_large':  5000,
+                'coins_pack_xl':     7500
             };
 
             const reward = coinRewards[id];
@@ -1569,10 +1569,10 @@ async function buyCoinsIAP(packId) {
     if (typeof CdvPurchase === 'undefined') {
         // Browser test mode — grants coins instantly
         const testRewards = {
-            'coins_pack_small':  10000,
-            'coins_pack_medium': 15000,
-            'coins_pack_large':  30000,
-            'coins_pack_xl':     50000
+            'coins_pack_small':  2000,
+            'coins_pack_medium': 3500,
+            'coins_pack_large':  5000,
+            'coins_pack_xl':     7500
         };
         const reward = testRewards[packId];
         if (reward) { await buyCoins(reward); }
@@ -1914,44 +1914,58 @@ window.addEventListener("load", async () => {
     checkDailyReward();
     initStore();
 
+    // Hide game elements initially (redundant safety, but keeps logic consistent)
     const canvas = document.getElementById("gameCanvas");
     const hud    = document.getElementById("hud");
     if (canvas) { canvas.style.display = "none"; canvas.style.pointerEvents = "auto"; }
     if (hud)    hud.style.display = "none";
 
-    // Tap-to-start overlay
-    const overlay = document.createElement("div");
-    overlay.id = "tapToStart";
-    document.body.appendChild(overlay);
+    // Ensure menu is hidden initially
+    const menu = document.getElementById("main-menu");
+    if (menu) {
+        menu.style.display = "none";
+        menu.style.opacity = "0";
+    }
 
-    let fallbackTriggered = false;
+    // === LOGO SEQUENCE ===
+    const logo = document.getElementById("logoScreen");
+    if (logo) {
+        logo.style.display = "flex";
+        logo.style.opacity = "1";
 
-    const handleStart = (e) => {
-        if (started) return;
-        started = true;
-        clearTimeout(fallbackTimer);
-        if (e?.preventDefault) e.preventDefault();
-        if (audioContext?.state === "suspended") audioContext.resume();
-        unlockAudio();
-        if (soundOn && menuMusic) { menuMusic.currentTime = 0; menuMusic.play().catch(() => {}); }
-        overlay.remove();
-        const splash = document.getElementById("splashScreen");
-        if (splash) { splash.style.opacity = "0"; splash.style.pointerEvents = "none"; setTimeout(() => splash.style.display = "none", 500); }
-        const menu = document.getElementById("main-menu");
-        if (menu) { menu.style.cssText += "display:flex;visibility:visible;opacity:1;"; menu.classList.add("show"); }
-    };
+        // Logo stays visible for 3 seconds, then fades out over 0.8s
+        setTimeout(() => {
+            logo.style.transition = "opacity 0.8s ease";
+            logo.style.opacity = "0";
 
-    ["click","touchstart"].forEach(evt => overlay.addEventListener(evt, handleStart, { once: true, passive: false }));
+            setTimeout(() => {
+                logo.style.display = "none";
 
-    attachButtonSounds();
+                // === SPLASH SEQUENCE ===
+                const splash = document.getElementById("splashScreen");
+                if (splash) {
+                    splash.style.display = "flex";
+                    splash.style.opacity = "1";
 
-    const fallbackTimer = setTimeout(() => {
-        if (started || fallbackTriggered) return;
-        fallbackTriggered = true;
-        const splash = document.getElementById("splashScreen");
-        if (splash) { splash.style.opacity = "0"; splash.style.pointerEvents = "none"; setTimeout(() => splash.style.display = "none", 500); }
-        const menu = document.getElementById("main-menu");
-        if (menu) { menu.style.cssText += "display:flex;visibility:visible;opacity:1;"; menu.classList.add("show"); }
-        loadBannerAd();
-    }, 1500);
+                    // Splash stays visible for 5 seconds, then fades out over 0.8s
+                    setTimeout(() => {
+                        splash.style.transition = "opacity 0.8s ease";
+                        splash.style.opacity = "0";
+
+                        setTimeout(() => {
+                            splash.style.display = "none";
+
+                            // === SHOW MENU ===
+                            if (menu) {
+                                menu.style.display = "flex";
+                                menu.style.opacity = "1";
+                                menu.classList.add("show");
+                            }
+                        }, 800); // Wait for splash fade-out
+                    }, 5000); // <-- SPLASH DURATION: 5 seconds
+
+                }
+            }, 800); // Wait for logo fade-out
+        }, 3000); // <-- LOGO DURATION: 3 seconds
+    }
 });

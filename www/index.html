@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="icon" href="/assets/icon-BpIo5nFu.png">
+    <link rel="icon" href="/assets/icon-yAiRe0xB.png">
     <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -48,8 +48,22 @@
     
 <body>
 
+<!-- ====== LOGO SCREEN ====== -->
+<div id="logoScreen" style="
+  position:fixed; inset:0; 
+  background:#000; 
+  display:flex; 
+  justify-content:center; 
+  align-items:center;
+  z-index:99999;
+  opacity:0;
+  transition: opacity 0.8s ease;
+">
+  <img src="assets/logo.png" style="width:200px;">
+</div>
+
 <!-- ================= SPLASH ================= -->
-<div id="splashScreen">
+<div id="splashScreen" style="opacity:0; transition: opacity 0.8s ease;">
     <div class="splash-ship-container">
         <img src="assets/player1.png" alt="ship" class="splash-ship">
         <div class="splash-glow"></div>
@@ -83,11 +97,11 @@
 
 
 <!-- ================= CANVAS ================= -->
-<canvas id="gameCanvas"></canvas>
+<canvas id="gameCanvas" style="display:none;"></canvas>
 
 
 <!-- ================= HUD ================= -->
-<div id="hud">
+<div id="hud" style="display:none;">
     <!-- Top curved bar container -->
     <div class="hud-top-bar">
         <!-- Left: Health/Energy -->
@@ -203,7 +217,7 @@
                     <div class="coinListLeft">
                         <span class="coinListIcon">🪙</span>
                         <div>
-                            <div class="coinListAmount">10,000 Coins</div>
+                            <div class="coinListAmount">2,000 Coins</div>
                         </div>
                     </div>
                     <div class="coinListPrice" id="price_coins_pack_small">$1.99</div>
@@ -213,7 +227,7 @@
                     <div class="coinListLeft">
                         <span class="coinListIcon">🪙</span>
                         <div>
-                            <div class="coinListAmount">15,000 Coins</div>
+                            <div class="coinListAmount">3,500 Coins</div>
                         </div>
                     </div>
                     <div class="coinListPrice" id="price_coins_pack_medium">$3.99</div>
@@ -223,7 +237,7 @@
                     <div class="coinListLeft">
                         <span class="coinListIcon">🪙</span>
                         <div>
-                            <div class="coinListAmount">30,000 Coins</div>
+                            <div class="coinListAmount">5,000 Coins</div>
                             <div class="coinListBadge">BEST VALUE</div>
                         </div>
                     </div>
@@ -234,7 +248,7 @@
                     <div class="coinListLeft">
                         <span class="coinListIcon">🪙</span>
                         <div>
-                            <div class="coinListAmount">50,000 Coins</div>
+                            <div class="coinListAmount">7,500 Coins</div>
                         </div>
                     </div>
                     <div class="coinListPrice" id="price_coins_pack_xl">$9.99</div>
