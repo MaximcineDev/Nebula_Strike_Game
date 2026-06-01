@@ -1,4 +1,4 @@
-# 🚀 Nebula Strike
+# 🚀 Nebula Strike: Galactic Assault
 
 [![Platform](https://img.shields.io/badge/platform-Android%20%7C%20Web-blue.svg)](https://github.com/Chinabel/Nebula_Strike)
 [![Language](https://img.shields.io/badge/JavaScript-ES2022-orange.svg)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
