@@ -1919,39 +1919,35 @@ window.addEventListener("load", async () => {
     if (canvas) { canvas.style.display = "none"; canvas.style.pointerEvents = "auto"; }
     if (hud)    hud.style.display = "none";
 
-    // Tap-to-start overlay
-    const overlay = document.createElement("div");
-    overlay.id = "tapToStart";
-    document.body.appendChild(overlay);
+    // Show logo
+    const logo = document.getElementById("logoScreen");
+    logo.style.opacity = "1";
 
-    let fallbackTriggered = false;
+    setTimeout(() => {
+        // Fade out logo
+        logo.style.transition = "opacity 0.8s ease";
+        logo.style.opacity = "0";
 
-    const handleStart = (e) => {
-        if (started) return;
-        started = true;
-        clearTimeout(fallbackTimer);
-        if (e?.preventDefault) e.preventDefault();
-        if (audioContext?.state === "suspended") audioContext.resume();
-        unlockAudio();
-        if (soundOn && menuMusic) { menuMusic.currentTime = 0; menuMusic.play().catch(() => {}); }
-        overlay.remove();
-        const splash = document.getElementById("splashScreen");
-        if (splash) { splash.style.opacity = "0"; splash.style.pointerEvents = "none"; setTimeout(() => splash.style.display = "none", 500); }
-        const menu = document.getElementById("main-menu");
-        if (menu) { menu.style.cssText += "display:flex;visibility:visible;opacity:1;"; menu.classList.add("show"); }
-    };
+        setTimeout(() => {
+            logo.style.display = "none";
 
-    ["click","touchstart"].forEach(evt => overlay.addEventListener(evt, handleStart, { once: true, passive: false }));
+            // Show splash screen
+            const splash = document.getElementById("splashScreen");
+            splash.style.opacity = "1";
 
-    attachButtonSounds();
+            setTimeout(() => {
+                // Fade out splash
+                splash.style.transition = "opacity 0.8s ease";
+                splash.style.opacity = "0";
 
-    const fallbackTimer = setTimeout(() => {
-        if (started || fallbackTriggered) return;
-        fallbackTriggered = true;
-        const splash = document.getElementById("splashScreen");
-        if (splash) { splash.style.opacity = "0"; splash.style.pointerEvents = "none"; setTimeout(() => splash.style.display = "none", 500); }
-        const menu = document.getElementById("main-menu");
-        if (menu) { menu.style.cssText += "display:flex;visibility:visible;opacity:1;"; menu.classList.add("show"); }
-        loadBannerAd();
+                setTimeout(() => {
+                    splash.style.display = "none";
+                    // Show menu
+                    const menu = document.getElementById("main-menu");
+                    menu.style.cssText += "display:flex;opacity:1;";
+                    menu.classList.add("show");
+                }, 800);
+            }, 2000);
+
+        }, 800);
     }, 1500);
-});
