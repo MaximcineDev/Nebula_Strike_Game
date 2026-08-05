@@ -534,6 +534,7 @@ function openUpgradesPanel() {
 }
  
 function closeUpgradesPanel() {
+    hideCoinWarning();
     document.getElementById('upgradesPanel').style.display = 'none';
     if (gameRunning && paused) {
         paused = false;
@@ -608,6 +609,7 @@ function startGame() {
     health = maxHearts; score = 0;
     level = (highestLevel > 1) ? highestLevel : 1;
     gameRunning = true; paused = false; gameState = "playing";
+    hideCoinWarning();
     enemies = []; bullets = []; enemyBullets = []; powerups = []; boss = null;
     waveInProgress = false; waveNumber = 0; enemiesInWave = 0; reviveUsed = false;
     playerPerformance = { shotsFired: 0, shotsHit: 0, damageTaken: 0 };
@@ -1320,6 +1322,7 @@ function openShop() {
 }
 
 function closeShop() {
+    hideCoinWarning();
     document.getElementById("shop").style.display = "none";
     if (window.shopOpenedFromGame) {
         window.shopOpenedFromGame = false;
@@ -1829,6 +1832,7 @@ function claimDailyReward(useDouble = false) {
 
     coins += amount;
     dailyData.lastLogin = new Date().toDateString();
+    hideCoinWarning();
     dailyData.streak = dailyData.streak >= 7 ? 1 : dailyData.streak + 1;
 
     saveDailyData(); saveGame(); updateHUD(); coinPulse(); showCoinGain(amount);
@@ -1862,11 +1866,26 @@ function showCoinSpend(amount) {
     setTimeout(() => el.remove(), 700);
 }
 
+let coinWarningTimeout = null;
+
 function showCoinWarning(msg = "Something went wrong") {
     const el = document.getElementById("coinWarning");
     if (!el) return;
-    el.innerText = msg; el.classList.add("show");
-    setTimeout(() => el.classList.remove("show"), 1200);
+
+    if (coinWarningTimeout) clearTimeout(coinWarningTimeout);
+
+    el.innerText = msg;
+    el.classList.add("show");
+    coinWarningTimeout = setTimeout(() => {
+        el.classList.remove("show");
+        coinWarningTimeout = null;
+    }, 1200);
+}
+
+function hideCoinWarning() {
+    if (coinWarningTimeout) { clearTimeout(coinWarningTimeout); coinWarningTimeout = null; }
+    const el = document.getElementById("coinWarning");
+    if (el) el.classList.remove("show");
 }
 
 function watchAdReward() {
