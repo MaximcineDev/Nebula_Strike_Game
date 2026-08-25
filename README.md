@@ -1,6 +1,6 @@
 # 🚀 Nebula Strike: Galactic Assault
 
-[![Platform](https://img.shields.io/badge/platform-Android%20%7C%20Web-blue.svg)](https://github.com/Chinabel/Nebula_Strike)
+[![Platform](https://img.shields.io/badge/platform-Android%20%7C%20Web-blue.svg)]
 [![Language](https://img.shields.io/badge/JavaScript-ES2022-orange.svg)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![Built With](https://img.shields.io/badge/Built%20With-Capacitor%208-4A90D9?logo=capacitor)](https://capacitorjs.com/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
