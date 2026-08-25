@@ -1,5 +1,5 @@
 /* =============================================================
-   NEBULA STRIKE : GALACTIC ASSAULT — Version: 5.0.0
+   NEBULA STRIKE : GALACTIC ASSAULT — Version: 5.0.1
    ============================================================= */
 
 // ─── LOGGING ──────────────────────────────────────────────────
@@ -13,6 +13,9 @@ let AdMob = window.AdMob || null;
 let admobReady = false;
 let pendingRewardAction = null;
 let rewardAmount = 0;
+let dailyRewardPendingDouble = false; // FIX: dedicated flag so handleReward() clearing
+                                       // pendingRewardAction doesn't wipe the "double" intent
+                                       // before claimDailyReward(false) can check it.
 
 const AD_IDS = {
     banner:   'ca-app-pub-5850163781981893/7518088125',
@@ -157,6 +160,8 @@ function handleReward(success) {
             break;
 
         case 'dailyDouble':
+            // FIX: dailyRewardPendingDouble is checked/consumed inside claimDailyReward(),
+            // not pendingRewardAction (which is already null by the time we get here).
             claimDailyReward(false);
             break;
 
@@ -365,8 +370,14 @@ const explosionSound = new Audio("assets/sounds/explosion.wav");
 const powerupSound  = new Audio("assets/sounds/powerup.wav");
 let menuMusic = new Audio("assets/sounds/menu.mp3");
 let gameMusic = new Audio("assets/sounds/music.mp3");
+menuMusic.preload = "auto";
+gameMusic.preload = "auto";
 menuMusic.loop = gameMusic.loop = true;
 menuMusic.volume = gameMusic.volume = 0.7;
+
+// FIX: Log load errors so broken paths are visible
+menuMusic.addEventListener('error', (e) => console.error("Menu music failed to load:", menuMusic.src, e));
+gameMusic.addEventListener('error', (e) => console.error("Game music failed to load:", gameMusic.src, e));
 
 let audioContext = new (window.AudioContext || window.webkitAudioContext)();
 let audioUnlocked = false;
@@ -375,13 +386,33 @@ function unlockAudio() {
     if (audioUnlocked) return;
     audioUnlocked = true;
     if (audioContext.state === "suspended") {
-        audioContext.resume().then(() => playMenuMusic()).catch(() => {});
+        audioContext.resume().then(() => playMenuMusic()).catch(err => console.error("AudioContext resume failed:", err.name, err.message));
     } else {
         playMenuMusic();
     }
+
+    // FIX: Prime HTML5 audio elements inside user gesture for mobile WebView autoplay policy.
+    // Each <audio> element must be played once (at zero volume) inside a click/touch handler
+    // before it can be played programmatically later.
+    [gameMusic, shootSound, explosionSound, powerupSound].forEach(audio => {
+        if (!audio) return;
+        const oldVol = audio.volume;
+        const oldTime = audio.currentTime;
+        audio.volume = 0;
+        const p = audio.play();
+        if (p !== undefined) {
+            p.then(() => {
+                audio.pause();
+                audio.currentTime = oldTime;
+                audio.volume = oldVol;
+            }).catch(() => {
+                audio.volume = oldVol;
+            });
+        }
+    });
 }
 function playMenuMusic() {
-    if (soundOn && menuMusic.paused) { menuMusic.currentTime = 0; menuMusic.play().catch(() => {}); }
+    if (soundOn && menuMusic.paused) { menuMusic.currentTime = 0; menuMusic.play().catch(err => console.error("Menu music play failed:", err.name, err.message)); }
 }
 
 function setupAudioUnlock() {
@@ -529,7 +560,8 @@ function openUpgradesPanel() {
     }
     const el = document.getElementById('upgradesCoinText');
     if (el) el.textContent = coins;
- 
+    updateUpgradesPanelPrices();
+
     document.getElementById('upgradesPanel').style.display = 'flex';
 }
  
@@ -538,7 +570,7 @@ function closeUpgradesPanel() {
     document.getElementById('upgradesPanel').style.display = 'none';
     if (gameRunning && paused) {
         paused = false;
-        if (soundOn && gameMusic) gameMusic.play().catch(() => {});
+        if (soundOn && gameMusic) gameMusic.play().catch(err => console.error("Game music resume failed:", err.name, err.message));
         lastTime = 0;
         if (!window.gameLoopId) window.gameLoopId = requestAnimationFrame(gameLoop);
     }
@@ -555,7 +587,7 @@ function togglePause() {
         if (window.gameLoopId) { cancelAnimationFrame(window.gameLoopId); window.gameLoopId = null; }
     } else {
         if (menu) menu.style.display = "none";
-        if (soundOn && gameMusic) gameMusic.play().catch(() => {});
+        if (soundOn && gameMusic) gameMusic.play().catch(err => console.error("Game music resume failed:", err.name, err.message));
         lastTime = 0;
         if (!window.gameLoopId) window.gameLoopId = requestAnimationFrame(gameLoop);
     }
@@ -569,7 +601,7 @@ function quitGame() {
     if (autoShootTimeout) { clearTimeout(autoShootTimeout); autoShootTimeout = null; }
 
     try { saveGame(); } catch (e) {}
-    try { gameMusic.pause(); gameMusic.currentTime = 0; menuMusic.currentTime = 0; if (soundOn) menuMusic.play().catch(() => {}); } catch (e) {}
+    try { gameMusic.pause(); gameMusic.currentTime = 0; menuMusic.currentTime = 0; if (soundOn) menuMusic.play().catch(err => console.error("Menu music resume failed:", err.name, err.message)); } catch (e) {}
 
     ["pauseMenu","gameCanvas","hud","bossBar","bossWarning","levelComplete","gameOverScreen","reviveScreen"]
         .forEach(id => { const el = document.getElementById(id); if (el) el.style.display = "none"; });
@@ -622,7 +654,7 @@ function startGame() {
     if (menu) { menu.style.display = "none"; menu.classList.remove("show"); }
 
     if (menuMusic) menuMusic.pause();
-    if (soundOn && gameMusic) { gameMusic.currentTime = 0; gameMusic.play().catch(() => {}); }
+    if (soundOn && gameMusic) { gameMusic.currentTime = 0; gameMusic.play().catch(err => console.error("Game music play failed:", err.name, err.message)); }
 
     startAutoShoot();
     startWave();
@@ -646,7 +678,7 @@ function playerShoot() {
     if (now - lastShot < 100) return;
     lastShot = now;
 
-    if (soundOn) { shootSound.volume = sfxVolume; shootSound.currentTime = 0; shootSound.play().catch(() => {}); }
+    if (soundOn) { shootSound.volume = sfxVolume; shootSound.currentTime = 0; shootSound.play().catch(err => console.error("Shoot sound failed:", err.name, err.message)); }
 
     const cx = player.x + player.width / 2;
     const y  = player.y;
@@ -955,7 +987,7 @@ function updateBullets() {
                 bullets.splice(i, 1); hit = true; e.hp--; screenShake = 3;
                 if (e.hp <= 0) {
                     enemies.splice(j, 1);
-                    if (soundOn) { explosionSound.currentTime = 0; explosionSound.volume = sfxVolume; explosionSound.play().catch(() => {}); }
+                    if (soundOn) { explosionSound.currentTime = 0; explosionSound.volume = sfxVolume; explosionSound.play().catch(err => console.error("Explosion sound failed:", err.name, err.message)); }
                     explosions.push({ x: e.x + e.w / 2, y: e.y + e.h / 2, frame: 0, maxFrame: 10 });
                     const reward = e.type === ENEMY_SHOOTER ? 30 : e.type === ENEMY_TANK ? 25 : e.type === ENEMY_FAST ? 15 : 10;
                     addCoins(reward);
@@ -1071,7 +1103,7 @@ function updatePowerups() {
             else if (p.type === 2) {
                 shieldActive = true; shieldTimer = 300 + shieldLevel * 150;
                 screenShake = 5; hitFlash = 3;
-                if (soundOn) { powerupSound.currentTime = 0; powerupSound.play().catch(() => {}); }
+                if (soundOn) { powerupSound.currentTime = 0; powerupSound.play().catch(err => console.error("Powerup sound failed:", err.name, err.message)); }
             }
             continue;
         }
@@ -1327,7 +1359,7 @@ function closeShop() {
     if (window.shopOpenedFromGame) {
         window.shopOpenedFromGame = false;
         paused = false; gameState = "playing"; gameRunning = true;
-        if (soundOn && gameMusic) gameMusic.play().catch(() => {});
+        if (soundOn && gameMusic) gameMusic.play().catch(err => console.error("Game music resume failed:", err.name, err.message));
         lastTime = 0; window.gameLoopId = requestAnimationFrame(gameLoop);
         document.getElementById("gameCanvas").style.display = "block";
         document.getElementById("hud").style.display = "flex";
@@ -1401,23 +1433,50 @@ async function tryBuySkin(id, price) {
     setTimeout(() => selectSkin(id), 50);
 }
 
+// FIX: buyWeapon now charges a flat 2500 to match the "Upgrade Weapon (2500 🪙)"
+// label in the Upgrades panel HTML, instead of the old scaling formula (150 * weaponLevel)
+// which undercharged badly at low levels.
+// NEW: costs now scale with level. Weapon: 2500 * weaponLevel (2500, 5000, 7500, 10000).
+// Shield: 1500 * (shieldLevel + 1) (1500, 3000, 4500, 6000, 7500).
+function getWeaponCost() { return 2500 * weaponLevel; }
+function getShieldCost() { return 1500 * (shieldLevel + 1); }
+
+// NEW: keeps the Upgrades panel labels in sync with the real current price.
+// Requires id="weaponCostLabel" and id="shieldCostLabel" on the two <span>s
+// in the Upgrades panel HTML (see index.html snippet).
+function updateUpgradesPanelPrices() {
+    const weaponLabel = document.getElementById('weaponCostLabel');
+    if (weaponLabel) {
+        weaponLabel.textContent = weaponLevel >= 5
+            ? '🔫 Weapon (MAX LEVEL)'
+            : `🔫 Upgrade Weapon (${getWeaponCost()} 🪙)`;
+    }
+    const shieldLabel = document.getElementById('shieldCostLabel');
+    if (shieldLabel) {
+        shieldLabel.textContent = shieldLevel >= 5
+            ? '🛡️ Shield (MAX LEVEL)'
+            : `🛡️ Buy Shield (${getShieldCost()} 🪙)`;
+    }
+}
+
 async function buyWeapon() {
     if (weaponLevel >= 5) { showCoinWarning("Weapon is max level!"); return; }
-    const cost = 150 * weaponLevel;
+    const cost = getWeaponCost();
     if (coins < cost) { showCoinWarning("Not enough coins!"); return; }
     await addCoins(-cost); showCoinSpend(cost);
     weaponLevel++; damage++; fireRate = Math.max(80, fireRate - 40);
-    updateHUD(); saveGame(); coinPulse();
+    updateHUD(); updateUpgradesPanelPrices(); saveGame(); coinPulse();
 }
 
 async function buyShield() {
     if (shieldLevel >= 5) { showCoinWarning("Shield is max level!"); return; }
-    if (coins < 50) { showCoinWarning("Not enough coins!"); return; }
-    await addCoins(-50); showCoinSpend(50);
+    const cost = getShieldCost();
+    if (coins < cost) { showCoinWarning("Not enough coins!"); return; }
+    await addCoins(-cost); showCoinSpend(cost);
     shieldLevel++; shieldActive = true;
     shieldTimer = Math.max(shieldTimer, 300 + shieldLevel * 150);
     hitFlash = 3; screenShake = 4;
-    updateHUD(); updateShopCoins(); saveGame(); coinPulse();
+    updateHUD(); updateShopCoins(); updateUpgradesPanelPrices(); saveGame(); coinPulse();
 }
 
 async function buyCoins(amount) {
@@ -1659,7 +1718,7 @@ function nextLevel() {
     gameRunning = true; paused = false; gameState = "playing";
 
     updateHUD();
-    if (soundOn && gameMusic) { gameMusic.currentTime = 0; gameMusic.play().catch(() => {}); }
+    if (soundOn && gameMusic) { gameMusic.currentTime = 0; gameMusic.play().catch(err => console.error("Game music play failed:", err.name, err.message)); }
 
     lastTime = 0;
     lastWaveTime = lastEnemySpawnTime = performance.now();
@@ -1734,8 +1793,8 @@ function toggleSound() {
         shootSound.volume = explosionSound.volume = 0;
     } else {
         shootSound.volume = explosionSound.volume = sfxVolume;
-        if (gameRunning && gameMusic.paused) gameMusic.play().catch(() => {});
-        else if (!gameRunning && menuMusic.paused) menuMusic.play().catch(() => {});
+        if (gameRunning && gameMusic.paused) gameMusic.play().catch(err => console.error("Game music toggle resume failed:", err.name, err.message));
+        else if (!gameRunning && menuMusic.paused) menuMusic.play().catch(err => console.error("Menu music toggle resume failed:", err.name, err.message));
     }
     updateSoundButton(); saveGame();
 }
@@ -1811,10 +1870,175 @@ function updateDailyRewardUI() {
     }
 }
 
+// Injects the chest-opening animation's CSS once (keyframes + classes).
+function injectChestAnimationStyles() {
+    if (document.getElementById('chestAnimStyles')) return;
+    const style = document.createElement('style');
+    style.id = 'chestAnimStyles';
+    style.textContent = `
+.chestOpenOverlay {
+    position: fixed; inset: 0; z-index: 10000;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.82);
+    opacity: 0; transition: opacity 0.35s ease;
+}
+.chestOpenOverlay.opening { opacity: 1; }
+.chestOpenOverlay.closing { opacity: 0; }
+.chestAnimBox { position: relative; width: 180px; height: 180px; }
+.chestAnimBase {
+    font-size: 110px; position: absolute; bottom: 10px; left: 50%;
+    transform: translateX(-50%) scale(0.7);
+    filter: drop-shadow(0 0 0px gold);
+    transition: transform 0.4s cubic-bezier(.34,1.56,.64,1), filter 0.4s ease;
+}
+.chestOpenOverlay.opening .chestAnimBase {
+    transform: translateX(-50%) scale(1);
+    filter: drop-shadow(0 0 30px gold);
+    animation: chestShake 0.4s ease-in-out;
+}
+@keyframes chestShake {
+    0%, 100% { transform: translateX(-50%) scale(1) rotate(0deg); }
+    25% { transform: translateX(-50%) scale(1) rotate(-4deg); }
+    75% { transform: translateX(-50%) scale(1) rotate(4deg); }
+}
+.chestAnimLid {
+    font-size: 60px; position: absolute; top: 10px; left: 50%;
+    transform: translateX(-50%) rotate(0deg) translateY(0);
+    opacity: 0;
+    transition: transform 0.6s cubic-bezier(.34,1.56,.64,1) 0.4s, opacity 0.3s ease 0.4s;
+}
+.chestOpenOverlay.opening .chestAnimLid {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-60px) rotate(-45deg);
+}
+.chestBurstRay {
+    position: absolute; top: 50%; left: 50%; width: 4px; height: 0;
+    background: linear-gradient(to top, transparent, gold, transparent);
+    transform-origin: bottom center;
+    opacity: 0;
+}
+.chestOpenOverlay.opening .chestBurstRay {
+    animation: chestRayPulse 0.9s ease-out 0.5s;
+}
+@keyframes chestRayPulse {
+    0%   { opacity: 0; height: 0; }
+    30%  { opacity: 1; height: 100px; }
+    100% { opacity: 0; height: 130px; }
+}
+.chestParticle {
+    position: absolute; top: 50%; left: 50%; font-size: 22px;
+    opacity: 0; transform: translate(0,0) scale(0.4);
+}
+.chestOpenOverlay.opening .chestParticle {
+    animation: chestParticleFly 1s cubic-bezier(.2,.7,.3,1) forwards;
+}
+@keyframes chestParticleFly {
+    0%   { transform: translate(0,0) scale(0.4); opacity: 0; }
+    15%  { opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(1.1); opacity: 0; }
+}
+.chestRewardText {
+    margin-top: 26px; font-family: 'Orbitron', sans-serif; font-size: 30px; font-weight: 900;
+    color: gold; text-shadow: 0 0 20px rgba(255,215,0,0.85);
+    opacity: 0; transform: scale(0.4) translateY(15px);
+    transition: all 0.5s cubic-bezier(.34,1.56,.64,1);
+    text-align: center;
+}
+.chestRewardText.show { opacity: 1; transform: scale(1) translateY(0); }
+.chestSubText {
+    margin-top: 8px; font-family: 'Orbitron', sans-serif; font-size: 14px;
+    color: #aef; opacity: 0; transition: opacity 0.4s ease; text-align: center;
+}
+.chestSubText.show { opacity: 0.85; }
+`;
+    document.head.appendChild(style);
+}
+
+// FIX: bigRewardChest's onclick calls openBigChest(), which was never defined —
+// this threw a ReferenceError on click and did nothing on Day 7. It now plays a
+// chest-opening animation (lid pops, particles burst, reward text scales in),
+// then hands off to the existing claim flow, which grants the mega reward via
+// isChestDay() below.
+function openBigChest() {
+    if (!isChestDay()) { claimDailyReward(false); return; }
+
+    const chestEl = document.getElementById("bigRewardChest");
+    if (!chestEl || chestEl.dataset.opening === 'true') return;
+    chestEl.dataset.opening = 'true';
+    chestEl.style.pointerEvents = 'none';
+
+    injectChestAnimationStyles();
+
+    const rewardCoins = 1000; // mirrors the amount claimDailyReward() grants on chest day
+
+    const overlay = document.createElement('div');
+    overlay.className = 'chestOpenOverlay';
+    overlay.innerHTML = `
+        <div class="chestAnimBox">
+            <div class="chestBurstRay" style="transform: translate(-50%,-100%) rotate(0deg);"></div>
+            <div class="chestBurstRay" style="transform: translate(-50%,-100%) rotate(45deg);"></div>
+            <div class="chestBurstRay" style="transform: translate(-50%,-100%) rotate(90deg);"></div>
+            <div class="chestBurstRay" style="transform: translate(-50%,-100%) rotate(135deg);"></div>
+            <div class="chestBurstRay" style="transform: translate(-50%,-100%) rotate(180deg);"></div>
+            <div class="chestBurstRay" style="transform: translate(-50%,-100%) rotate(225deg);"></div>
+            <div class="chestBurstRay" style="transform: translate(-50%,-100%) rotate(270deg);"></div>
+            <div class="chestBurstRay" style="transform: translate(-50%,-100%) rotate(315deg);"></div>
+            <div class="chestAnimLid">📤</div>
+            <div class="chestAnimBase">🎁</div>
+        </div>
+        <div class="chestRewardText">+${rewardCoins} 🪙</div>
+        <div class="chestSubText">+1 Weapon Level • +1 Shield Level • Shield Charge</div>
+    `;
+    document.body.appendChild(overlay);
+
+    // Scatter coin/star particles at random angles around the chest
+    const box = overlay.querySelector('.chestAnimBox');
+    for (let i = 0; i < 18; i++) {
+        const p = document.createElement('div');
+        p.className = 'chestParticle';
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 70 + Math.random() * 90;
+        p.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+        p.style.setProperty('--dy', (Math.sin(angle) * dist - 30) + 'px');
+        p.style.animationDelay = (0.5 + Math.random() * 0.25) + 's';
+        p.innerText = ['🪙', '✨', '🪙', '⭐'][Math.floor(Math.random() * 4)];
+        box.appendChild(p);
+    }
+
+    if (soundOn) { powerupSound.currentTime = 0; powerupSound.play().catch(err => console.error("Powerup sound failed:", err.name, err.message)); }
+
+    requestAnimationFrame(() => overlay.classList.add('opening'));
+
+    setTimeout(() => {
+        overlay.querySelector('.chestRewardText').classList.add('show');
+        overlay.querySelector('.chestSubText').classList.add('show');
+        if (soundOn) { explosionSound.currentTime = 0; explosionSound.volume = sfxVolume * 0.6; explosionSound.play().catch(err => console.error("Explosion sound failed:", err.name, err.message)); }
+        coinPulse();
+    }, 650);
+
+    setTimeout(() => {
+        overlay.classList.remove('opening');
+        overlay.classList.add('closing');
+    }, 2100);
+
+    setTimeout(() => {
+        overlay.remove();
+        chestEl.dataset.opening = 'false';
+        chestEl.style.pointerEvents = 'auto';
+        claimDailyReward(false); // actually grants the coins/upgrades and closes the daily panel
+    }, 2500);
+}
+
+// FIX: "double" now uses dailyRewardPendingDouble (set right before showRewardAd()
+// is called) instead of pendingRewardAction, which handleReward() always nulls out
+// before this function gets called back — that was why doubling silently no-opped.
 function claimDailyReward(useDouble = false) {
     if (useDouble) {
         if (!admobReady) { showCoinWarning("Ads not ready yet...Please wait a moment!"); claimDailyReward(false); return; }
-        pendingRewardAction = 'dailyDouble'; showRewardAd(); return;
+        dailyRewardPendingDouble = true;
+        pendingRewardAction = 'dailyDouble';
+        showRewardAd();
+        return;
     }
 
     let amount = 0;
@@ -1827,7 +2051,10 @@ function claimDailyReward(useDouble = false) {
         amount = getDailyReward(dailyData.streak);
     }
 
-    if (pendingRewardAction === 'dailyDouble') amount *= 2;
+    if (dailyRewardPendingDouble) {
+        amount *= 2;
+        dailyRewardPendingDouble = false;
+    }
     pendingRewardAction = null;
 
     coins += amount;
@@ -1926,6 +2153,7 @@ window.addEventListener("load", async () => {
     await loadGame();
     loadDailyData();
     if (noAds) updateNoAdsUI();
+    updateUpgradesPanelPrices();
 
     setTimeout(() => { if (document.querySelectorAll('.skinBtn').length) selectSkin(currentSkin); }, 100);
 
