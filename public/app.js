@@ -1930,7 +1930,6 @@ window.addEventListener("load", async () => {
     setTimeout(() => { if (document.querySelectorAll('.skinBtn').length) selectSkin(currentSkin); }, 100);
 
     resizeGame();
-    checkDailyReward();
     initStore();
 
     // Hide game elements initially
@@ -1978,6 +1977,7 @@ window.addEventListener("load", async () => {
                                 menu.style.opacity = "1";
                                 menu.classList.add("show");
                             }
+                            checkDailyReward();
                         }, 800);
                     }, 5000); //
 
