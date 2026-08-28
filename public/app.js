@@ -1,5 +1,5 @@
 /* =============================================================
-   NEBULA STRIKE : GALACTIC ASSAULT — Version: 5.0.1
+   NEBULA STRIKE : GALACTIC ASSAULT — Version: 5.0.3
    ============================================================= */
 
 // ─── LOGGING ──────────────────────────────────────────────────
@@ -8,28 +8,65 @@ if (!window.location.href.includes("localhost")) {
 }
 console.log("=== NEBULA STRIKE LOADED ===");
 
-// ─── ADMOB ────────────────────────────────────────────────────
-let AdMob = window.AdMob || null;
+function getAdMob() {
+    return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob) || null;
+}
+function isNativeAndroid() {
+    return typeof Capacitor !== 'undefined' && Capacitor.getPlatform && Capacitor.getPlatform() === 'android';
+}
+
 let admobReady = false;
+let admobListenersAttached = false;
 let pendingRewardAction = null;
 let rewardAmount = 0;
-let dailyRewardPendingDouble = false; // FIX: dedicated flag so handleReward() clearing
-                                       // pendingRewardAction doesn't wipe the "double" intent
-                                       // before claimDailyReward(false) can check it.
+let dailyRewardPendingDouble = false;
 
 const AD_IDS = {
     banner:   'ca-app-pub-5850163781981893/7518088125',
     rewarded: 'ca-app-pub-5850163781981893/3862181045'
 };
 
+function attachAdMobListeners(AdMob) {
+    if (admobListenersAttached) return;
+    admobListenersAttached = true;
+
+    let rewardHandled = false;
+
+    AdMob.addListener('onRewardedVideoAdReward', () => {
+        if (rewardHandled) return;
+        rewardHandled = true;
+        handleReward(true);
+        setTimeout(() => { rewardHandled = false; }, 1000);
+    });
+
+    AdMob.addListener('onRewardedVideoAdClosed', () => {
+        window.showingRewardAd = false;
+        if (pendingRewardAction === 'revive') {
+            pendingRewardAction = null;
+            hideReviveScreen();
+            gameOver();
+        }
+    });
+}
+
 async function initAds() {
-    if (!AdMob) { console.log("AdMob: browser mode"); return; }
+    const AdMob = getAdMob();
+    if (!AdMob) {
+        if (isNativeAndroid()) {
+            setTimeout(initAds, 500);
+        } else {
+            console.log("AdMob: browser mode");
+        }
+        return;
+    }
+    attachAdMobListeners(AdMob);
     try {
         await AdMob.initialize();
         admobReady = true;
         console.log("AdMob initialized ✅");
     } catch (err) {
         console.log("AdMob init error:", err);
+        setTimeout(initAds, 1000); // retry on init failure too
     }
 }
 initAds();
@@ -39,6 +76,7 @@ async function loadBannerAd() {
         console.log("No Ads active — skipping banner");
         return;
     }
+    const AdMob = getAdMob();
     if (!AdMob) return;
     try {
         await AdMob.showBanner({ adId: AD_IDS.banner, position: 'bottom', margin: 0 });
@@ -46,6 +84,7 @@ async function loadBannerAd() {
 }
 
 function hideBannerAd() {
+    const AdMob = getAdMob();
     if (!AdMob) return;
     try { AdMob.hideBanner(); } catch (err) { console.log("Hide banner failed:", err); }
 }
@@ -62,15 +101,39 @@ async function showRewardAd() {
     if (window.showingRewardAd) return;
     window.showingRewardAd = true;
 
-    // Browser / test mode
+    const AdMob = getAdMob();
+
     if (!AdMob) {
+        if (isNativeAndroid()) {
+            window.showingRewardAd = false;
+            const failedAction = pendingRewardAction;
+            pendingRewardAction = null;
+            if (failedAction === 'revive') {
+                hideReviveScreen();
+                gameOver();
+            } else {
+                dailyRewardPendingDouble = false;
+                showCoinWarning("Ads unavailable.");
+            }
+            return;
+        }
+
         setTimeout(() => { handleReward(true); window.showingRewardAd = false; }, 1000);
         return;
     }
 
     if (!admobReady) {
         window.showingRewardAd = false;
-        fallbackRevive();
+        const failedAction = pendingRewardAction;
+        pendingRewardAction = null;
+
+        if (failedAction === 'revive') {
+            hideReviveScreen();
+            gameOver();
+        } else {
+            dailyRewardPendingDouble = false;
+            showCoinWarning("Ads not ready yet...Please wait a moment!");
+        }
         return;
     }
 
@@ -80,35 +143,18 @@ async function showRewardAd() {
         window.showingRewardAd = false;
     } catch (err) {
         console.log("Ad failed:", err);
+        window.showingRewardAd = false;
+        const failedAction = pendingRewardAction;
         pendingRewardAction = null;
-        gameState = "gameover";
-        window.showingRewardAd = false;
-        const btn = document.getElementById("reviveBtn");
-        if (btn) { btn.disabled = false; btn.style.opacity = "1"; btn.innerText = "▶ Watch Ad to Continue"; }
-        fallbackRevive();
-    }
-}
 
-// AdMob listeners
-if (AdMob) {
-    let rewardHandled = false;
-
-    AdMob.addListener('onRewardedVideoAdReward', () => {
-        if (rewardHandled) return;
-        rewardHandled = true;
-        handleReward(true);
-        setTimeout(() => { rewardHandled = false; }, 1000);
-    });
-
-    AdMob.addListener('onRewardedVideoAdClosed', () => {
-        window.showingRewardAd = false;
-        if (pendingRewardAction === 'revive') {
-            gameState = "gameover";
-            pendingRewardAction = null;
-            const btn = document.getElementById("reviveBtn");
-            if (btn) { btn.disabled = false; btn.style.opacity = "1"; btn.innerText = "▶ Watch Ad to Continue"; }
+        if (failedAction === 'revive') {
+            hideReviveScreen();
+            gameOver();
+        } else {
+            dailyRewardPendingDouble = false;
+            showCoinWarning("Ad not available. Try again.");
         }
-    });
+    }
 }
 
 // ─── REWARD HANDLER ───────────────────────────────────────────
@@ -160,8 +206,6 @@ function handleReward(success) {
             break;
 
         case 'dailyDouble':
-            // FIX: dailyRewardPendingDouble is checked/consumed inside claimDailyReward(),
-            // not pendingRewardAction (which is already null by the time we get here).
             claimDailyReward(false);
             break;
 
@@ -391,9 +435,6 @@ function unlockAudio() {
         playMenuMusic();
     }
 
-    // FIX: Prime HTML5 audio elements inside user gesture for mobile WebView autoplay policy.
-    // Each <audio> element must be played once (at zero volume) inside a click/touch handler
-    // before it can be played programmatically later.
     [gameMusic, shootSound, explosionSound, powerupSound].forEach(audio => {
         if (!audio) return;
         const oldVol = audio.volume;
@@ -484,7 +525,8 @@ function showReviveScreen() {
     }
     reviveScreen.style.display = "flex";
     if (admobReady && !reviveUsed) {
-        AdMob.prepareRewardVideoAd({ adId: AD_IDS.rewarded }).catch(() => {});
+        const AdMob = getAdMob();
+        if (AdMob) AdMob.prepareRewardVideoAd({ adId: AD_IDS.rewarded }).catch(() => {});
     }
 }
 function hideReviveScreen() { reviveScreen.style.display = "none"; }
@@ -1433,17 +1475,9 @@ async function tryBuySkin(id, price) {
     setTimeout(() => selectSkin(id), 50);
 }
 
-// FIX: buyWeapon now charges a flat 2500 to match the "Upgrade Weapon (2500 🪙)"
-// label in the Upgrades panel HTML, instead of the old scaling formula (150 * weaponLevel)
-// which undercharged badly at low levels.
-// NEW: costs now scale with level. Weapon: 2500 * weaponLevel (2500, 5000, 7500, 10000).
-// Shield: 1500 * (shieldLevel + 1) (1500, 3000, 4500, 6000, 7500).
-function getWeaponCost() { return 2500 * weaponLevel; }
-function getShieldCost() { return 1500 * (shieldLevel + 1); }
+function getWeaponCost() { return 1500 * weaponLevel; }
+function getShieldCost() { return 500 * (shieldLevel + 1); }
 
-// NEW: keeps the Upgrades panel labels in sync with the real current price.
-// Requires id="weaponCostLabel" and id="shieldCostLabel" on the two <span>s
-// in the Upgrades panel HTML (see index.html snippet).
 function updateUpgradesPanelPrices() {
     const weaponLabel = document.getElementById('weaponCostLabel');
     if (weaponLabel) {
@@ -1491,19 +1525,16 @@ async function buyCoins(amount) {
 let storeReady = false;
 
 function initStore() {
-    // Defensive check 1: Plugin exists at all
     if (typeof CdvPurchase === 'undefined') {
         console.warn('Billing plugin not loaded');
         return;
     }
 
-    // Defensive check 2: Store object is actually available
     if (!CdvPurchase.store) {
         console.warn('CdvPurchase.store is not available');
         return;
     }
 
-    // Defensive check 3: Platform constant exists (fails in browser/emulator)
     if (!CdvPurchase.Platform || !CdvPurchase.Platform.GOOGLE_PLAY) {
         console.warn('Purchase platform not available (not Android?)');
         return;
@@ -1540,7 +1571,6 @@ function initStore() {
             }
         ]);
 
-        // Defensive check 4: store.when() supports chaining
         const when = store.when();
         if (!when || typeof when.productUpdated !== 'function') {
             console.warn('Store.when() API not ready');
