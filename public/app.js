@@ -1,5 +1,5 @@
 /* =============================================================
-   NEBULA STRIKE : GALACTIC ASSAULT — Version: 5.0.3
+   NEBULA STRIKE : GALACTIC ASSAULT — Version: 5.0.4 (patched)
    ============================================================= */
 
 // ─── LOGGING ──────────────────────────────────────────────────
@@ -1347,6 +1347,8 @@ async function submitScore(levelReached, kills) {
     } catch (e) { console.warn("Score submit failed:", e); }
 }
 
+let firestoreCheckAttempts = 0;
+
 async function loadLeaderboard() {
     const screen = document.getElementById("leaderboardScreen");
     if (screen) screen.style.display = "flex";
@@ -1354,7 +1356,17 @@ async function loadLeaderboard() {
     const list = document.getElementById("leaderboardList");
     if (list) list.innerHTML = '<p style="color:#aaa;text-align:center;font-family:Orbitron">Loading...</p>';
 
-    if (!window.FirebaseFirestore) { showCoinWarning("Leaderboard requires internet"); return; }
+    if (!window.FirebaseFirestore) {
+        if (firestoreCheckAttempts < 10) {
+            firestoreCheckAttempts++;
+            setTimeout(loadLeaderboard, 400);
+            return;
+        }
+        console.warn("FirebaseFirestore plugin never attached to window");
+        showCoinWarning("Leaderboard unavailable right now");
+        return;
+    }
+    firestoreCheckAttempts = 0;
 
     try {
         const { snapshot } = await window.FirebaseFirestore.getCollection({ reference: "leaderboard" });
@@ -1364,7 +1376,7 @@ async function loadLeaderboard() {
             .slice(0, 10);
         renderLeaderboard(entries);
     } catch (e) {
-        console.warn("Leaderboard load failed:", e);
+        console.error("Leaderboard load failed:", e);
         showCoinWarning("Could not load leaderboard");
     }
 }
@@ -1534,61 +1546,66 @@ async function buyCoins(amount) {
 /* ---------- NO ADS PURCHASE ---------- */
 
 let storeReady = false;
+let storeInitAttempts = 0;
+let productsRegistered = false;
 
 function initStore() {
-    // Defensive check 1: Plugin exists at all
-    if (typeof CdvPurchase === 'undefined') {
-        console.warn('Billing plugin not loaded');
-        return;
-    }
-
-    // Defensive check 2: Store object is actually available
-    if (!CdvPurchase.store) {
-        console.warn('CdvPurchase.store is not available');
-        return;
-    }
-
-    // Defensive check 3: Platform constant exists (fails in browser/emulator)
-    if (!CdvPurchase.Platform || !CdvPurchase.Platform.GOOGLE_PLAY) {
-        console.warn('Purchase platform not available (not Android?)');
+    if (typeof CdvPurchase === 'undefined' || !CdvPurchase.store ||
+        !CdvPurchase.Platform || !CdvPurchase.Platform.GOOGLE_PLAY) {
+        storeInitAttempts++;
+        if (storeInitAttempts < 20) {           // ~10s of retries
+            setTimeout(initStore, 500);
+        } else {
+            console.warn('Billing plugin never became available after retries');
+            disableCoinPurchaseUI();
+        }
         return;
     }
 
     try {
         const store = CdvPurchase.store;
 
-        store.register([
-            {
-                id: 'remove_ads_premium',
-                type: CdvPurchase.ProductType.NON_CONSUMABLE,
-                platform: CdvPurchase.Platform.GOOGLE_PLAY
-            },
-            {
-                id: 'coins_pack_small',
-                type: CdvPurchase.ProductType.CONSUMABLE,
-                platform: CdvPurchase.Platform.GOOGLE_PLAY
-            },
-            {
-                id: 'coins_pack_medium',
-                type: CdvPurchase.ProductType.CONSUMABLE,
-                platform: CdvPurchase.Platform.GOOGLE_PLAY
-            },
-            {
-                id: 'coins_pack_large',
-                type: CdvPurchase.ProductType.CONSUMABLE,
-                platform: CdvPurchase.Platform.GOOGLE_PLAY
-            },
-            {
-                id: 'coins_pack_xl',
-                type: CdvPurchase.ProductType.CONSUMABLE,
-                platform: CdvPurchase.Platform.GOOGLE_PLAY
-            }
-        ]);
+        if (!productsRegistered) {
+            store.register([
+                {
+                    id: 'remove_ads_premium',
+                    type: CdvPurchase.ProductType.NON_CONSUMABLE,
+                    platform: CdvPurchase.Platform.GOOGLE_PLAY
+                },
+                {
+                    id: 'coins_pack_small',
+                    type: CdvPurchase.ProductType.CONSUMABLE,
+                    platform: CdvPurchase.Platform.GOOGLE_PLAY
+                },
+                {
+                    id: 'coins_pack_medium',
+                    type: CdvPurchase.ProductType.CONSUMABLE,
+                    platform: CdvPurchase.Platform.GOOGLE_PLAY
+                },
+                {
+                    id: 'coins_pack_large',
+                    type: CdvPurchase.ProductType.CONSUMABLE,
+                    platform: CdvPurchase.Platform.GOOGLE_PLAY
+                },
+                {
+                    id: 'coins_pack_xl',
+                    type: CdvPurchase.ProductType.CONSUMABLE,
+                    platform: CdvPurchase.Platform.GOOGLE_PLAY
+                }
+            ]);
+            productsRegistered = true;   // never register twice, even across retries
+        }
 
-        // Defensive check 4: store.when() supports chaining
+        // Defensive check: store.when() supports chaining
         const when = store.when();
         if (!when || typeof when.productUpdated !== 'function') {
-            console.warn('Store.when() API not ready');
+            storeInitAttempts++;
+            if (storeInitAttempts < 20) {
+                setTimeout(initStore, 500);   // retry this checkpoint too — was a dead end before
+            } else {
+                console.warn('Store.when() API never became ready');
+                disableCoinPurchaseUI();
+            }
             return;
         }
 
@@ -1640,6 +1657,13 @@ function initStore() {
         storeReady = false;
         // Don't rethrow — let the game continue
     }
+}
+
+function disableCoinPurchaseUI() {
+    document.querySelectorAll('.coinListItem').forEach(el => {
+        el.style.opacity = '0.5';
+        el.onclick = () => showCoinWarning("Store unavailable — restart the app");
+    });
 }
 
 async function buyNoAds() {

@@ -105,6 +105,8 @@ async function showRewardAd() {
 
     if (!AdMob) {
         if (isNativeAndroid()) {
+            // Native Android but the plugin genuinely isn't available — real failure,
+            // not test mode. Most likely the plugin isn't installed/synced correctly.
             window.showingRewardAd = false;
             const failedAction = pendingRewardAction;
             pendingRewardAction = null;
@@ -117,12 +119,14 @@ async function showRewardAd() {
             }
             return;
         }
-
+        // True browser preview only (no Capacitor runtime at all) — fake instant reward
+        // purely for dev convenience testing app.js outside the emulator/device.
         setTimeout(() => { handleReward(true); window.showingRewardAd = false; }, 1000);
         return;
     }
 
     if (!admobReady) {
+        // No ad available at all — end the run for real instead of a free revive.
         window.showingRewardAd = false;
         const failedAction = pendingRewardAction;
         pendingRewardAction = null;
@@ -148,6 +152,7 @@ async function showRewardAd() {
         pendingRewardAction = null;
 
         if (failedAction === 'revive') {
+            // Ad failed to load/show — go straight to real game over.
             hideReviveScreen();
             gameOver();
         } else {
@@ -206,6 +211,8 @@ function handleReward(success) {
             break;
 
         case 'dailyDouble':
+            // FIX: dailyRewardPendingDouble is checked/consumed inside claimDailyReward(),
+            // not pendingRewardAction (which is already null by the time we get here).
             claimDailyReward(false);
             break;
 
@@ -435,6 +442,9 @@ function unlockAudio() {
         playMenuMusic();
     }
 
+    // FIX: Prime HTML5 audio elements inside user gesture for mobile WebView autoplay policy.
+    // Each <audio> element must be played once (at zero volume) inside a click/touch handler
+    // before it can be played programmatically later.
     [gameMusic, shootSound, explosionSound, powerupSound].forEach(audio => {
         if (!audio) return;
         const oldVol = audio.volume;
@@ -908,7 +918,7 @@ function showBossRewardPopup(amount) {
             <h2>BOSS DEFEATED!</h2>
             <p style="color:gold;font-size:22px;">+${amount} 🪙</p>
             <button onclick="closeBossReward()">CLAIM</button>
-            <button class="doubleBtn" onclick="doubleBossReward(${amount})">📺 DOUBLE REWARD</button>
+            <button class="doubleBtn" onclick="doubleBossReward(${amount})">📺 WATCH AD: DOUBLE REWARD</button>
         </div>`;
     document.body.appendChild(popup);
 }
@@ -1478,6 +1488,7 @@ async function tryBuySkin(id, price) {
 function getWeaponCost() { return 1500 * weaponLevel; }
 function getShieldCost() { return 500 * (shieldLevel + 1); }
 
+// Keeps the Upgrades panel labels in sync with the real current price.
 function updateUpgradesPanelPrices() {
     const weaponLabel = document.getElementById('weaponCostLabel');
     if (weaponLabel) {
@@ -1525,16 +1536,19 @@ async function buyCoins(amount) {
 let storeReady = false;
 
 function initStore() {
+    // Defensive check 1: Plugin exists at all
     if (typeof CdvPurchase === 'undefined') {
         console.warn('Billing plugin not loaded');
         return;
     }
 
+    // Defensive check 2: Store object is actually available
     if (!CdvPurchase.store) {
         console.warn('CdvPurchase.store is not available');
         return;
     }
 
+    // Defensive check 3: Platform constant exists (fails in browser/emulator)
     if (!CdvPurchase.Platform || !CdvPurchase.Platform.GOOGLE_PLAY) {
         console.warn('Purchase platform not available (not Android?)');
         return;
@@ -1571,6 +1585,7 @@ function initStore() {
             }
         ]);
 
+        // Defensive check 4: store.when() supports chaining
         const when = store.when();
         if (!when || typeof when.productUpdated !== 'function') {
             console.warn('Store.when() API not ready');
@@ -1717,7 +1732,7 @@ function levelComplete() {
                 <h2>LEVEL ${level}<br>COMPLETE!</h2>
                 <div class="reward-text">Reward: +${reward} 🪙</div>
                 <div class="level-complete-buttons">
-                    <button onclick="doubleLevelReward(${reward})" class="double-reward-btn">🎥 DOUBLE REWARD</button>
+                    <button onclick="doubleLevelReward(${reward})" class="double-reward-btn">🎥 WATCH AD: DOUBLE REWARD</button>
                     <button onclick="nextLevel()" class="next-level-btn">NEXT LEVEL →</button>
                 </div>
             </div>`;
@@ -1900,7 +1915,7 @@ function updateDailyRewardUI() {
     }
 }
 
-// Injects the chest-opening animation's CSS once (keyframes + classes).
+// Inject the chest-opening animation's CSS once (keyframes + classes).
 function injectChestAnimationStyles() {
     if (document.getElementById('chestAnimStyles')) return;
     const style = document.createElement('style');
@@ -1984,11 +1999,6 @@ function injectChestAnimationStyles() {
     document.head.appendChild(style);
 }
 
-// FIX: bigRewardChest's onclick calls openBigChest(), which was never defined —
-// this threw a ReferenceError on click and did nothing on Day 7. It now plays a
-// chest-opening animation (lid pops, particles burst, reward text scales in),
-// then hands off to the existing claim flow, which grants the mega reward via
-// isChestDay() below.
 function openBigChest() {
     if (!isChestDay()) { claimDailyReward(false); return; }
 
@@ -1999,7 +2009,7 @@ function openBigChest() {
 
     injectChestAnimationStyles();
 
-    const rewardCoins = 1000; // mirrors the amount claimDailyReward() grants on chest day
+    const rewardCoins = 1000;
 
     const overlay = document.createElement('div');
     overlay.className = 'chestOpenOverlay';
@@ -2055,13 +2065,10 @@ function openBigChest() {
         overlay.remove();
         chestEl.dataset.opening = 'false';
         chestEl.style.pointerEvents = 'auto';
-        claimDailyReward(false); // actually grants the coins/upgrades and closes the daily panel
+        claimDailyReward(false);
     }, 2500);
 }
 
-// FIX: "double" now uses dailyRewardPendingDouble (set right before showRewardAd()
-// is called) instead of pendingRewardAction, which handleReward() always nulls out
-// before this function gets called back — that was why doubling silently no-opped.
 function claimDailyReward(useDouble = false) {
     if (useDouble) {
         if (!admobReady) { showCoinWarning("Ads not ready yet...Please wait a moment!"); claimDailyReward(false); return; }
@@ -2196,7 +2203,7 @@ window.addEventListener("load", async () => {
     if (canvas) { canvas.style.display = "none"; canvas.style.pointerEvents = "auto"; }
     if (hud)    hud.style.display = "none";
 
-    // Then hide menu initially
+    // Hide menu initially
     const menu = document.getElementById("main-menu");
     if (menu) {
         menu.style.display = "none";
