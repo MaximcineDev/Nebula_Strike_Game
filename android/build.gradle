@@ -18,9 +18,12 @@ buildscript {
 apply from: "variables.gradle"
 
 allprojects {
+    apply plugin: 'idea'
     repositories {
         google()
         mavenCentral()
+        maven { url 'https://jitpack.io' }
+        jcenter()
     }
 }
 

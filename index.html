@@ -48,6 +48,44 @@
   </button>
 </div>
 
+<!-- ENERGY UPDATED CONFIRMATION -->
+<div id="energyUpdatedScreen" style="
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background: rgba(0,0,0,0.9);
+  z-index: 10000;
+">
+  <div class="energyUpdatedBox">
+    <div class="energyUpdatedIcon">⚡</div>
+    <h2>ENERGY UPDATED</h2>
+    <button id="energyContinueBtn" onclick="confirmEnergyUpdated()">▶ CONTINUE</button>
+  </div>
+</div>
+
+<!-- ================= PROFILE SETUP ================= -->
+<div id="profileSetupScreen" style="display:none;">
+    <div class="profileSetupBox">
+        <button class="profile-close-btn" id="profileCloseBtn" onclick="closeProfileSetup()">✕</button>
+        <h2>🚀 CREATE YOUR PILOT PROFILE</h2>
+        <p id="profileSetupSub" class="profileSetupSub">Level 2 cleared! Set up your callsign before continuing.</p>
+
+        <input type="text" id="usernameInput" maxlength="14" placeholder="Enter callsign" autocomplete="off">
+
+        <div class="avatarGridLabel">Choose your avatar</div>
+        <div id="avatarGrid" class="avatarGrid"></div>
+
+        <button class="profile-save-btn" onclick="submitProfile()">CONFIRM &amp; CONTINUE</button>
+        <div id="profileError" class="profile-error"></div>
+    </div>
+</div>
+
 <!-- ====== LOGO SCREEN ====== -->
 <div id="logoScreen" style="
   position:fixed; inset:0; 
@@ -72,6 +110,10 @@
 
 <!-- ================= MAIN MENU ================= -->
 <div id="main-menu" style="display: none;">
+    <div id="menuCoinDisplay" class="menu-coin-display" onclick="openShopCoins()">
+        <img src="assets/ui/coin-icon.png" alt="coins">
+        <span id="menuCoinText">0</span>
+    </div>
     <div class="menu-buttons">
         <button class="menu-btn play-btn" onclick="startGame()">
             <span class="btn-text">PLAY</span>
@@ -378,6 +420,10 @@
             <button class="settingsBtn soundBtn" onclick="toggleSound()">
                 <span id="soundIcon">🔊</span>
                 <span id="soundText">Sound: ON</span>
+            </button>
+            <button class="settingsBtn" onclick="showProfileSetup()">
+                <span>👤</span>
+                <span>Edit Profile</span>
             </button>
         </div>
         <div class="settingsOptions">

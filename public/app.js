@@ -1,5 +1,5 @@
 /* =============================================================
-   NEBULA STRIKE : GALACTIC ASSAULT — Version: 5.0.4 (patched)
+   NEBULA STRIKE : GALACTIC ASSAULT — Version: 13.0.0 (reward-credit fallback fix)
    ============================================================= */
 
 // ─── LOGGING ──────────────────────────────────────────────────
@@ -7,6 +7,10 @@ if (!window.location.href.includes("localhost")) {
     console.log = () => {};
 }
 console.log("=== NEBULA STRIKE LOADED ===");
+
+function getTikTokEvents() {
+    return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.TikTokEvents) || null;
+}
 
 function getAdMob() {
     return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob) || null;
@@ -41,10 +45,25 @@ function attachAdMobListeners(AdMob) {
 
     AdMob.addListener('onRewardedVideoAdClosed', () => {
         window.showingRewardAd = false;
+
         if (pendingRewardAction === 'revive') {
             pendingRewardAction = null;
             hideReviveScreen();
             gameOver();
+            return;
+        }
+
+        // FIX: some AdMob plugin builds don't reliably fire
+        // onRewardedVideoAdReward before/at close, even after a full watch —
+        // which was silently dropping double-reward / free-coins /
+        // daily-double credits (the ad would play and close normally, but
+        // nothing ever called handleReward()). If a non-revive reward is
+        // still pending when the ad closes, credit it here as a fallback.
+        // If onRewardedVideoAdReward DID already fire, pendingRewardAction is
+        // already null by this point, so this is a safe no-op — no risk of
+        // double-crediting.
+        if (pendingRewardAction) {
+            handleReward(true);
         }
     });
 }
@@ -145,6 +164,9 @@ async function showRewardAd() {
         await AdMob.prepareRewardVideoAd({ adId: AD_IDS.rewarded });
         await AdMob.showRewardVideoAd();
         window.showingRewardAd = false;
+
+        const TikTokEvents = getTikTokEvents();
+        if (TikTokEvents) { TikTokEvents.trackAdImpression().catch(err => console.log("TikTok event failed:", err)); }
     } catch (err) {
         console.log("Ad failed:", err);
         window.showingRewardAd = false;
@@ -180,16 +202,7 @@ function handleReward(success) {
     switch (action) {
         case 'revive':
             if (reviveUsed) return;
-            health = Math.ceil(maxHearts * 0.5);
-            updateHeartsUI();
-            hideReviveScreen();
-            gameRunning = true;
-            reviveUsed = true;
-            gameState = "playing";
-            paused = false;
-            hitFlash = 0; screenShake = 0; lastTime = 0;
-            if (window.gameLoopId) cancelAnimationFrame(window.gameLoopId);
-            window.gameLoopId = requestAnimationFrame(gameLoop);
+            showEnergyUpdatedPopup();
             break;
 
         case 'freeCoins':
@@ -220,6 +233,34 @@ function handleReward(success) {
             console.log("Unknown reward action:", action);
     }
 
+    saveGame();
+}
+
+// ─── ENERGY UPDATED POPUP ──────────────────────────────────────
+// Shown after a revive-ad completes, before actually resuming play, so the
+// player gets clear confirmation their energy was restored.
+function showEnergyUpdatedPopup() {
+    hideReviveScreen();
+    const screen = document.getElementById('energyUpdatedScreen');
+    if (screen) screen.style.display = 'flex';
+}
+
+function confirmEnergyUpdated() {
+    const screen = document.getElementById('energyUpdatedScreen');
+    if (screen) screen.style.display = 'none';
+    completeRevive();
+}
+
+function completeRevive() {
+    health = Math.ceil(maxHearts * 0.5);
+    updateHeartsUI();
+    gameRunning = true;
+    reviveUsed = true;
+    gameState = "playing";
+    paused = false;
+    hitFlash = 0; screenShake = 0; lastTime = 0;
+    if (window.gameLoopId) cancelAnimationFrame(window.gameLoopId);
+    window.gameLoopId = requestAnimationFrame(gameLoop);
     saveGame();
 }
 
@@ -359,6 +400,86 @@ let dailyData = { lastLogin: null, streak: 0 };
 let unlockedSkins = [0];
 let started = false;
 let noAds = false;
+
+// ─── PROFILE ──────────────────────────────────────────────────
+const AVATAR_OPTIONS = ['🧑‍🚀','👽','🤖','🦊','🐉','🦄','🔥','⚡','🌟','🐱‍🚀'];
+let profileData = { username: null, avatarId: null };
+let pendingLevelAdvance = false;
+let selectedAvatarIndex = null;
+
+function hasProfile() {
+    return !!(profileData.username && profileData.username.trim().length > 0 &&
+        profileData.avatarId !== null && profileData.avatarId !== undefined);
+}
+
+function buildAvatarGrid() {
+    const grid = document.getElementById('avatarGrid');
+    if (!grid) return;
+    grid.innerHTML = AVATAR_OPTIONS.map((emoji, i) =>
+        `<div class="avatarOption" data-index="${i}" onclick="selectAvatar(${i})">${emoji}</div>`
+    ).join('');
+}
+
+function selectAvatar(index) {
+    selectedAvatarIndex = index;
+    document.querySelectorAll('.avatarOption').forEach(el => el.classList.remove('selected'));
+    const el = document.querySelector(`.avatarOption[data-index="${index}"]`);
+    if (el) el.classList.add('selected');
+}
+
+function showProfileSetup() {
+    buildAvatarGrid();
+    selectedAvatarIndex = (profileData.avatarId !== null && profileData.avatarId !== undefined) ? profileData.avatarId : null;
+
+    const input = document.getElementById('usernameInput');
+    if (input) input.value = profileData.username || '';
+
+    const err = document.getElementById('profileError');
+    if (err) err.textContent = '';
+
+    const closeBtn = document.getElementById('profileCloseBtn');
+    if (closeBtn) closeBtn.style.display = pendingLevelAdvance ? 'none' : 'flex';
+
+    const sub = document.getElementById('profileSetupSub');
+    if (sub) sub.textContent = pendingLevelAdvance
+        ? 'Level 2 cleared! Set up your callsign before continuing.'
+        : 'Update your callsign and avatar.';
+
+    const screen = document.getElementById('profileSetupScreen');
+    if (screen) screen.style.display = 'flex';
+
+    if (selectedAvatarIndex !== null) selectAvatar(selectedAvatarIndex);
+}
+
+function hideProfileSetup() {
+    const screen = document.getElementById('profileSetupScreen');
+    if (screen) screen.style.display = 'none';
+}
+
+function closeProfileSetup() {
+    if (pendingLevelAdvance) return; // mandatory first-time setup can't be dismissed
+    hideProfileSetup();
+}
+
+function submitProfile() {
+    const input = document.getElementById('usernameInput');
+    const err = document.getElementById('profileError');
+    const raw = input ? input.value.trim() : '';
+
+    if (!raw) { if (err) err.textContent = 'Enter a callsign to continue.'; return; }
+    if (raw.length < 2) { if (err) err.textContent = 'Callsign must be at least 2 characters.'; return; }
+    if (raw.length > 14) { if (err) err.textContent = 'Callsign must be 14 characters or fewer.'; return; }
+    if (selectedAvatarIndex === null) { if (err) err.textContent = 'Pick an avatar.'; return; }
+
+    profileData = { username: raw, avatarId: selectedAvatarIndex };
+    saveGame();
+    hideProfileSetup();
+
+    if (pendingLevelAdvance) {
+        pendingLevelAdvance = false;
+        advanceToNextLevel();
+    }
+}
 
 // ─── SECURITY ─────────────────────────────────────────────────
 function detectTamper() {
@@ -556,6 +677,9 @@ function updateHUD() {
     const shopText = document.getElementById("shopCoinText");
     if (shopText) shopText.innerText = coins;
 
+    const menuCoinText = document.getElementById("menuCoinText");
+    if (menuCoinText) menuCoinText.textContent = coins;
+
     const levelText = document.getElementById("levelText");
     if (levelText) levelText.innerText = "Lv " + level;
 
@@ -587,6 +711,47 @@ function coinPulse() {
     if (!coinBox) return;
     coinBox.style.cssText += "transition:transform .15s,box-shadow .15s;transform:scale(1.25);box-shadow:0 0 15px gold;";
     setTimeout(() => { coinBox.style.transform = "scale(1)"; coinBox.style.boxShadow = "none"; }, 150);
+}
+
+// FEATURE: coins fly from a reward's origin element toward the main-menu coin
+// counter, then pulse it on arrival. Used for both the direct "Claim Reward"
+// click and the post-ad reward (both ultimately grant coins through
+// claimDailyReward(false), which calls this once).
+function flyCoinsToMenuBar(originEl, amount = 0) {
+    const target = document.getElementById('menuCoinDisplay');
+    if (!target) return;
+
+    const origin = originEl || document.getElementById('dailyReward');
+    if (!origin) return;
+
+    const originRect = origin.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    const startX = originRect.left + originRect.width / 2;
+    const startY = originRect.top + originRect.height / 2;
+    const endX = targetRect.left + targetRect.width / 2;
+    const endY = targetRect.top + targetRect.height / 2;
+
+    const count = Math.min(14, Math.max(5, Math.round(amount / 40)));
+
+    for (let i = 0; i < count; i++) {
+        const coin = document.createElement('div');
+        coin.className = 'flyingCoin';
+        coin.textContent = '🪙';
+        const jitterX = (Math.random() - 0.5) * 60;
+        const jitterY = (Math.random() - 0.5) * 40;
+        coin.style.left = (startX + jitterX) + 'px';
+        coin.style.top = (startY + jitterY) + 'px';
+        coin.style.setProperty('--endX', (endX - startX - jitterX) + 'px');
+        coin.style.setProperty('--endY', (endY - startY - jitterY) + 'px');
+        coin.style.animationDelay = (i * 0.05) + 's';
+        document.body.appendChild(coin);
+        coin.addEventListener('animationend', () => coin.remove());
+    }
+
+    setTimeout(() => {
+        target.classList.add('coinBarPulse');
+        setTimeout(() => target.classList.remove('coinBarPulse'), 300);
+    }, 550);
 }
 
 function updateHeartsUI() {
@@ -1280,6 +1445,7 @@ async function saveGame() {
     const saveData = {
         weaponLevel, currentSkin, unlockedSkins, dailyData, noAds,
         savedLevel: level, highestLevel, totalKills,
+        profileData,
         lastSaved: Date.now()
     };
     
@@ -1325,6 +1491,7 @@ function applySaveData(d) {
     noAds = d.noAds || false;
     highestLevel = d.highestLevel || 1;
     totalKills = d.totalKills || 0;
+    profileData = d.profileData || { username: null, avatarId: null };
     
     // Always restore level if it exists, regardless of value
     if (typeof d.savedLevel === 'number') {
@@ -1341,7 +1508,12 @@ async function submitScore(levelReached, kills) {
     try {
         await window.FirebaseFirestore.setDocument({
             reference: `leaderboard/${playerId}`,
-            data: { playerId, level: levelReached, kills, coins, timestamp: Date.now() },
+            data: {
+                playerId, level: levelReached, kills, coins,
+                username: profileData.username || null,
+                avatarId: (profileData.avatarId !== undefined) ? profileData.avatarId : null,
+                timestamp: Date.now()
+            },
             merge: false
         });
     } catch (e) { console.warn("Score submit failed:", e); }
@@ -1390,10 +1562,14 @@ function renderLeaderboard(entries) {
     list.innerHTML = entries.map((e, i) => {
         const isMe = e.playerId === playerId;
         const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`;
+        const avatar = (e.avatarId !== null && e.avatarId !== undefined && AVATAR_OPTIONS[e.avatarId])
+            ? AVATAR_OPTIONS[e.avatarId] : '👤';
+        const displayName = e.username ? e.username : (isMe ? '⭐ YOU' : 'Player');
         return `
             <div class="lb-row ${isMe ? 'lb-me' : ''}">
                 <span class="lb-rank">${medal}</span>
-                <span class="lb-name">${isMe ? '⭐ YOU' : 'Player'}</span>
+                <span class="lb-avatar">${avatar}</span>
+                <span class="lb-name">${displayName}</span>
                 <span class="lb-level">Lv ${e.level}</span>
                 <span class="lb-kills">${e.kills} kills</span>
             </div>`;
@@ -1748,6 +1924,9 @@ function levelComplete() {
     gameRunning = false; paused = false; gameState = "levelcomplete";
     if (gameMusic) gameMusic.pause();
 
+    const TikTokEvents = getTikTokEvents();
+    if (TikTokEvents) { TikTokEvents.trackLevelComplete().catch(err => console.log("TikTok event failed:", err)); }
+
     const reward = 50 + level * 10;
     const screen = document.getElementById("levelComplete");
     if (screen) {
@@ -1776,11 +1955,23 @@ function doubleLevelReward(base) {
 }
 
 function nextLevel() {
-    level++; if (level > 100) level = 100;
-    if (level > highestLevel) highestLevel = level;
+    const completedLevel = level; // the level being left behind, before incrementing
 
     const screen = document.getElementById("levelComplete");
     if (screen) { screen.style.display = "none"; screen.innerHTML = ''; }
+
+    if (completedLevel === 2 && !hasProfile()) {
+        pendingLevelAdvance = true;
+        showProfileSetup();
+        return; // resumes via submitProfile() -> advanceToNextLevel()
+    }
+
+    advanceToNextLevel();
+}
+
+function advanceToNextLevel() {
+    level++; if (level > 100) level = 100;
+    if (level > highestLevel) highestLevel = level;
 
     waveNumber = 0; enemies = []; enemyBullets = []; bullets = []; powerups = [];
     boss = null; waveInProgress = false;
@@ -2125,6 +2316,9 @@ function claimDailyReward(useDouble = false) {
 
     saveDailyData(); saveGame(); updateHUD(); coinPulse(); showCoinGain(amount);
 
+    const originEl = document.getElementById('rewardInfo') || document.getElementById('dailyReward');
+    flyCoinsToMenuBar(originEl, amount);
+
     const el = document.getElementById("dailyReward"); if (el) el.style.display = "none";
     const menu = document.getElementById("main-menu"); if (menu) { menu.style.display = "flex"; menu.classList.add("show"); }
 }
@@ -2267,6 +2461,14 @@ window.addEventListener("load", async () => {
                                 menu.classList.add("show");
                             }
                             checkDailyReward();
+
+                            // Fallback: players who already passed level 2 before this
+                            // feature existed would otherwise never trigger the
+                            // nextLevel() gate again — prompt them once here instead.
+                            if (!hasProfile() && highestLevel >= 3) {
+                                pendingLevelAdvance = false;
+                                showProfileSetup();
+                            }
                         }, 800);
                     }, 5000); //
 
