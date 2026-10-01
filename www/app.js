@@ -224,9 +224,11 @@ function handleReward(success) {
             break;
 
         case 'dailyDouble':
-            // FIX: dailyRewardPendingDouble is checked/consumed inside claimDailyReward(),
-            // not pendingRewardAction (which is already null by the time we get here).
             claimDailyReward(false);
+            break;
+
+        case 'missionDouble':
+            Missions.finishDouble();
             break;
 
         default:
@@ -1209,6 +1211,7 @@ function updateBullets() {
                     const reward = e.type === ENEMY_SHOOTER ? 30 : e.type === ENEMY_TANK ? 25 : e.type === ENEMY_FAST ? 15 : 10;
                     addCoins(reward);
                     combo++; comboTimer = 60; totalKills++;
+                    window.Missions && Missions.track('kill');
                     for (let k = 0; k < Math.min(reward, 10); k++)
                         coinFX.push({ x: e.x + e.w / 2, y: e.y + e.h / 2, vx: (Math.random() - .5) * 6, vy: -Math.random() * 4 - 2, life: 30, maxLife: 30 });
                     coinPulse(); updateHUD();
@@ -1315,6 +1318,7 @@ function updatePowerups() {
         if (p.x < player.x + player.width && p.x + 32 > player.x &&
             p.y < player.y + player.height && p.y + 32 > player.y) {
             powerups.splice(i, 1);
+            window.Missions && Missions.track('powerup');
             if      (p.type === 0) { health = Math.min(maxHearts, health + 1); updateHeartsUI(); }
             else if (p.type === 1) { rapidFire = true; rapidTimer = 300; }
             else if (p.type === 2) {
@@ -2078,15 +2082,21 @@ function loadDailyData() {
 }
 
 function checkDailyReward() {
-    if (!dailyData || typeof dailyData !== "object") dailyData = { lastLogin: null, streak: 1 };
     loadDailyData();
+    if (!dailyData || typeof dailyData !== "object") dailyData = { lastLogin: null, streak: 1 };
     const today = new Date().toDateString();
-    if (!dailyData.lastLogin) { dailyData.streak = 1; saveDailyData(); showDailyReward(); return; }
+    if (!dailyData.lastLogin) { dailyData.streak = 1; dailyData.graceUsed = false; saveDailyData(); showDailyReward(); return; }
     if (dailyData.lastLogin === today) return;
 
-    const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-    if (dailyData.lastLogin !== yesterday.toDateString()) dailyData.streak = 1;
+    const daysAway = Math.round((new Date(today) - new Date(dailyData.lastLogin)) / 86400000);
+    let saved = false;
+    if (daysAway === 2 && !dailyData.graceUsed && dailyData.streak > 1) {
+        dailyData.graceUsed = true; saved = true;
+    } else if (daysAway !== 1) {
+        dailyData.streak = 1; dailyData.graceUsed = false;
+    }
     saveDailyData(); showDailyReward();
+    if (saved) showCoinWarning("🔥 STREAK SAVED!");
 }
 
 function showDailyReward() {
@@ -2120,7 +2130,7 @@ function updateDailyRewardUI() {
         if (doubleBtn) { doubleBtn.disabled = false; doubleBtn.innerText = "🎥 WATCH AD FOR 2X"; }
     }
 
-    const labels = [50,100,150,200,300,400,"MEGA!"];
+    const labels = [1,2,3,4,5,6].map(getDailyReward).concat("MEGA!");
     for (let i = 1; i <= 7; i++) {
         const el = document.getElementById(`day${i}`); if (!el) continue;
         el.className = i === 7 ? "day day7-chest" : "day";

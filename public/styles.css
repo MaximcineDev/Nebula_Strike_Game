@@ -2868,3 +2868,83 @@ body {
     text-shadow: 0 0 8px rgba(0, 255, 200, 0.4);
     flex-shrink: 0;
 }
+
+/* =========================
+   MAIN MENU LAYOUT (polish)
+========================= */
+
+/* push the menu to the bottom so the game logo stays visible */
+#main-menu {
+    justify-content: flex-end;
+    padding-bottom: calc(env(safe-area-inset-bottom) + 6vh);
+}
+
+/* soft dark fade behind the buttons for readability */
+#main-menu::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 62%;
+    background: linear-gradient(to top, rgba(0,0,0,.7) 0%, rgba(0,0,0,0) 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.menu-buttons {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    width: min(88%, 380px);
+}
+
+/* PLAY: big hero button */
+#main-menu .play-btn {
+    grid-column: span 2;
+    padding: 20px 16px;
+    border-radius: 40px;
+}
+#main-menu .play-btn .btn-text {
+    font-size: clamp(22px, 6vw, 28px) !important;
+    letter-spacing: 8px;
+}
+
+/* the four secondary buttons: icon on top, label below, equal size */
+#main-menu .menu-btn:not(.play-btn) {
+    grid-column: span 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 88px;
+    padding: 12px 6px;
+    border-radius: 24px;
+}
+#main-menu .menu-btn:not(.play-btn) .shop-icon { font-size: 28px; line-height: 1; }
+#main-menu .menu-btn:not(.play-btn) .btn-text {
+    font-size: clamp(12px, 3.6vw, 15px) !important;
+    letter-spacing: 2px;
+    white-space: nowrap;
+}
+
+/* colour per button */
+#main-menu .menu-btn:nth-child(4) {            /* RANKS */
+    border-color: #ff7a2f;
+    background: linear-gradient(135deg, rgba(255,122,47,.16), rgba(255,80,0,.1));
+    box-shadow: 0 0 18px rgba(255,122,47,.3), inset 0 0 18px rgba(255,122,47,.1);
+}
+#main-menu .settings-btn { grid-column: span 1; }   /* was full width */
+
+/* red notification dot on MISSIONS */
+#main-menu .missionsDot { top: 10px; right: 14px; }
+
+/* buttons slide in one after another */
+@keyframes menuBtnIn {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(-4px); }
+}
+#main-menu .menu-buttons .menu-btn { animation: menuBtnIn .5s ease backwards; }
+#main-menu .menu-buttons .menu-btn:nth-child(1) { animation: menuBtnIn .5s ease backwards, playPulse 2s ease-in-out .5s infinite; }
+#main-menu .menu-buttons .menu-btn:nth-child(2) { animation-delay: .08s; }
+#main-menu .menu-buttons .menu-btn:nth-child(3) { animation-delay: .16s; }
+#main-menu .menu-buttons .menu-btn:nth-child(4) { animation-delay: .24s; }
+#main-menu .menu-buttons .menu-btn:nth-child(5) { animation-delay: .32s; }
